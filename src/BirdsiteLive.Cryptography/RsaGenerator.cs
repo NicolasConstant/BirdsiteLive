@@ -40,8 +40,8 @@ namespace BirdsiteLive.Cryptography
                         using (var paramsStream = new MemoryStream())
                         {
                             var paramsWriter = new BinaryWriter(paramsStream);
-                            EncodeIntegerBigEndian(paramsWriter, parameters.Modulus); // Modulus
-                            EncodeIntegerBigEndian(paramsWriter, parameters.Exponent); // Exponent
+                            //EncodeIntegerBigEndian(paramsWriter, parameters.Modulus); // Modulus
+                            //EncodeIntegerBigEndian(paramsWriter, parameters.Exponent); // Exponent
                             var paramsLength = (int)paramsStream.Length;
                             EncodeLength(bitStringWriter, paramsLength);
                             bitStringWriter.Write(paramsStream.GetBuffer(), 0, paramsLength);

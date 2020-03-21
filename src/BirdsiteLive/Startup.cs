@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BirdsiteLive.Models;
+using BirdsiteLive.Twitter.Settings;
+using Lamar;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -33,8 +35,30 @@ namespace BirdsiteLive
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<InstanceSettings>(Configuration.GetSection("Instance"));
+            //services.Configure<TwitterSettings>(Configuration.GetSection("Twitter"));
 
             services.AddControllersWithViews();
+        }
+
+        public void ConfigureContainer(ServiceRegistry services)
+        {
+            var twitterSettings = Configuration.GetSection("Twitter").Get<TwitterSettings>();
+
+            services.For<TwitterSettings>().Use<TwitterSettings>()
+                .Ctor<string>("apiKey").Is(twitterSettings.ApiKey);
+
+            services.Scan(_ =>
+            {
+                _.Assembly("BirdsiteLive.Twitter");
+                _.TheCallingAssembly();
+
+                //_.AssemblyContainingType<IDal>();
+                //_.Exclude(type => type.Name.Contains("Settings"));
+
+                _.WithDefaultConventions();
+
+                _.LookForRegistries();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

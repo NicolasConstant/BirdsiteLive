@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.Cryptography",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{4FEAD6BC-3C8E-451A-8CA1-FF1AF47D26CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.Twitter", "BirdsiteLive.Twitter\BirdsiteLive.Twitter.csproj", "{77C559D1-80A2-4B1C-A566-AE2D156944A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,12 +25,17 @@ Global
 		{160AD138-4E29-4706-8546-9826B529E9B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{160AD138-4E29-4706-8546-9826B529E9B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{160AD138-4E29-4706-8546-9826B529E9B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77C559D1-80A2-4B1C-A566-AE2D156944A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77C559D1-80A2-4B1C-A566-AE2D156944A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77C559D1-80A2-4B1C-A566-AE2D156944A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77C559D1-80A2-4B1C-A566-AE2D156944A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{160AD138-4E29-4706-8546-9826B529E9B2} = {4FEAD6BC-3C8E-451A-8CA1-FF1AF47D26CC}
+		{77C559D1-80A2-4B1C-A566-AE2D156944A4} = {4FEAD6BC-3C8E-451A-8CA1-FF1AF47D26CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {69E8DCAD-4C37-4010-858F-5F94E6FBABCE}

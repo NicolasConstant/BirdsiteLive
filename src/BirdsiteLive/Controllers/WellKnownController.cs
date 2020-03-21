@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BirdsiteLive.Models;
+using BirdsiteLive.Twitter;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -11,11 +12,13 @@ namespace BirdsiteLive.Controllers
     [ApiController]
     public class WellKnownController : ControllerBase
     {
+        private readonly ITwitterService _twitterService;
         private readonly InstanceSettings _settings;
 
         #region Ctor
-        public WellKnownController(IOptions<InstanceSettings> settings)
+        public WellKnownController(IOptions<InstanceSettings> settings, ITwitterService twitterService)
         {
+            _twitterService = twitterService;
             _settings = settings.Value;
         }
         #endregion
