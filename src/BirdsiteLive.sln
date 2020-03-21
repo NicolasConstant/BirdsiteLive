@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive", "BirdsiteLive\BirdsiteLive.csproj", "{4059D92B-A86B-4765-A905-EFC2D7259C34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive", "BirdsiteLive\BirdsiteLive.csproj", "{4059D92B-A86B-4765-A905-EFC2D7259C34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.Cryptography", "BirdsiteLive.Cryptography\BirdsiteLive.Cryptography.csproj", "{160AD138-4E29-4706-8546-9826B529E9B2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{4FEAD6BC-3C8E-451A-8CA1-FF1AF47D26CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{4059D92B-A86B-4765-A905-EFC2D7259C34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4059D92B-A86B-4765-A905-EFC2D7259C34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4059D92B-A86B-4765-A905-EFC2D7259C34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{160AD138-4E29-4706-8546-9826B529E9B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{160AD138-4E29-4706-8546-9826B529E9B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{160AD138-4E29-4706-8546-9826B529E9B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{160AD138-4E29-4706-8546-9826B529E9B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{160AD138-4E29-4706-8546-9826B529E9B2} = {4FEAD6BC-3C8E-451A-8CA1-FF1AF47D26CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {69E8DCAD-4C37-4010-858F-5F94E6FBABCE}
