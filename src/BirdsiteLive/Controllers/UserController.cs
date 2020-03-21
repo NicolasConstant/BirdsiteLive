@@ -9,8 +9,9 @@ namespace BirdsiteLive.Controllers
 {
     public class UserController : Controller
     {
-        [Route("/user")]
-        public IActionResult Index()
+        [Route("/@{id}")]
+        [Route("/user/{id}")]
+        public IActionResult Index(string id)
         {
             var r = Request.Headers["Accept"].First();
 
