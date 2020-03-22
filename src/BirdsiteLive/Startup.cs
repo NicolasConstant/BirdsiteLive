@@ -45,7 +45,10 @@ namespace BirdsiteLive
             var twitterSettings = Configuration.GetSection("Twitter").Get<TwitterSettings>();
 
             services.For<TwitterSettings>().Use<TwitterSettings>()
-                .Ctor<string>("apiKey").Is(twitterSettings.ApiKey);
+                .Ctor<string>("accessToken").Is(twitterSettings.AccessToken)
+                .Ctor<string>("accessTokenSecret").Is(twitterSettings.AccessTokenSecret)
+                .Ctor<string>("consumerKey").Is(twitterSettings.ConsumerKey)
+                .Ctor<string>("consumerSecret").Is(twitterSettings.ConsumerSecret);
 
             services.Scan(_ =>
             {

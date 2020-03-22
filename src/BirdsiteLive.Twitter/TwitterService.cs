@@ -1,5 +1,6 @@
 ﻿using System;
 using BirdsiteLive.Twitter.Settings;
+using Tweetinvi;
 
 namespace BirdsiteLive.Twitter
 {
@@ -17,5 +18,10 @@ namespace BirdsiteLive.Twitter
             _settings = settings;
         }
         #endregion
+
+        public void GetUser(string username)
+        {
+            var user = User.GetUserFromScreenName(username);
+        }
     }
 }

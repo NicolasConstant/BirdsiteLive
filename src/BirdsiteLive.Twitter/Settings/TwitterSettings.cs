@@ -3,17 +3,18 @@
     public class TwitterSettings
     {
         #region Ctor
-        public TwitterSettings()
+        public TwitterSettings(string apiKey, string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret)
         {
-            
-        }
-
-        public TwitterSettings(string apiKey)
-        {
-            ApiKey = apiKey;
+            ConsumerKey = consumerKey;
+            ConsumerSecret = consumerSecret;
+            AccessToken = accessToken;
+            AccessTokenSecret = accessTokenSecret;
         }
         #endregion
 
-        public string ApiKey { get; set; }
+        public string ConsumerKey { get; set; }
+        public string ConsumerSecret { get; set; }
+        public string AccessToken { get; set; }
+        public string AccessTokenSecret { get; set; }
     }
 }
