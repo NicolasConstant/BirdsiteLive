@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Models;
-using BirdsiteLive.Twitter.Settings;
 using Lamar;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,12 +43,7 @@ namespace BirdsiteLive
         public void ConfigureContainer(ServiceRegistry services)
         {
             var twitterSettings = Configuration.GetSection("Twitter").Get<TwitterSettings>();
-
-            services.For<TwitterSettings>().Use<TwitterSettings>()
-                .Ctor<string>("accessToken").Is(twitterSettings.AccessToken)
-                .Ctor<string>("accessTokenSecret").Is(twitterSettings.AccessTokenSecret)
-                .Ctor<string>("consumerKey").Is(twitterSettings.ConsumerKey)
-                .Ctor<string>("consumerSecret").Is(twitterSettings.ConsumerSecret);
+            services.For<TwitterSettings>().Use(x => twitterSettings);
 
             services.Scan(_ =>
             {

@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BirdsiteLive.Common\BirdsiteLive.Common.csproj" />
     <ProjectReference Include="..\BirdsiteLive.Cryptography\BirdsiteLive.Cryptography.csproj" />
     <ProjectReference Include="..\BirdsiteLive.Twitter\BirdsiteLive.Twitter.csproj" />
   </ItemGroup>
