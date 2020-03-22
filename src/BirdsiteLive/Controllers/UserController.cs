@@ -24,6 +24,7 @@ namespace BirdsiteLive.Controllers
         public IActionResult Index(string id)
         {
             var user = _twitterService.GetUser(id);
+            if (user == null) return NotFound();
 
             var r = Request.Headers["Accept"].First();
 

@@ -7,5 +7,7 @@
         public string Url { get; set; }
         public string ProfileImageUrl { get; set; }
         public string ProfileBackgroundImageUrl { get; set; }
+        public string Acct { get; set; }
+        public string ProfileBannerURL { get; set; }
     }
 }

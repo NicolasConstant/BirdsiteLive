@@ -24,16 +24,20 @@ namespace BirdsiteLive.Twitter
 
         public TwitterUser GetUser(string username)
         {
-            Auth.SetUserCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, _settings.AccessToken, _settings.AccessTokenSecret);
+            //Auth.SetUserCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, _settings.AccessToken, _settings.AccessTokenSecret);
+            Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
             var user = User.GetUserFromScreenName(username);
+            if (user == null) return null;
 
             return new TwitterUser
             {
+                Acct = username,
                 Name = user.Name,
                 Description = user.Description,
                 Url = user.Url,
-                ProfileImageUrl = user.ProfileImageUrl,
-                ProfileBackgroundImageUrl = user.ProfileBackgroundImageUrl
+                ProfileImageUrl = user.ProfileImageUrlFullSize,
+                ProfileBackgroundImageUrl = user.ProfileBackgroundImageUrlHttps,
+                ProfileBannerURL = user.ProfileBannerURL
             };
         }
     }

@@ -1,10 +1,18 @@
-﻿
+﻿@model BirdsiteLive.Twitter.Models.TwitterUser
 @{
     ViewData["Title"] = "User";
 }
 
-<h1>User</h1>
+<div class="profile" style="background-image: url('@ViewData.Model.ProfileBannerURL');">
+    <div class="sub-profile">
+        <img class="avatar" src="@ViewData.Model.ProfileImageUrl" />
 
-@ViewData.Model.Name
+        <h1>@ViewData.Model.Name</h1>
+        <h2>@@@ViewData.Model.Acct</h2>
 
-@ViewData.Model.Description
+
+        <div class="description">
+            @ViewData.Model.Description
+        </div>
+    </div>
+</div>

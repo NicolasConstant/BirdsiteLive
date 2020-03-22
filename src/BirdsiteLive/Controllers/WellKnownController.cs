@@ -51,7 +51,9 @@ namespace BirdsiteLive.Controllers
             if (!string.IsNullOrWhiteSpace(domain) && domain != _settings.Domain)
                 return NotFound();
             
-            //TODO: check if twitter user exists
+            var user = _twitterService.GetUser(name);
+            if (user == null)
+                return NotFound();
 
             var result = new WebFingerResult()
             {
