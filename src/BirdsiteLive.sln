@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.Domain", "Bird
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.ActivityPub", "BirdsiteLive.ActivityPub\BirdsiteLive.ActivityPub.csproj", "{7463E1E2-9736-4A46-8507-010BDD8ECFBB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.ActivityPub.Tests", "Tests\BirdsiteLive.ActivityPub.Tests\BirdsiteLive.ActivityPub.Tests.csproj", "{1D713961-9926-41FF-8D6A-8A4B8D548484}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{7463E1E2-9736-4A46-8507-010BDD8ECFBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7463E1E2-9736-4A46-8507-010BDD8ECFBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7463E1E2-9736-4A46-8507-010BDD8ECFBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D713961-9926-41FF-8D6A-8A4B8D548484}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D713961-9926-41FF-8D6A-8A4B8D548484}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D713961-9926-41FF-8D6A-8A4B8D548484}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D713961-9926-41FF-8D6A-8A4B8D548484}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,6 +72,7 @@ Global
 		{155D46A4-2D05-47F2-8FFC-0B7C412A7652} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
 		{D48450EE-D8BD-4228-9864-043AC88F7EE0} = {4FEAD6BC-3C8E-451A-8CA1-FF1AF47D26CC}
 		{7463E1E2-9736-4A46-8507-010BDD8ECFBB} = {4FEAD6BC-3C8E-451A-8CA1-FF1AF47D26CC}
+		{1D713961-9926-41FF-8D6A-8A4B8D548484} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {69E8DCAD-4C37-4010-858F-5F94E6FBABCE}

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace BirdsiteLive.ActivityPub
 {
     public class Actor
     {
-        [JsonPropertyName("@context")]
-        public string[] context { get; set; } = new[] {"https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1"};
+        //[JsonPropertyName("@context")]
+        [JsonProperty("@context")]
+        public object[] context { get; set; } = new[] {"https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1" };
         public string id { get; set; }
         public string type { get; set; }
         public string preferredUsername { get; set; }
