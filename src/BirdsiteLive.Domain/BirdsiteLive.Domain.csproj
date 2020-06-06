@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BirdsiteLive.ActivityPub\BirdsiteLive.ActivityPub.csproj" />
+    <ProjectReference Include="..\BirdsiteLive.Cryptography\BirdsiteLive.Cryptography.csproj" />
+    <ProjectReference Include="..\BirdsiteLive.Twitter\BirdsiteLive.Twitter.csproj" />
+  </ItemGroup>
+
+</Project>

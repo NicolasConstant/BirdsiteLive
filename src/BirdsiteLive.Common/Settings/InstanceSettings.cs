@@ -1,4 +1,4 @@
-﻿namespace BirdsiteLive.Models
+﻿namespace BirdsiteLive.Common.Settings
 {
     public class InstanceSettings
     {

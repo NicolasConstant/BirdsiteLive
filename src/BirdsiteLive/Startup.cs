@@ -45,9 +45,13 @@ namespace BirdsiteLive
             var twitterSettings = Configuration.GetSection("Twitter").Get<TwitterSettings>();
             services.For<TwitterSettings>().Use(x => twitterSettings);
 
+            var instanceSettings = Configuration.GetSection("Instance").Get<InstanceSettings>();
+            services.For<InstanceSettings>().Use(x => instanceSettings);
+
             services.Scan(_ =>
             {
                 _.Assembly("BirdsiteLive.Twitter");
+                _.Assembly("BirdsiteLive.Domain");
                 _.TheCallingAssembly();
 
                 //_.AssemblyContainingType<IDal>();
