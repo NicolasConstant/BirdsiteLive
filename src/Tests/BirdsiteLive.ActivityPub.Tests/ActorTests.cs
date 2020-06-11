@@ -17,5 +17,19 @@ namespace BirdsiteLive.ActivityPub.Tests
 
             
         }
+
+        [TestMethod]
+        public void Serialize()
+        {
+            var obj = new Actor
+            {
+                type = "Person",
+                id = "id"
+            };
+
+            var json = JsonConvert.SerializeObject(obj);
+
+
+        }
     }
 }

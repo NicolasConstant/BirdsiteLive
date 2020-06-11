@@ -73,7 +73,7 @@ namespace BirdsiteLive.Controllers
 
         private Dictionary<string, string> RequestHeaders(IHeaderDictionary header)
         {
-            return header.ToDictionary<KeyValuePair<string, StringValues>, string, string>(h => h.Key, h => h.Value);
+            return header.ToDictionary<KeyValuePair<string, StringValues>, string, string>(h => h.Key.ToLowerInvariant(), h => h.Value);
         }
     }
 }
