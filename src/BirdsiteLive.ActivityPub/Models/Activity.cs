@@ -10,6 +10,7 @@ namespace BirdsiteLive.ActivityPub
         public string id { get; set; }
         public string type { get; set; }
         public string actor { get; set; }
+
         //[JsonProperty("object")]
         //public string apObject { get; set; }
     }
