@@ -12,7 +12,7 @@ namespace BirdsiteLive.Domain
     public interface IActivityPubService
     {
         Task<Actor> GetUser(string objectId);
-        Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl);
+        Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null);
     }
 
     public class ActivityPubService : IActivityPubService
@@ -37,19 +37,25 @@ namespace BirdsiteLive.Domain
             }
         }
 
-        public async Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl)
+        public async Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null)
         {
+            var usedInbox = $"/inbox";
+            if (!string.IsNullOrWhiteSpace(inbox))
+                usedInbox = inbox;
+
             var json = JsonConvert.SerializeObject(data);
 
             var date = DateTime.UtcNow.ToUniversalTime();
             var httpDate = date.ToString("r");
-            var signature = _cryptoService.SignAndGetSignatureHeader(date, actorUrl, targetHost);
+            var signature = _cryptoService.SignAndGetSignatureHeader(date, actorUrl, targetHost, usedInbox);
+
+            
 
             var client = new HttpClient();
             var httpRequestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri($"https://{targetHost}/inbox"),
+                RequestUri = new Uri($"https://{targetHost}/{usedInbox}"),
                 Headers =
                 {
                     {"Host", targetHost},

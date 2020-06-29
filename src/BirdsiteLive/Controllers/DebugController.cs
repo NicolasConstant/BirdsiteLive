@@ -17,12 +17,14 @@ namespace BirdsiteLive.Controllers
     {
         private readonly InstanceSettings _instanceSettings;
         private readonly ICryptoService _cryptoService;
+        private readonly IActivityPubService _activityPubService;
 
         #region Ctor
-        public DebugController(InstanceSettings instanceSettings, ICryptoService cryptoService)
+        public DebugController(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
+            _activityPubService = activityPubService;
         }
         #endregion
 
@@ -35,7 +37,7 @@ namespace BirdsiteLive.Controllers
         public async Task<IActionResult> Follow()
         {
             var actor = $"https://{_instanceSettings.Domain}/users/gra";
-            var targethost = "mamot.fr";
+            var targethost = "mastodon.technology";
             var followActivity = new ActivityFollow()
             {
                 context = "https://www.w3.org/ns/activitystreams",
@@ -45,36 +47,57 @@ namespace BirdsiteLive.Controllers
                 apObject = $"https://{targethost}/users/testtest"
             };
 
-            var json = JsonConvert.SerializeObject(followActivity);
-            
-            var date = DateTime.UtcNow.ToUniversalTime();
-            var httpDate = date.ToString("r");
-            var signature = _cryptoService.SignAndGetSignatureHeader(date, actor, targethost);
+            await _activityPubService.PostDataAsync(followActivity, targethost, actor);
 
-            var client = new HttpClient();
-            var httpRequestMessage = new HttpRequestMessage
+            return View("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostNote()
+        {
+            var username = "gra";
+            var actor = $"https://{_instanceSettings.Domain}/users/{username}";
+            var targetHost = "mastodon.technology";
+            var target = $"{targetHost}/users/testtest";
+            var inbox = $"/users/testtest/inbox";
+
+            var noteGuid = Guid.NewGuid();
+            var noteId = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{noteGuid}";
+            var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{noteGuid}";
+            
+            var to = $"{actor}/followers";
+            var apPublic = "https://www.w3.org/ns/activitystreams#Public";
+
+            var now = DateTime.UtcNow;
+            var nowString = now.ToString("s") + "Z";
+
+            var noteActivity = new ActivityCreateNote()
             {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri($"https://{targethost}/inbox"),
-                Headers =
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{noteId}/activity",
+                type = "Create",
+                actor = actor,
+                published = nowString,
+                to = new []{ to },
+                //cc = new [] { apPublic },
+                apObject = new Note()
                 {
-                    {"Host", targethost},
-                    {"Date", httpDate},
-                    {"Signature", signature}
-                },
-                Content = new StringContent(json, Encoding.UTF8, "application/ld+json")
+                    id = noteId,
+                    summary = null, 
+                    inReplyTo = null,
+                    published = nowString,
+                    url = noteUrl,
+                    attributedTo = actor,
+                    to = new[] { to },
+                    //cc = new [] { apPublic },
+                    sensitive = false,
+                    content = "<p>Woooot</p>",
+                    attachment = new string[0],
+                    tag = new string[0]
+                }
             };
 
-            try
-            {
-                var response = await client.SendAsync(httpRequestMessage);
-                var re = response.ReasonPhrase;
-                var t = await response.Content.ReadAsStringAsync();
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
+            await _activityPubService.PostDataAsync(noteActivity, targetHost, actor, inbox);
 
             return View("Index");
         }

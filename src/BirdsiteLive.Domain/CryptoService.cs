@@ -7,7 +7,7 @@ namespace BirdsiteLive.Domain
     public interface ICryptoService
     {
         string GetUserPem(string id);
-        string SignAndGetSignatureHeader(DateTime date, string actor, string host);
+        string SignAndGetSignatureHeader(DateTime date, string actor, string host, string inbox = null);
     }
 
     public class CryptoService : ICryptoService
@@ -33,11 +33,15 @@ namespace BirdsiteLive.Domain
         /// <param name="actor">in the form of https://domain.io/actor</param>
         /// <param name="host">in the form of domain.io</param>
         /// <returns></returns>
-        public string SignAndGetSignatureHeader(DateTime date, string actor, string targethost)
+        public string SignAndGetSignatureHeader(DateTime date, string actor, string targethost, string inbox = null)
         {
+            var usedInbox = "/inbox";
+            if (!string.IsNullOrWhiteSpace(inbox))
+                usedInbox = inbox;
+
             var httpDate = date.ToString("r");
 
-            var signedString = $"(request-target): post /inbox\nhost: {targethost}\ndate: {httpDate}";
+            var signedString = $"(request-target): post {usedInbox}\nhost: {targethost}\ndate: {httpDate}";
             var signedStringBytes = Encoding.UTF8.GetBytes(signedString);
             var signature = _magicKeyFactory.GetMagicKey().Sign(signedStringBytes);
             var sig64 = Convert.ToBase64String(signature);

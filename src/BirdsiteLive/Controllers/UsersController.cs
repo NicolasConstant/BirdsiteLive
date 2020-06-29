@@ -63,8 +63,10 @@ namespace BirdsiteLive.Controllers
                         if (succeeded) return Accepted();
                         else return Unauthorized();
                         break;
+                    case "Undo":
+                        return Accepted();
                     default:
-                        return Ok();
+                        return Accepted();
                 }
             }
 

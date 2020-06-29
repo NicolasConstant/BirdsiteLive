@@ -47,5 +47,14 @@ namespace BirdsiteLive.ActivityPub.Tests
             Assert.AreEqual("Follow", data.apObject.type);
             Assert.AreEqual("https://mamot.fr/users/testtest", data.apObject.apObject);
         }
+
+        [TestMethod]
+        public void NoteDeserializationTest()
+        {
+            var json =
+                "{\"@context\":[\"https://www.w3.org/ns/activitystreams\",{\"ostatus\":\"http://ostatus.org#\",\"atomUri\":\"ostatus:atomUri\",\"inReplyToAtomUri\":\"ostatus:inReplyToAtomUri\",\"conversation\":\"ostatus:conversation\",\"sensitive\":\"as:sensitive\",\"toot\":\"http://joinmastodon.org/ns#\",\"votersCount\":\"toot:votersCount\"}],\"id\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182/activity\",\"type\":\"Create\",\"actor\":\"https://mastodon.technology/users/testtest\",\"published\":\"2020-06-29T02:10:04Z\",\"to\":[\"https://mastodon.technology/users/testtest/followers\"],\"cc\":[],\"object\":{\"id\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182\",\"type\":\"Note\",\"summary\":null,\"inReplyTo\":null,\"published\":\"2020-06-29T02:10:04Z\",\"url\":\"https://mastodon.technology/@testtest/104424839893177182\",\"attributedTo\":\"https://mastodon.technology/users/testtest\",\"to\":[\"https://mastodon.technology/users/testtest/followers\"],\"cc\":[],\"sensitive\":false,\"atomUri\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182\",\"inReplyToAtomUri\":null,\"conversation\":\"tag:mastodon.technology,2020-06-29:objectId=34900058:objectType=Conversation\",\"content\":\"<p>test</p>\",\"contentMap\":{\"en\":\"<p>test</p>\"},\"attachment\":[],\"tag\":[],\"replies\":{\"id\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182/replies\",\"type\":\"Collection\",\"first\":{\"type\":\"CollectionPage\",\"next\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182/replies?only_other_accounts=true&page=true\",\"partOf\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182/replies\",\"items\":[]}}}}";
+
+            var data = ApDeserializer.ProcessActivity(json) as ActivityAcceptFollow;
+        }
     }
 }
