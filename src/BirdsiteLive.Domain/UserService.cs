@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -69,11 +71,25 @@ namespace BirdsiteLive.Domain
             if (!await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders)) return false;
 
             // Save Follow in DB
-
-            // Send Accept Activity 
-
             
-            throw new NotImplementedException();
+            // Send Accept Activity 
+            var targetHost = activity.actor.Replace("https://", string.Empty).Split('/').First();
+            var acceptFollow = new ActivityAcceptFollow()
+            {
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{activity.apObject}#accepts/follows/{Guid.NewGuid()}",
+                type = "Accept",
+                actor = activity.apObject,
+                apObject = new ActivityFollow()
+                {
+                    id = activity.id,
+                    type = activity.type,
+                    actor = activity.actor,
+                    apObject = activity.apObject
+                }
+            };
+            var result = await _activityPubService.PostDataAsync(acceptFollow, targetHost, activity.apObject);
+            return result == HttpStatusCode.Accepted;
         }
 
         private async Task<bool> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +15,15 @@ namespace BirdsiteLive.Controllers
         [HttpPost]
         public async Task<IActionResult> Inbox()
         {
+            var r = Request;
+            using (var reader = new StreamReader(Request.Body))
+            {
+                var body = await reader.ReadToEndAsync();
+
+
+            }
+
+
             throw new NotImplementedException();
         }
     }
