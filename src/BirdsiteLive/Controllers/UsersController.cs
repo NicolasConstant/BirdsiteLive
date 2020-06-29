@@ -60,7 +60,7 @@ namespace BirdsiteLive.Controllers
                 {
                     case "Follow": 
                         var succeeded = await _userService.FollowRequestedAsync(r.Headers["Signature"].First(), r.Method, r.Path, r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityFollow);
-                        if (succeeded) return Ok();
+                        if (succeeded) return Accepted();
                         else return Unauthorized();
                         break;
                     default:
