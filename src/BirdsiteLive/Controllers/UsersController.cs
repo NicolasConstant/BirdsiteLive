@@ -33,7 +33,7 @@ namespace BirdsiteLive.Controllers
         {
             var user = _twitterService.GetUser(id);
             if (user == null) return NotFound();
-            
+
             var r = Request.Headers["Accept"].First();
             if (r.Contains("application/activity+json"))
             {
@@ -43,6 +43,31 @@ namespace BirdsiteLive.Controllers
             }
 
             return View(user);
+        }
+
+        [Route("/@{id}/{statusId}")]
+        [Route("/users/{id}/statuses/{statusId}")]
+        public IActionResult Tweet(string id, string statusId)
+        {
+            var r = Request.Headers["Accept"].First();
+            if (r.Contains("application/activity+json"))
+            {
+                if (!long.TryParse(statusId, out var parsedStatusId))
+                    return NotFound();
+                
+                var tweet = _twitterService.GetTweet(parsedStatusId);
+                if(tweet == null)
+                    return NotFound();
+
+                var user = _twitterService.GetUser(id);
+                if (user == null) return NotFound();
+
+                var status = _userService.GetStatus(user, tweet);
+                var jsonApUser = JsonConvert.SerializeObject(status);
+                return Content(jsonApUser, "application/json");
+            }
+
+            return View("Tweet", statusId);
         }
 
         [Route("/users/{id}/inbox")]
@@ -58,7 +83,7 @@ namespace BirdsiteLive.Controllers
 
                 switch (activity.type)
                 {
-                    case "Follow": 
+                    case "Follow":
                         var succeeded = await _userService.FollowRequestedAsync(r.Headers["Signature"].First(), r.Method, r.Path, r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityFollow);
                         if (succeeded) return Accepted();
                         else return Unauthorized();

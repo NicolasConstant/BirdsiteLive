@@ -3,12 +3,14 @@ using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi;
+using Tweetinvi.Models;
 
 namespace BirdsiteLive.Twitter
 {
     public interface ITwitterService
     {
         TwitterUser GetUser(string username);
+        ITweet GetTweet(long statusId);
     }
 
     public class TwitterService : ITwitterService
@@ -39,6 +41,13 @@ namespace BirdsiteLive.Twitter
                 ProfileBackgroundImageUrl = user.ProfileBackgroundImageUrlHttps,
                 ProfileBannerURL = user.ProfileBannerURL
             };
+        }
+
+        public ITweet GetTweet(long statusId)
+        {
+            Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
+            var tweet = Tweet.GetTweet(statusId);
+            return tweet;
         }
     }
 }

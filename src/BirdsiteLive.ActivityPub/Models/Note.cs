@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using BirdsiteLive.ActivityPub.Converters;
+using Newtonsoft.Json;
 
 namespace BirdsiteLive.ActivityPub
 {
     public class Note
     {
+        [JsonProperty("@context")]
+        [JsonConverter(typeof(ContextArrayConverter))]
+        public string[] context { get; set; } = new[] { "https://www.w3.org/ns/activitystreams" };
+
         public string id { get; set; }
         public string type { get; } = "Note";
         public string summary { get; set; }
