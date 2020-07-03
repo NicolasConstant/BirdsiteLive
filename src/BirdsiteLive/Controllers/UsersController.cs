@@ -39,7 +39,7 @@ namespace BirdsiteLive.Controllers
             {
                 var apUser = _userService.GetUser(user);
                 var jsonApUser = JsonConvert.SerializeObject(apUser);
-                return Content(jsonApUser, "application/json");
+                return Content(jsonApUser, "application/activity+json; charset=utf-8");
             }
 
             return View(user);
@@ -64,7 +64,7 @@ namespace BirdsiteLive.Controllers
 
                 var status = _userService.GetStatus(user, tweet);
                 var jsonApUser = JsonConvert.SerializeObject(status);
-                return Content(jsonApUser, "application/json");
+                return Content(jsonApUser, "application/activity+json; charset=utf-8");
             }
 
             return View("Tweet", statusId);
