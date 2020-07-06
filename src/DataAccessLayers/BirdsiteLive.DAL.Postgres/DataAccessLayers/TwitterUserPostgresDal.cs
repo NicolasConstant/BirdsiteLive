@@ -1,9 +1,77 @@
-﻿using BirdsiteLive.DAL.Contracts;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.DAL.Models;
+using BirdsiteLive.DAL.Postgres.DataAccessLayers.Base;
+using BirdsiteLive.DAL.Postgres.Settings;
+using BirdsiteLive.DAL.Postgres.Tools;
+using Dapper;
+using Npgsql;
 
 namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 {
-    public class TwitterUserPostgresDal : ITwitterUserDal
+    public class TwitterUserPostgresDal : PostgresBase, ITwitterUserDal
     {
-        
+        #region Ctor
+        public TwitterUserPostgresDal(PostgresSettings settings) : base(settings)
+        {
+            
+        }
+        #endregion
+
+        public async Task CreateTwitterUserAsync(string acct, long lastTweetPostedId)
+        {
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                await dbConnection.ExecuteAsync(
+                    $"INSERT INTO {_settings.TwitterUserTableName} (acct,lastTweetPostedId,lastTweetSynchronizedForAllFollowersId) VALUES(@acct,@lastTweetPostedId,@lastTweetSynchronizedForAllFollowersId)",
+                    new { acct = acct, lastTweetPostedId = lastTweetPostedId, lastTweetSynchronizedForAllFollowersId = lastTweetPostedId });
+            }
+        }
+
+        public async Task<SyncTwitterUser> GetTwitterUserAsync(string acct)
+        {
+            var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE acct = @acct";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = (await dbConnection.QueryAsync<SyncTwitterUser>(query, new { acct = acct })).FirstOrDefault();
+                return result;
+            }
+        }
+
+        public Task<SyncTwitterUser[]> GetAllTwitterUsersAsync()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId)
+        {
+            if(id == default) throw new ArgumentException("id");
+            if(lastTweetPostedId == default) throw new ArgumentException("lastTweetPostedId");
+            if(lastTweetSynchronizedForAllFollowersId == default) throw new ArgumentException("lastTweetSynchronizedForAllFollowersId");
+
+            var query = $"UPDATE {_settings.TwitterUserTableName} SET lastTweetPostedId = {lastTweetPostedId}, lastTweetSynchronizedForAllFollowersId = {lastTweetSynchronizedForAllFollowersId} WHERE id = {id}";
+
+            using (var dbConnection = Connection)
+            using (var cmd = new NpgsqlCommand(query, dbConnection))
+            {
+                dbConnection.Open();
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        public Task DeleteTwitterUserAsync(string acct)
+        {
+
+
+
+            throw new System.NotImplementedException();
+        }
     }
 }
