@@ -10,6 +10,7 @@ using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Core.Exceptions;
+using Tweetinvi.Models;
 
 namespace BirdsiteLive.Domain
 {
@@ -17,6 +18,7 @@ namespace BirdsiteLive.Domain
     {
         Actor GetUser(TwitterUser twitterUser);
         Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity);
+        Note GetStatus(TwitterUser user, ITweet tweet);
     }
 
     public class UserService : IUserService
@@ -65,6 +67,39 @@ namespace BirdsiteLive.Domain
             return user;
         }
 
+        public Note GetStatus(TwitterUser user, ITweet tweet)
+        {
+            var actor = GetUser(user);
+
+            var actorUrl = $"{_host}/users/{user.Acct}";
+            var noteId = $"{_host}/users/{user.Acct}/statuses/{tweet.Id}";
+            var noteUrl = $"{_host}/@{user.Acct}/{tweet.Id}";
+
+            var to = $"{actor}/followers";
+            var apPublic = "https://www.w3.org/ns/activitystreams#Public";
+
+            var note = new Note
+            {
+                id = $"{noteId}/activity",
+                
+                published = tweet.CreatedAt.ToString("s") + "Z",
+                url = noteUrl,
+                attributedTo = actorUrl,
+
+                //to = new [] {to},
+                //cc = new [] { apPublic },
+
+                to = new[] { apPublic },
+                cc = new[] { to },
+
+                sensitive = false,
+                content = $"<p>{tweet.Text}</p>",
+                attachment = new string[0],
+                tag = new string[0]
+            };
+            return note;
+        }
+
         public async Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string>  requestHeaders, ActivityFollow activity)
         {
             // Validate
@@ -91,7 +126,7 @@ namespace BirdsiteLive.Domain
             var result = await _activityPubService.PostDataAsync(acceptFollow, targetHost, activity.apObject);
             return result == HttpStatusCode.Accepted;
         }
-
+        
         private async Task<bool> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders)
         {
             var signatures = rawSig.Split(',');

@@ -13,14 +13,14 @@ using Newtonsoft.Json;
 
 namespace BirdsiteLive.Controllers
 {
-    public class DebugController : Controller
+    public class DebugingController : Controller
     {
         private readonly InstanceSettings _instanceSettings;
         private readonly ICryptoService _cryptoService;
         private readonly IActivityPubService _activityPubService;
 
         #region Ctor
-        public DebugController(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService)
+        public DebugingController(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
