@@ -1,12 +1,13 @@
 ﻿using System.Threading.Tasks;
+using BirdsiteLive.DAL.Models;
 using Tweetinvi.Models;
 
 namespace BirdsiteLive.DAL.Contracts
 {
     public interface ICachedTweetsDal
     {
-        Task AddTweetAsync(long tweetId, int userId, ITweet tweet);
-        Task<ITweet> GetTweetAsync(long tweetId);
+        Task CreateTweetAsync(long tweetId, int userId, CachedTweet tweet);
+        Task<CachedTweet> GetTweetAsync(long tweetId);
         Task DeleteTweetAsync(long tweetId);
     }
 }
