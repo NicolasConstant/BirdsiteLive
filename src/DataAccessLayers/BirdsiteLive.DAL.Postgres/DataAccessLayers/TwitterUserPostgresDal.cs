@@ -22,19 +22,23 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task CreateTwitterUserAsync(string acct, long lastTweetPostedId)
         {
+            acct = acct.ToLowerInvariant();
+
             using (var dbConnection = Connection)
             {
                 dbConnection.Open();
 
                 await dbConnection.ExecuteAsync(
                     $"INSERT INTO {_settings.TwitterUserTableName} (acct,lastTweetPostedId,lastTweetSynchronizedForAllFollowersId) VALUES(@acct,@lastTweetPostedId,@lastTweetSynchronizedForAllFollowersId)",
-                    new { acct = acct, lastTweetPostedId = lastTweetPostedId, lastTweetSynchronizedForAllFollowersId = lastTweetPostedId });
+                    new { acct, lastTweetPostedId, lastTweetSynchronizedForAllFollowersId = lastTweetPostedId });
             }
         }
 
         public async Task<SyncTwitterUser> GetTwitterUserAsync(string acct)
         {
             var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE acct = @acct";
+
+            acct = acct.ToLowerInvariant();
 
             using (var dbConnection = Connection)
             {
@@ -77,6 +81,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         public async Task DeleteTwitterUserAsync(string acct)
         {
             if (acct == default) throw new ArgumentException("acct");
+
+            acct = acct.ToLowerInvariant();
 
             var query = $"DELETE FROM {_settings.TwitterUserTableName} WHERE acct = @acct";
 
