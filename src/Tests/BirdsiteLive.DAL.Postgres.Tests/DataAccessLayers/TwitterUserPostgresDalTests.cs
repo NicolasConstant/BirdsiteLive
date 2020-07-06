@@ -95,5 +95,25 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             result = await dal.GetTwitterUserAsync(acct);
             Assert.IsNull(result);
         }
+
+        [TestMethod]
+        public async Task GetAllTwitterUsers()
+        {
+            var dal = new TwitterUserPostgresDal(_settings);
+            for (var i = 0; i < 1000; i++)
+            {
+                var acct = $"myid{i}";
+                var lastTweetId = 1548L;
+
+                await dal.CreateTwitterUserAsync(acct, lastTweetId);
+            }
+
+            var result = await dal.GetAllTwitterUsersAsync();
+            Assert.AreEqual(1000, result.Length);
+            Assert.IsFalse(result[0].Id == default);
+            Assert.IsFalse(result[0].Acct == default);
+            Assert.IsFalse(result[0].LastTweetPostedId == default);
+            Assert.IsFalse(result[0].LastTweetSynchronizedForAllFollowersId == default);
+        }
     }
 }

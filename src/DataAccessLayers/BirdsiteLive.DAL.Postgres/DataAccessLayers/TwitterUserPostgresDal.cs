@@ -45,9 +45,17 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
-        public Task<SyncTwitterUser[]> GetAllTwitterUsersAsync()
+        public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync()
         {
-            throw new System.NotImplementedException();
+            var query = $"SELECT * FROM {_settings.TwitterUserTableName}";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = await dbConnection.QueryAsync<SyncTwitterUser>(query);
+                return result.ToArray();
+            }
         }
 
         public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId)
@@ -55,23 +63,29 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             if(id == default) throw new ArgumentException("id");
             if(lastTweetPostedId == default) throw new ArgumentException("lastTweetPostedId");
             if(lastTweetSynchronizedForAllFollowersId == default) throw new ArgumentException("lastTweetSynchronizedForAllFollowersId");
-
-            var query = $"UPDATE {_settings.TwitterUserTableName} SET lastTweetPostedId = {lastTweetPostedId}, lastTweetSynchronizedForAllFollowersId = {lastTweetSynchronizedForAllFollowersId} WHERE id = {id}";
+            
+            var query = $"UPDATE {_settings.TwitterUserTableName} SET lastTweetPostedId = @lastTweetPostedId, lastTweetSynchronizedForAllFollowersId = @lastTweetSynchronizedForAllFollowersId WHERE id = @id";
 
             using (var dbConnection = Connection)
-            using (var cmd = new NpgsqlCommand(query, dbConnection))
             {
                 dbConnection.Open();
-                await cmd.ExecuteNonQueryAsync();
+
+                await dbConnection.QueryAsync(query, new { id, lastTweetPostedId,  lastTweetSynchronizedForAllFollowersId });
             }
         }
 
-        public Task DeleteTwitterUserAsync(string acct)
+        public async Task DeleteTwitterUserAsync(string acct)
         {
+            if (acct == default) throw new ArgumentException("acct");
 
+            var query = $"DELETE FROM {_settings.TwitterUserTableName} WHERE acct = @acct";
 
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
 
-            throw new System.NotImplementedException();
+                await dbConnection.QueryAsync(query, new { acct });
+            }
         }
     }
 }
