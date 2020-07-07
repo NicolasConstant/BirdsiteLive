@@ -57,14 +57,19 @@ namespace BirdsiteLive.Controllers
                 },
                 software = new Software()
                 {
-                    name = "BirdsiteLive",
+                    name = "birdsitelive",
                     version = "0.1.0"
                 },
                 protocols = new []
                 {
                     "activitypub"
                 },
-                openRegistrations = false
+                openRegistrations = false,
+                services = new Services()
+                {
+                    inbound = new object[0],
+                    outbound = new object[0]
+                }
             };
 
             return new JsonResult(nodeInfo);
@@ -164,7 +169,7 @@ namespace BirdsiteLive.Controllers
         public Usage usage { get; set; }
         public bool openRegistrations { get; set; }
         public Services services { get; set; }
-        public object metadata { get; set; }
+        //public object metadata { get; set; }
     }
     
     public class Services
