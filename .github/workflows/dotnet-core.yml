@@ -28,5 +28,5 @@ jobs:
       run: dotnet build --configuration Release --no-restore
       working-directory: ${{env.working-directory}}
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --no-restore --verbosity quiet
       working-directory: ${{env.working-directory}}
