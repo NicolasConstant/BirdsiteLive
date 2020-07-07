@@ -20,7 +20,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         }
         #endregion
 
-        public async Task CreateFollowerAsync(string acct, string host, int[] followings, Dictionary<int, long> followingSyncStatus)
+        public async Task CreateFollowerAsync(string acct, string host, int[] followings, Dictionary<int, long> followingSyncStatus, string inboxUrl)
         {
             var serializedDic = JsonConvert.SerializeObject(followingSyncStatus);
 
@@ -32,8 +32,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 dbConnection.Open();
 
                 await dbConnection.ExecuteAsync(
-                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,followings,followingsSyncStatus) VALUES(@acct,@host,@followings, CAST(@followingsSyncStatus as json))",
-                    new { acct, host, followings, followingsSyncStatus = serializedDic });
+                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxUrl,followings,followingsSyncStatus) VALUES(@acct,@host,@inboxUrl,@followings,CAST(@followingsSyncStatus as json))",
+                    new { acct, host, inboxUrl, followings,  followingsSyncStatus = serializedDic });
             }
         }
 
@@ -124,6 +124,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 Id = follower.Id,
                 Acct = follower.Acct,
                 Host = follower.Host,
+                InboxUrl = follower.InboxUrl,
                 Followings = follower.Followings,
                 FollowingsSyncStatus = JsonConvert.DeserializeObject<Dictionary<int,long>>(follower.FollowingsSyncStatus)
             };
@@ -138,5 +139,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public string Acct { get; set; }
         public string Host { get; set; }
+        public string InboxUrl { get; set; }
     }
 }

@@ -11,5 +11,6 @@ namespace BirdsiteLive.DAL.Models
 
         public string Acct { get; set; }
         public string Host { get; set; }
+        public string InboxUrl { get; set; }
     }
 }
