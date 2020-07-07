@@ -24,6 +24,52 @@ namespace BirdsiteLive.Controllers
         }
         #endregion
 
+        [Route("/.well-known/nodeinfo")]
+        public IActionResult WellKnownNodeInfo()
+        {
+            var nodeInfo = new WellKnownNodeInfo
+            {
+                links = new Link[]
+                {
+                    new Link()
+                    {
+                        rel = "http://nodeinfo.diaspora.software/ns/schema/2.0",
+                        href = $"https://{_settings.Domain}/nodeinfo/2.0.json"
+                    }
+                }
+            };
+            return new JsonResult(nodeInfo);
+        }
+
+        [Route("/nodeinfo/2.0.json")]
+        public IActionResult NodeInfo()
+        {
+            var nodeInfo = new NodeInfo
+            {
+                version = "2.0",
+                usage = new Usage()
+                {
+                    localPosts = 0,
+                    users = new Users()
+                    {
+                        total = 0
+                    }
+                },
+                software = new Software()
+                {
+                    name = "BirdsiteLive",
+                    version = "0.1.0"
+                },
+                protocols = new []
+                {
+                    "activitypub"
+                },
+                openRegistrations = false
+            };
+
+            return new JsonResult(nodeInfo);
+        }
+
         [Route("/.well-known/webfinger")]
         public IActionResult Webfinger(string resource = null)
         {
@@ -51,7 +97,7 @@ namespace BirdsiteLive.Controllers
 
             if (!string.IsNullOrWhiteSpace(domain) && domain != _settings.Domain)
                 return NotFound();
-            
+
             var user = _twitterService.GetUser(name);
             if (user == null)
                 return NotFound();
@@ -59,7 +105,7 @@ namespace BirdsiteLive.Controllers
             var result = new WebFingerResult()
             {
                 subject = $"acct:{name}@{_settings.Domain}",
-                aliases = new []
+                aliases = new[]
                 {
                     $"https://{_settings.Domain}/@{name}",
                     $"https://{_settings.Domain}/users/{name}"
@@ -83,19 +129,64 @@ namespace BirdsiteLive.Controllers
 
             return new JsonResult(result);
         }
+    }
 
-        public class WebFingerResult
-        {
-            public string subject { get; set; }
-            public string[] aliases { get; set; }
-            public List<WebFingerLink> links { get; set; } = new List<WebFingerLink>();
-        }
+    public class WebFingerResult
+    {
+        public string subject { get; set; }
+        public string[] aliases { get; set; }
+        public List<WebFingerLink> links { get; set; } = new List<WebFingerLink>();
+    }
 
-        public class WebFingerLink
-        {
-            public string rel { get; set; }
-            public string type { get; set; }
-            public string href { get; set; }
-        }
+    public class WebFingerLink
+    {
+        public string rel { get; set; }
+        public string type { get; set; }
+        public string href { get; set; }
+    }
+
+    public class WellKnownNodeInfo
+    {
+        public Link[] links { get; set; }
+    }
+
+    public class Link
+    {
+        public string href { get; set; }
+        public string rel { get; set; }
+    }
+
+    public class NodeInfo
+    {
+        public string version { get; set; }
+        public string[] protocols { get; set; }
+        public Software software { get; set; }
+        public Usage usage { get; set; }
+        public bool openRegistrations { get; set; }
+        public Services services { get; set; }
+        public object metadata { get; set; }
+    }
+    
+    public class Services
+    {
+        public object[] inbound { get; set; }
+        public object[] outbound { get; set; }
+    }
+
+    public class Software
+    {
+        public string name { get; set; }
+        public string version { get; set; }
+    }
+
+    public class Usage
+    {
+        public int localPosts { get; set; }
+        public Users users { get; set; }
+    }
+
+    public class Users
+    {
+        public int total { get; set; }
     }
 }
