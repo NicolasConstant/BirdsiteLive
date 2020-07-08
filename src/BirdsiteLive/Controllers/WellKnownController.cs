@@ -77,6 +77,10 @@ namespace BirdsiteLive.Controllers
                     {
                         inbound = new object[0],
                         outbound = new object[0]
+                    },
+                    metadata = new Metadata()
+                    {
+                        email = _settings.AdminEmail
                     }
                 };
                 return new JsonResult(nodeInfo);
@@ -109,6 +113,10 @@ namespace BirdsiteLive.Controllers
                     {
                         inbound = new object[0],
                         outbound = new object[0]
+                    },
+                    metadata = new Metadata()
+                    {
+                        email = _settings.AdminEmail
                     }
                 };
                 return new JsonResult(nodeInfo);

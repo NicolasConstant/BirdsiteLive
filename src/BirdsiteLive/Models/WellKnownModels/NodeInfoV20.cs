@@ -1,4 +1,6 @@
-﻿namespace BirdsiteLive.Models.WellKnownModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BirdsiteLive.Models.WellKnownModels
 {
     public class NodeInfoV20
     {
@@ -8,6 +10,6 @@
         public Usage usage { get; set; }
         public bool openRegistrations { get; set; }
         public Services services { get; set; }
-        //public object metadata { get; set; }
+        public Metadata metadata { get; set; }
     }
 }
