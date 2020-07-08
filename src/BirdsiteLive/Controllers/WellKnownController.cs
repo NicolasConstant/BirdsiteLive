@@ -18,10 +18,10 @@ namespace BirdsiteLive.Controllers
         private readonly InstanceSettings _settings;
 
         #region Ctor
-        public WellKnownController(IOptions<InstanceSettings> settings, ITwitterService twitterService)
+        public WellKnownController(InstanceSettings settings, ITwitterService twitterService)
         {
             _twitterService = twitterService;
-            _settings = settings.Value;
+            _settings = settings;
         }
         #endregion
 

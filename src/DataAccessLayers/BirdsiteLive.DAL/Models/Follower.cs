@@ -6,7 +6,7 @@ namespace BirdsiteLive.DAL.Models
     {
         public int Id { get; set; }
         
-        public int[] Followings { get; set; }
+        public List<int> Followings { get; set; }
         public Dictionary<int, long> FollowingsSyncStatus { get; set; }
 
         public string Acct { get; set; }

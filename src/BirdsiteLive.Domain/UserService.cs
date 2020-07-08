@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
+using BirdsiteLive.Domain.BusinessUseCases;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Core.Exceptions;
 using Tweetinvi.Models;
@@ -23,15 +24,18 @@ namespace BirdsiteLive.Domain
 
     public class UserService : IUserService
     {
+        private readonly IProcessFollowUser _processFollowUser;
+
         private readonly ICryptoService _cryptoService;
         private readonly IActivityPubService _activityPubService;
         private readonly string _host;
 
         #region Ctor
-        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService)
+        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser)
         {
             _cryptoService = cryptoService;
             _activityPubService = activityPubService;
+            _processFollowUser = processFollowUser;
             _host = $"https://{instanceSettings.Domain.Replace("https://",string.Empty).Replace("http://", string.Empty).TrimEnd('/')}";
         }
         #endregion
@@ -100,15 +104,21 @@ namespace BirdsiteLive.Domain
             return note;
         }
 
-        public async Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string>  requestHeaders, ActivityFollow activity)
+        public async Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity)
         {
             // Validate
-            if (!await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders)) return false;
+            var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders);
+            if (!sigValidation.SignatureIsValidated) return false;
 
             // Save Follow in DB
-            
-            // Send Accept Activity 
-            var targetHost = activity.actor.Replace("https://", string.Empty).Split('/').First();
+            var followerUserName = sigValidation.User.name.ToLowerInvariant();
+            var followerHost = sigValidation.User.url.Replace("https://", string.Empty).Split('/').First();
+            var followerInbox = sigValidation.User.inbox;
+            var twitterUser = activity.apObject.Split('/').Last().Replace("@", string.Empty);
+            await _processFollowUser.ExecuteAsync(followerUserName, followerHost, followerInbox, twitterUser);
+
+            // Send Accept Activity
+            //var followerHost = activity.actor.Replace("https://", string.Empty).Split('/').First();
             var acceptFollow = new ActivityAcceptFollow()
             {
                 context = "https://www.w3.org/ns/activitystreams",
@@ -123,11 +133,11 @@ namespace BirdsiteLive.Domain
                     apObject = activity.apObject
                 }
             };
-            var result = await _activityPubService.PostDataAsync(acceptFollow, targetHost, activity.apObject);
+            var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
             return result == HttpStatusCode.Accepted;
         }
         
-        private async Task<bool> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders)
+        private async Task<SignatureValidationResult> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders)
         {
             var signatures = rawSig.Split(',');
             var signature_header = new Dictionary<string, string>();
@@ -184,7 +194,17 @@ namespace BirdsiteLive.Domain
 
             var result = signKey.VerifyData(Encoding.UTF8.GetBytes(toSign.ToString()), sig, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 
-            return result;
+            return new SignatureValidationResult()
+            {
+                SignatureIsValidated = result,
+                User = remoteUser
+            };
         }
+    }
+
+    public class SignatureValidationResult 
+    {
+        public bool SignatureIsValidated { get; set; }
+        public Actor User { get; set; }
     }
 }

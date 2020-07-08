@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.DAL.Postgres.DataAccessLayers;
+using BirdsiteLive.DAL.Postgres.Settings;
 using BirdsiteLive.Models;
 using Lamar;
 using Microsoft.AspNetCore.Builder;
@@ -34,7 +37,7 @@ namespace BirdsiteLive
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<InstanceSettings>(Configuration.GetSection("Instance"));
+            //services.Configure<InstanceSettings>(Configuration.GetSection("Instance"));
             //services.Configure<TwitterSettings>(Configuration.GetSection("Twitter"));
 
             services.AddControllersWithViews();
@@ -48,15 +51,27 @@ namespace BirdsiteLive
             var instanceSettings = Configuration.GetSection("Instance").Get<InstanceSettings>();
             services.For<InstanceSettings>().Use(x => instanceSettings);
 
+            var postgresSettings = new PostgresSettings
+            {
+                ConnString = instanceSettings.PostgresConnString
+            };
+            services.For<PostgresSettings>().Use(x => postgresSettings);
+
+            services.For<ITwitterUserDal>().Use<TwitterUserPostgresDal>().Singleton();
+            services.For<IFollowersDal>().Use<FollowersPostgresDal>().Singleton();
+            services.For<IDbInitializerDal>().Use<DbInitializerPostgresDal>().Singleton();
+
             services.Scan(_ =>
             {
                 _.Assembly("BirdsiteLive.Twitter");
                 _.Assembly("BirdsiteLive.Domain");
+                _.Assembly("BirdsiteLive.DAL");
+                _.Assembly("BirdsiteLive.DAL.Postgres");
                 _.TheCallingAssembly();
 
                 //_.AssemblyContainingType<IDal>();
                 //_.Exclude(type => type.Name.Contains("Settings"));
-
+                
                 _.WithDefaultConventions();
 
                 _.LookForRegistries();

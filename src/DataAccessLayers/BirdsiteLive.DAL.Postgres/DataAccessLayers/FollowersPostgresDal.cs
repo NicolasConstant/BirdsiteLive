@@ -20,8 +20,11 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         }
         #endregion
 
-        public async Task CreateFollowerAsync(string acct, string host, int[] followings, Dictionary<int, long> followingSyncStatus, string inboxUrl)
+        public async Task CreateFollowerAsync(string acct, string host, string inboxUrl, int[] followings = null, Dictionary<int, long> followingSyncStatus = null)
         {
+            if(followings == null) followings = new int[0];
+            if(followingSyncStatus == null) followingSyncStatus = new Dictionary<int, long>();
+
             var serializedDic = JsonConvert.SerializeObject(followingSyncStatus);
 
             acct = acct.ToLowerInvariant();
@@ -68,18 +71,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
-        public async Task UpdateFollowerAsync(int id, int[] followings, Dictionary<int, long> followingsSyncStatus)
+        public async Task UpdateFollowerAsync(Follower follower)
         {
-            if (id == default) throw new ArgumentException("id");
+            if (follower == default) throw new ArgumentException("follower");
+            if (follower.Id == default) throw new ArgumentException("id");
 
-            var serializedDic = JsonConvert.SerializeObject(followingsSyncStatus);
+            var serializedDic = JsonConvert.SerializeObject(follower.FollowingsSyncStatus);
             var query = $"UPDATE {_settings.FollowersTableName} SET followings = @followings, followingsSyncStatus =  CAST(@followingsSyncStatus as json) WHERE id = @id";
 
             using (var dbConnection = Connection)
             {
                 dbConnection.Open();
 
-                await dbConnection.QueryAsync(query, new { id, followings, followingsSyncStatus = serializedDic });
+                await dbConnection.QueryAsync(query, new { follower.Id, follower.Followings, followingsSyncStatus = serializedDic });
             }
         }
 
@@ -125,7 +129,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 Acct = follower.Acct,
                 Host = follower.Host,
                 InboxUrl = follower.InboxUrl,
-                Followings = follower.Followings,
+                Followings = follower.Followings.ToList(),
                 FollowingsSyncStatus = JsonConvert.DeserializeObject<Dictionary<int,long>>(follower.FollowingsSyncStatus)
             };
         }

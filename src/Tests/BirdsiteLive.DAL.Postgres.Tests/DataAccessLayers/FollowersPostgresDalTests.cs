@@ -48,7 +48,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var inboxUrl = "https://domain.ext/myhandle/inbox";
             
             var dal = new FollowersPostgresDal(_settings);
-            await dal.CreateFollowerAsync(acct, host, following, followingSync, inboxUrl);
+            await dal.CreateFollowerAsync(acct, host, inboxUrl, following, followingSync);
 
             var result = await dal.GetFollowerAsync(acct, host);
 
@@ -56,7 +56,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             Assert.AreEqual(acct, result.Acct);
             Assert.AreEqual(host, result.Host);
             Assert.AreEqual(inboxUrl, result.InboxUrl);
-            Assert.AreEqual(following.Length, result.Followings.Length);
+            Assert.AreEqual(following.Length, result.Followings.Count);
             Assert.AreEqual(following[0], result.Followings[0]);
             Assert.AreEqual(followingSync.Count, result.FollowingsSyncStatus.Count);
             Assert.AreEqual(followingSync.First().Key, result.FollowingsSyncStatus.First().Key);
@@ -74,21 +74,21 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var following = new[] { 1,2,3 };
             var followingSync = new Dictionary<int, long>();
             var inboxUrl = "https://domain.ext/myhandle1/inbox";
-            await dal.CreateFollowerAsync(acct, host, following, followingSync, inboxUrl);
+            await dal.CreateFollowerAsync(acct, host, inboxUrl, following, followingSync);
 
             //User 2 
             acct = "myhandle2";
             host = "domain.ext";
             following = new[] { 2, 4, 5 };
             inboxUrl = "https://domain.ext/myhandle2/inbox";
-            await dal.CreateFollowerAsync(acct, host, following, followingSync, inboxUrl);
+            await dal.CreateFollowerAsync(acct, host, inboxUrl, following, followingSync);
 
             //User 2 
             acct = "myhandle3";
             host = "domain.ext";
             following = new[] { 1 };
             inboxUrl = "https://domain.ext/myhandle3/inbox";
-            await dal.CreateFollowerAsync(acct, host, following, followingSync, inboxUrl);
+            await dal.CreateFollowerAsync(acct, host, inboxUrl, following, followingSync);
 
             var result = await dal.GetFollowersAsync(2);
             Assert.AreEqual(2, result.Length);
@@ -115,22 +115,24 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var inboxUrl = "https://domain.ext/myhandle/inbox";
 
             var dal = new FollowersPostgresDal(_settings);
-            await dal.CreateFollowerAsync(acct, host, following, followingSync, inboxUrl);
+            await dal.CreateFollowerAsync(acct, host, inboxUrl, following, followingSync);
             var result = await dal.GetFollowerAsync(acct, host);
 
-            var updatedFollowing = new[] { 12, 19, 23, 24 };
-            var updatedFollowingSync = new Dictionary<int, long>()
-            {
+            var updatedFollowing = new List<int> { 12, 19, 23, 24 };
+            var updatedFollowingSync = new Dictionary<int, long>(){
                 {12, 170L},
                 {19, 171L},
                 {23, 172L},
                 {24, 173L}
             };
+            result.Followings = updatedFollowing.ToList();
+            result.FollowingsSyncStatus = updatedFollowingSync;
+            
 
-            await dal.UpdateFollowerAsync(result.Id, updatedFollowing, updatedFollowingSync);
+            await dal.UpdateFollowerAsync(result);
             result = await dal.GetFollowerAsync(acct, host);
 
-            Assert.AreEqual(updatedFollowing.Length, result.Followings.Length);
+            Assert.AreEqual(updatedFollowing.Count, result.Followings.Count);
             Assert.AreEqual(updatedFollowing[0], result.Followings[0]);
             Assert.AreEqual(updatedFollowingSync.Count, result.FollowingsSyncStatus.Count);
             Assert.AreEqual(updatedFollowingSync.First().Key, result.FollowingsSyncStatus.First().Key);
@@ -152,7 +154,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var inboxUrl = "https://domain.ext/myhandle/inbox";
 
             var dal = new FollowersPostgresDal(_settings);
-            await dal.CreateFollowerAsync(acct, host, following, followingSync, inboxUrl);
+            await dal.CreateFollowerAsync(acct, host, inboxUrl, following, followingSync);
             var result = await dal.GetFollowerAsync(acct, host);
 
             var updatedFollowing = new[] { 12, 19 };
@@ -161,11 +163,13 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
                 {12, 170L},
                 {19, 171L}
             };
+            result.Followings = updatedFollowing.ToList();
+            result.FollowingsSyncStatus = updatedFollowingSync;
 
-            await dal.UpdateFollowerAsync(result.Id, updatedFollowing, updatedFollowingSync);
+            await dal.UpdateFollowerAsync(result);
             result = await dal.GetFollowerAsync(acct, host);
 
-            Assert.AreEqual(updatedFollowing.Length, result.Followings.Length);
+            Assert.AreEqual(updatedFollowing.Length, result.Followings.Count);
             Assert.AreEqual(updatedFollowing[0], result.Followings[0]);
             Assert.AreEqual(updatedFollowingSync.Count, result.FollowingsSyncStatus.Count);
             Assert.AreEqual(updatedFollowingSync.First().Key, result.FollowingsSyncStatus.First().Key);
@@ -187,7 +191,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var inboxUrl = "https://domain.ext/myhandle/inbox";
 
             var dal = new FollowersPostgresDal(_settings);
-            await dal.CreateFollowerAsync(acct, host, following, followingSync, inboxUrl);
+            await dal.CreateFollowerAsync(acct, host, inboxUrl, following, followingSync);
             var result = await dal.GetFollowerAsync(acct, host);
             Assert.IsNotNull(result);
 
@@ -212,7 +216,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var inboxUrl = "https://domain.ext/myhandle/inbox";
 
             var dal = new FollowersPostgresDal(_settings);
-            await dal.CreateFollowerAsync(acct, host, following, followingSync, inboxUrl);
+            await dal.CreateFollowerAsync(acct, host, inboxUrl, following, followingSync);
             var result = await dal.GetFollowerAsync(acct, host);
             Assert.IsNotNull(result);
 
