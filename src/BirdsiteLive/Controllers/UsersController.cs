@@ -81,7 +81,7 @@ namespace BirdsiteLive.Controllers
                 var activity = ApDeserializer.ProcessActivity(body);
                 // Do something
 
-                switch (activity.type)
+                switch (activity?.type)
                 {
                     case "Follow":
                         var succeeded = await _userService.FollowRequestedAsync(r.Headers["Signature"].First(), r.Method, r.Path, r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityFollow);
@@ -95,7 +95,7 @@ namespace BirdsiteLive.Controllers
                 }
             }
 
-            return Ok();
+            return Accepted();
         }
 
         private Dictionary<string, string> RequestHeaders(IHeaderDictionary header)
