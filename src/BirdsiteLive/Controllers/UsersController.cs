@@ -54,9 +54,9 @@ namespace BirdsiteLive.Controllers
             {
                 if (!long.TryParse(statusId, out var parsedStatusId))
                     return NotFound();
-                
+
                 var tweet = _twitterService.GetTweet(parsedStatusId);
-                if(tweet == null)
+                if (tweet == null)
                     return NotFound();
 
                 var user = _twitterService.GetUser(id);
@@ -80,15 +80,25 @@ namespace BirdsiteLive.Controllers
                 var body = await reader.ReadToEndAsync();
                 var activity = ApDeserializer.ProcessActivity(body);
                 // Do something
+                var signature = r.Headers["Signature"].First();
 
                 switch (activity?.type)
                 {
                     case "Follow":
-                        var succeeded = await _userService.FollowRequestedAsync(r.Headers["Signature"].First(), r.Method, r.Path, r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityFollow);
-                        if (succeeded) return Accepted();
-                        else return Unauthorized();
-                        break;
+                        {
+                            var succeeded = await _userService.FollowRequestedAsync(signature, r.Method, r.Path,
+                                r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityFollow);
+                            if (succeeded) return Accepted();
+                            else return Unauthorized();
+                        }
                     case "Undo":
+                        if (activity is ActivityUndoFollow)
+                        {
+                            var succeeded = await _userService.UndoFollowRequestedAsync(signature, r.Method, r.Path,
+                                r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityUndoFollow);
+                            if (succeeded) return Accepted();
+                            else return Unauthorized();
+                        }
                         return Accepted();
                     default:
                         return Accepted();

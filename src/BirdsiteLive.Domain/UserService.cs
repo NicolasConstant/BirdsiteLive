@@ -18,24 +18,27 @@ namespace BirdsiteLive.Domain
     public interface IUserService
     {
         Actor GetUser(TwitterUser twitterUser);
-        Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity);
         Note GetStatus(TwitterUser user, ITweet tweet);
+        Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity);
+        Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity);
     }
 
     public class UserService : IUserService
     {
         private readonly IProcessFollowUser _processFollowUser;
+        private readonly IProcessUndoFollowUser _processUndoFollowUser;
 
         private readonly ICryptoService _cryptoService;
         private readonly IActivityPubService _activityPubService;
         private readonly string _host;
 
         #region Ctor
-        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser)
+        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser)
         {
             _cryptoService = cryptoService;
             _activityPubService = activityPubService;
             _processFollowUser = processFollowUser;
+            _processUndoFollowUser = processUndoFollowUser;
             _host = $"https://{instanceSettings.Domain.Replace("https://",string.Empty).Replace("http://", string.Empty).TrimEnd('/')}";
         }
         #endregion
@@ -104,6 +107,8 @@ namespace BirdsiteLive.Domain
             return note;
         }
 
+      
+
         public async Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity)
         {
             // Validate
@@ -118,7 +123,6 @@ namespace BirdsiteLive.Domain
             await _processFollowUser.ExecuteAsync(followerUserName, followerHost, followerInbox, twitterUser);
 
             // Send Accept Activity
-            //var followerHost = activity.actor.Replace("https://", string.Empty).Split('/').First();
             var acceptFollow = new ActivityAcceptFollow()
             {
                 context = "https://www.w3.org/ns/activitystreams",
@@ -136,7 +140,40 @@ namespace BirdsiteLive.Domain
             var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
             return result == HttpStatusCode.Accepted;
         }
-        
+
+        public async Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString,
+            Dictionary<string, string> requestHeaders, ActivityUndoFollow activity)
+        {
+            // Validate
+            var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders);
+            if (!sigValidation.SignatureIsValidated) return false;
+
+            // Save Follow in DB
+            var followerUserName = sigValidation.User.name.ToLowerInvariant();
+            var followerHost = sigValidation.User.url.Replace("https://", string.Empty).Split('/').First();
+            //var followerInbox = sigValidation.User.inbox;
+            var twitterUser = activity.apObject.apObject.Split('/').Last().Replace("@", string.Empty);
+            await _processUndoFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser);
+
+            // Send Accept Activity
+            var acceptFollow = new ActivityAcceptUndoFollow()
+            {
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{activity.apObject.apObject}#accepts/undofollows/{Guid.NewGuid()}",
+                type = "Accept",
+                actor = activity.apObject.apObject,
+                apObject = new ActivityUndoFollow()
+                {
+                    id = activity.id,
+                    type = activity.type,
+                    actor = activity.actor,
+                    apObject = activity.apObject
+                }
+            };
+            var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject.apObject);
+            return result == HttpStatusCode.Accepted;
+        }
+
         private async Task<SignatureValidationResult> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders)
         {
             var signatures = rawSig.Split(',');
