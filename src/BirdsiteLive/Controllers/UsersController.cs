@@ -82,6 +82,9 @@ namespace BirdsiteLive.Controllers
                 // Do something
                 var signature = r.Headers["Signature"].First();
 
+                Console.WriteLine(body);
+                Console.WriteLine();
+
                 switch (activity?.type)
                 {
                     case "Follow":
