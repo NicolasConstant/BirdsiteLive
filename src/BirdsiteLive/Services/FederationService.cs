@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
-using BirdsiteLive.Domain;
+using BirdsiteLive.Pipeline;
 using Microsoft.Extensions.Hosting;
 
 namespace BirdsiteLive.Services
@@ -10,25 +10,20 @@ namespace BirdsiteLive.Services
     public class FederationService : BackgroundService
     {
         private readonly IDbInitializerDal _dbInitializerDal;
-        private readonly IUserService _userService;
+        private readonly IStatusPublicationPipeline _statusPublicationPipeline;
 
         #region Ctor
-        public FederationService(IDbInitializerDal dbInitializerDal, IUserService userService)
+        public FederationService(IDbInitializerDal dbInitializerDal, IStatusPublicationPipeline statusPublicationPipeline)
         {
             _dbInitializerDal = dbInitializerDal;
-            _userService = userService;
+            _statusPublicationPipeline = statusPublicationPipeline;
         }
         #endregion
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await DbInitAsync();
-
-            for (;;)
-            {
-                Console.WriteLine("RUNNING SERVICE");
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-            }
+            await _statusPublicationPipeline.ExecuteAsync(stoppingToken);
         }
 
         private async Task DbInitAsync()

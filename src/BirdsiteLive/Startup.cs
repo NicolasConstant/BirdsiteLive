@@ -67,6 +67,7 @@ namespace BirdsiteLive
                 _.Assembly("BirdsiteLive.Domain");
                 _.Assembly("BirdsiteLive.DAL");
                 _.Assembly("BirdsiteLive.DAL.Postgres");
+                _.Assembly("BirdsiteLive.Pipeline");
                 _.TheCallingAssembly();
 
                 //_.AssemblyContainingType<IDal>();
