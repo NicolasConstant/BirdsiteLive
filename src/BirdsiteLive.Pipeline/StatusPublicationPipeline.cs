@@ -15,15 +15,18 @@ namespace BirdsiteLive.Pipeline
 
     public class StatusPublicationPipeline : IStatusPublicationPipeline
     {
-        private readonly IRetrieveTwitterAccountsProcessor _retrieveTwitterAccountsProcessor;
+        private readonly IRetrieveTwitterUsersProcessor _retrieveTwitterAccountsProcessor;
         private readonly IRetrieveTweetsProcessor _retrieveTweetsProcessor;
         private readonly IRetrieveFollowersProcessor _retrieveFollowersProcessor;
         private readonly ISendTweetsToFollowersProcessor _sendTweetsToFollowersProcessor;
         
         #region Ctor
-        public StatusPublicationPipeline(IRetrieveTweetsProcessor retrieveTweetsProcessor)
+        public StatusPublicationPipeline(IRetrieveTweetsProcessor retrieveTweetsProcessor, IRetrieveTwitterUsersProcessor retrieveTwitterAccountsProcessor, IRetrieveFollowersProcessor retrieveFollowersProcessor, ISendTweetsToFollowersProcessor sendTweetsToFollowersProcessor)
         {
             _retrieveTweetsProcessor = retrieveTweetsProcessor;
+            _retrieveTwitterAccountsProcessor = retrieveTwitterAccountsProcessor;
+            _retrieveFollowersProcessor = retrieveFollowersProcessor;
+            _sendTweetsToFollowersProcessor = sendTweetsToFollowersProcessor;
         }
         #endregion
 
@@ -36,12 +39,24 @@ namespace BirdsiteLive.Pipeline
             var retrieveFollowersBlock = new TransformManyBlock<UserWithTweetsToSync[], UserWithTweetsToSync>(async x => await _retrieveFollowersProcessor.ProcessAsync(x, ct));
             var retrieveFollowersBufferBlock = new BufferBlock<UserWithTweetsToSync>(new DataflowBlockOptions { BoundedCapacity = 20, CancellationToken = ct });
             var sendTweetsToFollowersBlock = new ActionBlock<UserWithTweetsToSync>(async x => await _sendTweetsToFollowersProcessor.ProcessAsync(x, ct), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 5, CancellationToken = ct});
-            
+
             // Link pipeline
+            twitterUsersBufferBlock.LinkTo(retrieveTweetsBlock, new DataflowLinkOptions {PropagateCompletion = true});
+            retrieveTweetsBlock.LinkTo(retrieveTweetsBufferBlock);
+            retrieveTweetsBufferBlock.LinkTo(retrieveFollowersBlock);
+            retrieveFollowersBlock.LinkTo(retrieveFollowersBufferBlock);
+            retrieveFollowersBufferBlock.LinkTo(sendTweetsToFollowersBlock);
 
             // Launch twitter user retriever
+            var retrieveTwitterAccountsTask = _retrieveTwitterAccountsProcessor.GetTwitterUsersAsync(twitterUsersBufferBlock, ct);
 
             // Wait
+            await Task.WhenAll(retrieveTwitterAccountsTask, sendTweetsToFollowersBlock.Completion);
+
+            var foreground = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("An error occured, pipeline stopped");
+            Console.ForegroundColor = foreground;
         }
     }
 }
