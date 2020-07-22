@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
+using BirdsiteLive.Common.Settings;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Bcpg;
 
@@ -13,16 +14,20 @@ namespace BirdsiteLive.Domain
     {
         Task<Actor> GetUser(string objectId);
         Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null);
+        Task<HttpStatusCode> PostNewNoteActivity(Note note, string username, string noteId, string targetHost,
+            string targetInbox);
     }
 
     public class ActivityPubService : IActivityPubService
     {
+        private readonly InstanceSettings _instanceSettings;
         private readonly ICryptoService _cryptoService;
 
         #region Ctor
-        public ActivityPubService(ICryptoService cryptoService)
+        public ActivityPubService(ICryptoService cryptoService, InstanceSettings instanceSettings)
         {
             _cryptoService = cryptoService;
+            _instanceSettings = instanceSettings;
         }
         #endregion
 
@@ -35,6 +40,55 @@ namespace BirdsiteLive.Domain
                 var content = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<Actor>(content);
             }
+        }
+
+        public async Task<HttpStatusCode> PostNewNoteActivity(Note note, string username, string noteId, string targetHost, string targetInbox)
+        {
+            //var username = "gra";
+            var actor = $"https://{_instanceSettings.Domain}/users/{username}";
+            //var targetHost = "mastodon.technology";
+            //var target = $"{targetHost}/users/testtest";
+            //var inbox = $"/users/testtest/inbox";
+
+            //var noteGuid = Guid.NewGuid();
+            var noteUri = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{noteId}";
+            
+            //var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{noteId}";
+            //var to = $"{actor}/followers";
+            //var apPublic = "https://www.w3.org/ns/activitystreams#Public";
+
+            var now = DateTime.UtcNow;
+            var nowString = now.ToString("s") + "Z";
+            
+            var noteActivity = new ActivityCreateNote()
+            {
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{noteUri}/activity",
+                type = "Create",
+                actor = actor,
+                published = nowString,
+
+                to = note.to,
+                cc = note.cc,
+                apObject = note
+                //apObject = new Note()
+                //{
+                //    id = noteUri,
+                //    summary = null,
+                //    inReplyTo = null,
+                //    published = nowString,
+                //    url = noteUrl,
+                //    attributedTo = actor,
+                //    to = new[] { to },
+                //    //cc = new [] { apPublic },
+                //    sensitive = false,
+                //    content = "<p>Woooot</p>",
+                //    attachment = new string[0],
+                //    tag = new string[0]
+                //}
+            };
+
+            return await PostDataAsync(noteActivity, targetHost, actor, targetInbox);
         }
 
         public async Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null)
