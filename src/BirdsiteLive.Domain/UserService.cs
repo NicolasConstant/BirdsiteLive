@@ -27,18 +27,19 @@ namespace BirdsiteLive.Domain
         private readonly IProcessFollowUser _processFollowUser;
         private readonly IProcessUndoFollowUser _processUndoFollowUser;
 
+        private readonly InstanceSettings _instanceSettings;
         private readonly ICryptoService _cryptoService;
         private readonly IActivityPubService _activityPubService;
-        private readonly string _host;
 
         #region Ctor
         public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser)
         {
+            _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
             _activityPubService = activityPubService;
             _processFollowUser = processFollowUser;
             _processUndoFollowUser = processUndoFollowUser;
-            _host = $"https://{instanceSettings.Domain.Replace("https://",string.Empty).Replace("http://", string.Empty).TrimEnd('/')}";
+            //_host = $"https://{instanceSettings.Domain.Replace("https://",string.Empty).Replace("http://", string.Empty).TrimEnd('/')}";
         }
         #endregion
 
@@ -46,17 +47,17 @@ namespace BirdsiteLive.Domain
         {
             var user = new Actor
             {
-                id = $"{_host}/users/{twitterUser.Acct}",
+                id = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}",
                 type = "Person",
                 preferredUsername = twitterUser.Acct,
                 name = twitterUser.Name,
-                inbox = $"{_host}/users/{twitterUser.Acct}/inbox",
+                inbox = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}/inbox",
                 summary = twitterUser.Description,
-                url = $"{_host}/@{twitterUser.Acct}",
+                url = $"https://{_instanceSettings.Domain}/@{twitterUser.Acct}",
                 publicKey = new PublicKey()
                 {
-                    id = $"{_host}/users/{twitterUser.Acct}#main-key",
-                    owner = $"{_host}/users/{twitterUser.Acct}",
+                    id = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}#main-key",
+                    owner = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}",
                     publicKeyPem = _cryptoService.GetUserPem(twitterUser.Acct)
                 },
                 icon = new Image
@@ -68,6 +69,10 @@ namespace BirdsiteLive.Domain
                 {
                     mediaType = "image/jpeg",
                     url = twitterUser.ProfileBannerURL
+                },
+                endpoints = new EndPoints
+                {
+                    sharedInbox = $"{_instanceSettings.Domain}/inbox"
                 }
             };
             return user;

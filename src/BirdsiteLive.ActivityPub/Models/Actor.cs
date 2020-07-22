@@ -1,4 +1,5 @@
-﻿using BirdsiteLive.ActivityPub.Converters;
+﻿using System.Net;
+using BirdsiteLive.ActivityPub.Converters;
 using Newtonsoft.Json;
 
 namespace BirdsiteLive.ActivityPub
@@ -19,5 +20,6 @@ namespace BirdsiteLive.ActivityPub
         public PublicKey publicKey { get; set; }
         public Image icon { get; set; }
         public Image image { get; set; }
+        public EndPoints endpoints { get; set; }
     }
 }
