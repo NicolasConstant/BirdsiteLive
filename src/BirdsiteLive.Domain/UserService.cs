@@ -18,7 +18,8 @@ namespace BirdsiteLive.Domain
     public interface IUserService
     {
         Actor GetUser(TwitterUser twitterUser);
-        Note GetStatus(TwitterUser user, ITweet tweet);
+        //Note GetStatus(TwitterUser user, ITweet tweet);
+        Note GetStatus(string username, ITweet tweet);
         Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity);
         Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity);
     }
@@ -74,15 +75,15 @@ namespace BirdsiteLive.Domain
             return user;
         }
 
-        public Note GetStatus(TwitterUser user, ITweet tweet)
+        public Note GetStatus(string username, ITweet tweet)
         {
-            var actor = GetUser(user);
+            //var actor = GetUser(user);
 
-            var actorUrl = $"{_host}/users/{user.Acct}";
-            var noteId = $"{_host}/users/{user.Acct}/statuses/{tweet.Id}";
-            var noteUrl = $"{_host}/@{user.Acct}/{tweet.Id}";
+            var actorUrl = $"{_host}/users/{username}";
+            var noteId = $"{_host}/users/{username}/statuses/{tweet.Id}";
+            var noteUrl = $"{_host}/@{username}/{tweet.Id}";
 
-            var to = $"{actor}/followers";
+            var to = $"{actorUrl}/followers";
             var apPublic = "https://www.w3.org/ns/activitystreams#Public";
 
             var note = new Note

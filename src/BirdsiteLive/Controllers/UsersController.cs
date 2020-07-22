@@ -59,10 +59,10 @@ namespace BirdsiteLive.Controllers
                 if (tweet == null)
                     return NotFound();
 
-                var user = _twitterService.GetUser(id);
-                if (user == null) return NotFound();
+                //var user = _twitterService.GetUser(id);
+                //if (user == null) return NotFound();
 
-                var status = _userService.GetStatus(user, tweet);
+                var status = _userService.GetStatus(id, tweet);
                 var jsonApUser = JsonConvert.SerializeObject(status);
                 return Content(jsonApUser, "application/activity+json; charset=utf-8");
             }
