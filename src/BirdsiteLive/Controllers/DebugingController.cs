@@ -92,7 +92,7 @@ namespace BirdsiteLive.Controllers
                     //cc = new [] { apPublic },
                     sensitive = false,
                     content = "<p>Woooot</p>",
-                    attachment = new string[0],
+                    attachment = new Attachment[0],
                     tag = new string[0]
                 }
             };

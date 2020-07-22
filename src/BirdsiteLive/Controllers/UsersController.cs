@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
@@ -18,12 +19,14 @@ namespace BirdsiteLive.Controllers
     {
         private readonly ITwitterService _twitterService;
         private readonly IUserService _userService;
+        private readonly IStatusService _statusService;
 
         #region Ctor
-        public UsersController(ITwitterService twitterService, IUserService userService)
+        public UsersController(ITwitterService twitterService, IUserService userService, IStatusService statusService)
         {
             _twitterService = twitterService;
             _userService = userService;
+            _statusService = statusService;
         }
         #endregion
 
@@ -62,7 +65,7 @@ namespace BirdsiteLive.Controllers
                 //var user = _twitterService.GetUser(id);
                 //if (user == null) return NotFound();
 
-                var status = _userService.GetStatus(id, tweet);
+                var status = _statusService.GetStatus(id, tweet);
                 var jsonApUser = JsonConvert.SerializeObject(status);
                 return Content(jsonApUser, "application/activity+json; charset=utf-8");
             }
@@ -78,6 +81,8 @@ namespace BirdsiteLive.Controllers
             using (var reader = new StreamReader(Request.Body))
             {
                 var body = await reader.ReadToEndAsync();
+                //System.IO.File.WriteAllText($@"C:\apdebug\{Guid.NewGuid()}.json", body);
+
                 var activity = ApDeserializer.ProcessActivity(body);
                 // Do something
                 var signature = r.Headers["Signature"].First();

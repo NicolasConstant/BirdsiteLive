@@ -24,7 +24,7 @@ namespace BirdsiteLive.ActivityPub
         //public string conversation { get; set; }
         public string content { get; set; }
         //public Dictionary<string,string> contentMap { get; set; }
-        public string[] attachment { get; set; }
+        public Attachment[] attachment { get; set; }
         public string[] tag { get; set; }
         //public Dictionary<string, string> replies;
     }

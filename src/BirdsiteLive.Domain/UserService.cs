@@ -18,8 +18,6 @@ namespace BirdsiteLive.Domain
     public interface IUserService
     {
         Actor GetUser(TwitterUser twitterUser);
-        //Note GetStatus(TwitterUser user, ITweet tweet);
-        Note GetStatus(string username, ITweet tweet);
         Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity);
         Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity);
     }
@@ -74,41 +72,6 @@ namespace BirdsiteLive.Domain
             };
             return user;
         }
-
-        public Note GetStatus(string username, ITweet tweet)
-        {
-            //var actor = GetUser(user);
-
-            var actorUrl = $"{_host}/users/{username}";
-            var noteId = $"{_host}/users/{username}/statuses/{tweet.Id}";
-            var noteUrl = $"{_host}/@{username}/{tweet.Id}";
-
-            var to = $"{actorUrl}/followers";
-            var apPublic = "https://www.w3.org/ns/activitystreams#Public";
-
-            var note = new Note
-            {
-                id = $"{noteId}/activity",
-                
-                published = tweet.CreatedAt.ToString("s") + "Z",
-                url = noteUrl,
-                attributedTo = actorUrl,
-
-                //to = new [] {to},
-                //cc = new [] { apPublic },
-
-                to = new[] { apPublic },
-                cc = new[] { to },
-
-                sensitive = false,
-                content = $"<p>{tweet.Text}</p>",
-                attachment = new string[0],
-                tag = new string[0]
-            };
-            return note;
-        }
-
-      
 
         public async Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity)
         {
