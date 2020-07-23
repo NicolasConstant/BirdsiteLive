@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Models;
 using Tweetinvi.Models.Entities;
 
@@ -10,7 +12,7 @@ namespace BirdsiteLive.Domain
 {
     public interface IStatusService
     {
-        Note GetStatus(string username, ITweet tweet);
+        Note GetStatus(string username, ExtractedTweet tweet);
     }
 
     public class StatusService : IStatusService
@@ -24,7 +26,7 @@ namespace BirdsiteLive.Domain
         }
         #endregion
 
-        public Note GetStatus(string username, ITweet tweet)
+        public Note GetStatus(string username, ExtractedTweet tweet)
         {
             var actorUrl = $"https://{_instanceSettings.Domain}/users/{username}";
             var noteId = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{tweet.Id}";
@@ -49,8 +51,8 @@ namespace BirdsiteLive.Domain
                 //cc = new string[0],
 
                 sensitive = false,
-                content = $"<p>{tweet.Text}</p>",
-                attachment = GetAttachments(tweet.Media),
+                content = $"<p>{tweet.MessageContent}</p>",
+                attachment = Convert(tweet.Media),
                 tag = new string[0]
             };
           
@@ -58,62 +60,17 @@ namespace BirdsiteLive.Domain
             return note;
         }
 
-        private Attachment[] GetAttachments(List<IMediaEntity> media)
+        private Attachment[] Convert(ExtractedMedia[] media)
         {
-            var result = new List<Attachment>();
-
-            foreach (var m in media)
+            return media.Select(x =>
             {
-                var mediaUrl = GetMediaUrl(m);
-                var mediaType = GetMediaType(m.MediaType, mediaUrl);
-                if (mediaType == null) continue;
-
-                var att = new Attachment
+                return new Attachment
                 {
                     type = "Document",
-                    mediaType = mediaType,
-                    url = mediaUrl
+                    url = x.Url,
+                    mediaType = x.MediaType
                 };
-                result.Add(att);
-            }
-
-            return result.ToArray();
-        }
-
-        private string GetMediaUrl(IMediaEntity media)
-        {
-            switch (media.MediaType)
-            {
-                case "photo": return media.MediaURLHttps;
-                case "animated_gif": return media.VideoDetails.Variants[0].URL;
-                case "video": return media.VideoDetails.Variants.OrderByDescending(x => x.Bitrate).First().URL;
-                default: return null;
-            }
-        }
-
-        private string GetMediaType(string mediaType, string mediaUrl)
-        {
-            switch (mediaType)
-            {
-                case "photo":
-                    var ext = Path.GetExtension(mediaUrl);
-                    switch (ext)
-                    {
-                        case ".jpg":
-                        case ".jpeg":
-                            return "image/jpeg";
-                        case ".png":
-                            return "image/png";
-                    }
-                    return null;
-
-                case "animated_gif":
-                    return "image/gif";
-
-                case "video":
-                    return "video/mp4";
-            }
-            return null;
+            }).ToArray();
         }
     }
 }

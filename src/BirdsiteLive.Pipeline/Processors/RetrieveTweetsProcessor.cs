@@ -7,6 +7,7 @@ using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Pipeline.Contracts;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Twitter;
+using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Models;
 
 namespace BirdsiteLive.Pipeline.Processors
@@ -51,9 +52,9 @@ namespace BirdsiteLive.Pipeline.Processors
             return usersWtTweets.ToArray();
         }
 
-        private ITweet[] RetrieveNewTweets(SyncTwitterUser user)
+        private ExtractedTweet[] RetrieveNewTweets(SyncTwitterUser user)
         {
-            ITweet[] tweets;
+            ExtractedTweet[] tweets;
             if (user.LastTweetPostedId == -1)
                 tweets = _twitterService.GetTimeline(user.Acct, 1);
             else

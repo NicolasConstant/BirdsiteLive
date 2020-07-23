@@ -10,6 +10,7 @@ using BirdsiteLive.Domain;
 using BirdsiteLive.Pipeline.Contracts;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Twitter;
+using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Models;
 
 namespace BirdsiteLive.Pipeline.Processors
@@ -50,7 +51,7 @@ namespace BirdsiteLive.Pipeline.Processors
             return userWithTweetsToSync;
         }
 
-        private async Task ProcessFollowerAsync(IEnumerable<ITweet> tweets, Follower follower, int userId,
+        private async Task ProcessFollowerAsync(IEnumerable<ExtractedTweet> tweets, Follower follower, int userId,
             SyncTwitterUser user)
         {
             var fromStatusId = follower.FollowingsSyncStatus[userId];
