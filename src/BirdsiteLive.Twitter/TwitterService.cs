@@ -58,8 +58,6 @@ namespace BirdsiteLive.Twitter
             return _tweetExtractor.Extract(tweet);
         }
 
-       
-
         public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)
         {
             TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;

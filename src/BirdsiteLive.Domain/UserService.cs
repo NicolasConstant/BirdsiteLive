@@ -72,7 +72,7 @@ namespace BirdsiteLive.Domain
                 },
                 endpoints = new EndPoints
                 {
-                    sharedInbox = $"{_instanceSettings.Domain}/inbox"
+                    sharedInbox = $"https://{_instanceSettings.Domain}/inbox"
                 }
             };
             return user;
