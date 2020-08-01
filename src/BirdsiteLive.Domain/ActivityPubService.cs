@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
+using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Bcpg;

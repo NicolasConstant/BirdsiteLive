@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using BirdsiteLive.ActivityPub;
+using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Models;
@@ -35,6 +37,8 @@ namespace BirdsiteLive.Domain
             var to = $"{actorUrl}/followers";
             var apPublic = "https://www.w3.org/ns/activitystreams#Public";
 
+            var extractedTags = ExtractTags(tweet.MessageContent);
+            
             var note = new Note
             {
                 id = $"{noteId}/activity",
@@ -51,17 +55,44 @@ namespace BirdsiteLive.Domain
                 //cc = new string[0],
 
                 sensitive = false,
-                content = $"<p>{tweet.MessageContent}</p>",
+                content = $"<p>{extractedTags.content}</p>",
                 attachment = Convert(tweet.Media),
-                tag = new string[0]
+                tag = extractedTags.tags
             };
           
 
             return note;
         }
 
+        private (string content, Tag[] tags) ExtractTags(string messageContent)
+        {
+            var regex = new Regex(@"\W(\#[a-zA-Z0-9]+\b)(?!;)");
+            var match = regex.Matches(messageContent);
+
+            var tags = new List<Tag>();
+            foreach (var m in match)
+            {
+                var tag = m.ToString().Replace("#", string.Empty).Replace("\n", string.Empty).Trim();
+                var url = $"https://{_instanceSettings.Domain}/tags/{tag}";
+
+                tags.Add(new Tag
+                {
+                    name = $"#{tag}",
+                    href = url,
+                    type = "Hashtag"
+                });
+
+                messageContent = messageContent.Replace(
+                    $"#{tag}",
+                    $@"<a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>");
+            }
+
+            return (messageContent, new Tag[0]);
+        }
+
         private Attachment[] Convert(ExtractedMedia[] media)
         {
+            if(media == null) return new Attachment[0];
             return media.Select(x =>
             {
                 return new Attachment
