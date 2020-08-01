@@ -41,15 +41,21 @@ namespace BirdsiteLive.Domain
             var apPublic = "https://www.w3.org/ns/activitystreams#Public";
 
             var extractedTags = _statusExtractor.ExtractTags(tweet.MessageContent);
-            
+
+            string inReplyTo = null;
+            if (tweet.InReplyToStatusId != default)
+                inReplyTo = $"https://{_instanceSettings.Domain}/users/{tweet.InReplyToAccount}/statuses/{tweet.InReplyToStatusId}";
+
             var note = new Note
             {
-                id = $"{noteId}/activity",
+                //id = $"{noteId}/activity",
+                id = $"{noteId}",
 
                 published = tweet.CreatedAt.ToString("s") + "Z",
                 url = noteUrl,
                 attributedTo = actorUrl,
 
+                inReplyTo = inReplyTo,
                 //to = new [] {to},
                 //cc = new [] { apPublic },
 

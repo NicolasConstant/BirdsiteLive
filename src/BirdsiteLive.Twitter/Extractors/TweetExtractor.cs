@@ -20,6 +20,7 @@ namespace BirdsiteLive.Twitter.Extractors
             {
                 Id = tweet.Id,
                 InReplyToStatusId = tweet.InReplyToStatusId,
+                InReplyToAccount = tweet.InReplyToScreenName,
                 MessageContent = ExtractMessage(tweet),
                 Media = ExtractMedia(tweet.Media),
                 CreatedAt = tweet.CreatedAt
