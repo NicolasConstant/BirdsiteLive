@@ -23,8 +23,7 @@ namespace BirdsiteLive.Controllers
 
             }
 
-
-            throw new NotImplementedException();
+            return Accepted();
         }
     }
 }
