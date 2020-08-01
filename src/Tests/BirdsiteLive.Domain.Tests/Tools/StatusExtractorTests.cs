@@ -44,6 +44,27 @@ namespace BirdsiteLive.Domain.Tests.Tools
         }
 
         [TestMethod]
+        public void Extract_SingleHashTag_SpecialChar_Test()
+        {
+            #region Stubs
+            var message = $"Bla!{Environment.NewLine}#COVIDー19⁠";
+            #endregion
+
+            var service = new StatusExtractor(_settings);
+            var result = service.ExtractTags(message);
+
+            #region Validations
+            Assert.AreEqual(1, result.tags.Length);
+            Assert.AreEqual("#COVIDー19", result.tags.First().name);
+            Assert.AreEqual("Hashtag", result.tags.First().type);
+            Assert.AreEqual("https://domain.name/tags/COVIDー19", result.tags.First().href);
+
+            Assert.IsTrue(result.content.Contains("Bla!"));
+            Assert.IsTrue(result.content.Contains(@"<a href=""https://domain.name/tags/COVIDー19"" class=""mention hashtag"" rel=""tag"">#<span>COVIDー19</span></a>"));
+            #endregion
+        }
+
+        [TestMethod]
         public void Extract_MultiHashTags_Test()
         {
             #region Stubs
