@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BirdsiteLive.Twitter.Models;
@@ -23,7 +24,7 @@ namespace BirdsiteLive.Twitter.Extractors
                 InReplyToAccount = tweet.InReplyToScreenName,
                 MessageContent = ExtractMessage(tweet),
                 Media = ExtractMedia(tweet.Media),
-                CreatedAt = tweet.CreatedAt
+                CreatedAt = tweet.CreatedAt.ToUniversalTime()
             };
             return extractedTweet;
         }
@@ -35,11 +36,11 @@ namespace BirdsiteLive.Twitter.Extractors
             foreach (var tweetUrl in tweetUrls)
                 message = message.Replace(tweetUrl, string.Empty).Trim();
 
-            if (tweet.QuotedTweet != null) message = $"[Quote RT] {message}";
+            if (tweet.QuotedTweet != null) message = $"[Quote RT]{Environment.NewLine}{message}";
             if (tweet.IsRetweet)
             {
                 if (tweet.RetweetedTweet != null)
-                    message = $"[RT @{tweet.RetweetedTweet.CreatedBy.ScreenName}] {tweet.RetweetedTweet.FullText}";
+                    message = $"[RT @{tweet.RetweetedTweet.CreatedBy.ScreenName}]{Environment.NewLine}{tweet.RetweetedTweet.FullText}";
                 else
                     message = message.Replace("RT", "[RT]");
             }
