@@ -18,6 +18,7 @@ namespace BirdsiteLive.Domain.Tools
         private readonly Regex _mentionRegex = new Regex(@"\W(\@[a-zA-Z0-9_ー]+\b)(?!;)");
         //private readonly Regex _mentionRegex = new Regex(@"(?<=[\s>]|^)@(\w*[a-zA-Z0-9_ー]+\w*)\b(?!;)");
         //private readonly Regex _mentionRegex = new Regex(@"(?<=[\s>]|^)@(\w*[a-zA-Z0-9_ー]+)\b(?!;)");
+        private readonly Regex _urlRegex = new Regex(@"((http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)");
         private readonly InstanceSettings _instanceSettings;
 
         #region Ctor
@@ -32,6 +33,38 @@ namespace BirdsiteLive.Domain.Tools
             var tags = new List<Tag>();
             messageContent = $" {messageContent} ";
 
+            // Extract Urls
+            var urlMatch = _urlRegex.Matches(messageContent);
+            foreach (var m in urlMatch)
+            {
+                var url = m.ToString().Replace("\n", string.Empty).Trim();
+
+                var protocol = "https://";
+                if (url.StartsWith("http://")) protocol = "http://";
+                else if (url.StartsWith("ftp://")) protocol = "ftp://";
+
+                var truncatedUrl = url.Replace(protocol, string.Empty);
+
+                if (truncatedUrl.StartsWith("www."))
+                {
+                    protocol += "www.";
+                    truncatedUrl = truncatedUrl.Replace("www.", string.Empty);
+                }
+
+                var firstPart = truncatedUrl;
+                var secondPart = string.Empty;
+
+                if (truncatedUrl.Length > 30)
+                {
+                    firstPart = truncatedUrl.Substring(0, 30);
+                    secondPart = truncatedUrl.Substring(30);
+                }
+
+                messageContent = Regex.Replace(messageContent, m.ToString(),
+                    $@" <a href=""{url}"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">{protocol}</span><span class=""ellipsis"">{firstPart}</span><span class=""invisible"">{secondPart}</span></a>");
+            }
+
+            // Extract Hashtags
             var hashtagMatch = _hastagRegex.Matches(messageContent);
             foreach (var m in hashtagMatch)
             {
@@ -49,6 +82,7 @@ namespace BirdsiteLive.Domain.Tools
                     $@" <a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>");
             }
 
+            // Extract Mentions
             var mentionMatch = _mentionRegex.Matches(messageContent);
             foreach (var m in mentionMatch)
             {
