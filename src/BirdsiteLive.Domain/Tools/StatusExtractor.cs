@@ -13,7 +13,11 @@ namespace BirdsiteLive.Domain.Tools
     public class StatusExtractor : IStatusExtractor
     {
         private readonly Regex _hastagRegex = new Regex(@"\W(\#[a-zA-Z0-9_ー]+\b)(?!;)");
+        //private readonly Regex _hastagRegex = new Regex(@"(?<=[\s>]|^)#(\w*[a-zA-Z0-9_ー]+\w*)\b(?!;)");
+        //private readonly Regex _hastagRegex = new Regex(@"(?<=[\s>]|^)#(\w*[a-zA-Z0-9_ー]+)\b(?!;)");
         private readonly Regex _mentionRegex = new Regex(@"\W(\@[a-zA-Z0-9_ー]+\b)(?!;)");
+        //private readonly Regex _mentionRegex = new Regex(@"(?<=[\s>]|^)@(\w*[a-zA-Z0-9_ー]+\w*)\b(?!;)");
+        //private readonly Regex _mentionRegex = new Regex(@"(?<=[\s>]|^)@(\w*[a-zA-Z0-9_ー]+)\b(?!;)");
         private readonly InstanceSettings _instanceSettings;
 
         #region Ctor
@@ -26,6 +30,7 @@ namespace BirdsiteLive.Domain.Tools
         public (string content, Tag[] tags) ExtractTags(string messageContent)
         {
             var tags = new List<Tag>();
+            messageContent = $" {messageContent} ";
 
             var hashtagMatch = _hastagRegex.Matches(messageContent);
             foreach (var m in hashtagMatch)
@@ -62,7 +67,7 @@ namespace BirdsiteLive.Domain.Tools
                     $@" <span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>");
             }
 
-            return (messageContent, tags.ToArray());
+            return (messageContent.Trim(), tags.ToArray());
         }
     }
 }

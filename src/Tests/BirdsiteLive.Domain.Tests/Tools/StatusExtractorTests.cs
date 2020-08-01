@@ -44,6 +44,27 @@ namespace BirdsiteLive.Domain.Tests.Tools
         }
 
         [TestMethod]
+        public void Extract_SingleHashTag_AtStart_Test()
+        {
+            #region Stubs
+            var message = $"#mytag⁠ Bla!";
+            #endregion
+
+            var service = new StatusExtractor(_settings);
+            var result = service.ExtractTags(message);
+
+            #region Validations
+            Assert.AreEqual(1, result.tags.Length);
+            Assert.AreEqual("#mytag", result.tags.First().name);
+            Assert.AreEqual("Hashtag", result.tags.First().type);
+            Assert.AreEqual("https://domain.name/tags/mytag", result.tags.First().href);
+
+            Assert.IsTrue(result.content.Contains("Bla!"));
+            Assert.IsTrue(result.content.Contains(@"<a href=""https://domain.name/tags/mytag"" class=""mention hashtag"" rel=""tag"">#<span>mytag</span></a>"));
+            #endregion
+        }
+
+        [TestMethod]
         public void Extract_SingleHashTag_SpecialChar_Test()
         {
             #region Stubs
@@ -126,6 +147,27 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
         }
 
+        [TestMethod]
+        public void Extract_SingleMentionTag_AtStart_Test()
+        {
+            #region Stubs
+            var message = $"@mynickname Bla!";
+            #endregion
+
+            var service = new StatusExtractor(_settings);
+            var result = service.ExtractTags(message);
+
+            #region Validations
+            Assert.AreEqual(1, result.tags.Length);
+            Assert.AreEqual("@mynickname@domain.name", result.tags.First().name);
+            Assert.AreEqual("Mention", result.tags.First().type);
+            Assert.AreEqual("https://domain.name/users/mynickname", result.tags.First().href);
+
+            Assert.IsTrue(result.content.Contains("Bla!"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+            #endregion
+        }
+        
         [TestMethod]
         public void Extract_MultiMentionTag_Test()
         {
