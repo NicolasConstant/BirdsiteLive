@@ -41,7 +41,7 @@ namespace BirdsiteLive.Domain.Tools
                 });
 
                 messageContent = Regex.Replace(messageContent, m.ToString(),
-                    $@"<a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>");
+                    $@" <a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>");
             }
 
             var mentionMatch = _mentionRegex.Matches(messageContent);
@@ -59,7 +59,7 @@ namespace BirdsiteLive.Domain.Tools
                 });
 
                 messageContent = Regex.Replace(messageContent, m.ToString(),
-                    $@"<span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>");
+                    $@" <span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>");
             }
 
             return (messageContent, tags.ToArray());
