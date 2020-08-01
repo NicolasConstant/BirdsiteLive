@@ -103,5 +103,26 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@dada"" class=""u-url mention"">@<span>dada</span></a></span>"));
             #endregion
         }
+
+        [TestMethod]
+        public void Extract_HeterogeneousTag_Test()
+        {
+            #region Stubs
+            var message = $"Bla!{Environment.NewLine}@mynickname⁠ #mytag2 @mynickname3{Environment.NewLine}Test @dada #dada Test";
+            #endregion
+
+            var service = new StatusExtractor(_settings);
+            var result = service.ExtractTags(message);
+
+            #region Validations
+            Assert.AreEqual(5, result.tags.Length);
+            Assert.IsTrue(result.content.Contains("Bla!"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<a href=""https://domain.name/tags/mytag2"" class=""mention hashtag"" rel=""tag"">#<span>mytag2</span></a>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname3"" class=""u-url mention"">@<span>mynickname3</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@dada"" class=""u-url mention"">@<span>dada</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<a href=""https://domain.name/tags/dada"" class=""mention hashtag"" rel=""tag"">#<span>dada</span></a>"));
+            #endregion
+        }
     }
 }
