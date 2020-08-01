@@ -60,8 +60,8 @@ namespace BirdsiteLive.Domain
                 //cc = new [] { apPublic },
 
                 to = new[] { to },
-                cc = new[] { apPublic },
-                //cc = new string[0],
+                //cc = new[] { apPublic },
+                cc = new string[0],
 
                 sensitive = false,
                 content = $"<p>{extractedTags.content}</p>",
