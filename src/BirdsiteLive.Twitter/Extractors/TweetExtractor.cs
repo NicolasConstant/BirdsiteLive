@@ -39,7 +39,7 @@ namespace BirdsiteLive.Twitter.Extractors
             if (tweet.IsRetweet)
             {
                 if (tweet.RetweetedTweet != null)
-                    message = $"[RT {tweet.RetweetedTweet.CreatedBy.ScreenName}] {tweet.RetweetedTweet.FullText}";
+                    message = $"[RT @{tweet.RetweetedTweet.CreatedBy.ScreenName}] {tweet.RetweetedTweet.FullText}";
                 else
                     message = message.Replace("RT", "[RT]");
             }
