@@ -42,16 +42,16 @@ namespace BirdsiteLive.Pipeline
 
             // Link pipeline
             twitterUsersBufferBlock.LinkTo(retrieveTweetsBlock, new DataflowLinkOptions {PropagateCompletion = true});
-            retrieveTweetsBlock.LinkTo(retrieveTweetsBufferBlock);
-            retrieveTweetsBufferBlock.LinkTo(retrieveFollowersBlock);
-            retrieveFollowersBlock.LinkTo(retrieveFollowersBufferBlock);
-            retrieveFollowersBufferBlock.LinkTo(sendTweetsToFollowersBlock);
+            retrieveTweetsBlock.LinkTo(retrieveTweetsBufferBlock, new DataflowLinkOptions { PropagateCompletion = true });
+            retrieveTweetsBufferBlock.LinkTo(retrieveFollowersBlock, new DataflowLinkOptions { PropagateCompletion = true });
+            retrieveFollowersBlock.LinkTo(retrieveFollowersBufferBlock, new DataflowLinkOptions { PropagateCompletion = true });
+            retrieveFollowersBufferBlock.LinkTo(sendTweetsToFollowersBlock, new DataflowLinkOptions { PropagateCompletion = true });
 
             // Launch twitter user retriever
             var retrieveTwitterAccountsTask = _retrieveTwitterAccountsProcessor.GetTwitterUsersAsync(twitterUsersBufferBlock, ct);
 
             // Wait
-            await Task.WhenAll(retrieveTwitterAccountsTask, sendTweetsToFollowersBlock.Completion);
+            await Task.WhenAny(new []{ retrieveTwitterAccountsTask , sendTweetsToFollowersBlock.Completion});
 
             var foreground = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
