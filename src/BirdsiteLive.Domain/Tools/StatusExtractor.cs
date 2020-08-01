@@ -12,8 +12,8 @@ namespace BirdsiteLive.Domain.Tools
 
     public class StatusExtractor : IStatusExtractor
     {
-        private readonly Regex _hastagRegex = new Regex(@"\W(\#[a-zA-Z0-9]+\b)(?!;)");
-        private readonly Regex _mentionRegex = new Regex(@"\W(\@[a-zA-Z0-9]+\b)(?!;)");
+        private readonly Regex _hastagRegex = new Regex(@"\W(\#[a-zA-Z0-9_]+\b)(?!;)");
+        private readonly Regex _mentionRegex = new Regex(@"\W(\@[a-zA-Z0-9_]+\b)(?!;)");
         private readonly InstanceSettings _instanceSettings;
 
         #region Ctor

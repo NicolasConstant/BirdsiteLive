@@ -85,6 +85,27 @@ namespace BirdsiteLive.Domain.Tests.Tools
         }
 
         [TestMethod]
+        public void Extract_SingleMentionTag_SpecialChar_Test()
+        {
+            #region Stubs
+            var message = $"Bla!{Environment.NewLine}@my___nickname⁠";
+            #endregion
+
+            var service = new StatusExtractor(_settings);
+            var result = service.ExtractTags(message);
+
+            #region Validations
+            Assert.AreEqual(1, result.tags.Length);
+            Assert.AreEqual("@my___nickname@domain.name", result.tags.First().name);
+            Assert.AreEqual("Mention", result.tags.First().type);
+            Assert.AreEqual("https://domain.name/users/my___nickname", result.tags.First().href);
+
+            Assert.IsTrue(result.content.Contains("Bla!"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@my___nickname"" class=""u-url mention"">@<span>my___nickname</span></a></span>"));
+            #endregion
+        }
+
+        [TestMethod]
         public void Extract_MultiMentionTag_Test()
         {
             #region Stubs
