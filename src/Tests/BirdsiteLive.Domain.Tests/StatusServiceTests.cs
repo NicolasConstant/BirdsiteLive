@@ -20,29 +20,29 @@ namespace BirdsiteLive.Domain.Tests
         }
         #endregion
 
-        [TestMethod]
-        public void ExtractMentionsTest()
-        {
-            #region Stubs
-            var username = "MyUserName";
-            var extractedTweet = new ExtractedTweet
-            {
-                Id = 124L,
-                CreatedAt = DateTime.UtcNow,
-                MessageContent = @"Getting ready for the weekend...have a great one everyone!
-⁠
-Photo by Tim Tronckoe | @timtronckoe 
-⁠
-#archenemy #michaelamott #alissawhitegluz #jeffloomis #danielerlandsson #sharleedangelo⁠"
-            };
-            #endregion
+//        [TestMethod]
+//        public void ExtractMentionsTest()
+//        {
+//            #region Stubs
+//            var username = "MyUserName";
+//            var extractedTweet = new ExtractedTweet
+//            {
+//                Id = 124L,
+//                CreatedAt = DateTime.UtcNow,
+//                MessageContent = @"Getting ready for the weekend...have a great one everyone!
+//⁠
+//Photo by Tim Tronckoe | @timtronckoe 
+//⁠
+//#archenemy #michaelamott #alissawhitegluz #jeffloomis #danielerlandsson #sharleedangelo⁠"
+//            };
+//            #endregion
 
-            var service = new StatusService(_settings);
-            var result = service.GetStatus(username, extractedTweet);
+//            var service = new StatusService(_settings);
+//            var result = service.GetStatus(username, extractedTweet);
 
-            #region Validations
+//            #region Validations
 
-            #endregion
-        }
+//            #endregion
+//        }
     }
 }
