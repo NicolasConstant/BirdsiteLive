@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -88,6 +89,10 @@ namespace BirdsiteLive.Domain
                 //    tag = new string[0]
                 //}
             };
+
+            //TODO Remove this
+            if (targetInbox.Contains(targetHost))
+                targetInbox = targetInbox.Split(new []{ targetHost }, StringSplitOptions.RemoveEmptyEntries).Last();
 
             return await PostDataAsync(noteActivity, targetHost, actor, targetInbox);
         }
