@@ -33,6 +33,10 @@ namespace BirdsiteLive.Domain.Tools
             var tags = new List<Tag>();
             messageContent = $" {messageContent} ";
 
+            // Replace return lines
+            messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p>");
+            messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/>");
+
             // Extract Urls
             var urlMatch = _urlRegex.Matches(messageContent);
             foreach (var m in urlMatch)
