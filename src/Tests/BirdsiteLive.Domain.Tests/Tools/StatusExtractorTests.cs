@@ -23,6 +23,38 @@ namespace BirdsiteLive.Domain.Tests.Tools
         #endregion
 
         [TestMethod]
+        public void Extract_ReturnLines_Test()
+        {
+            #region Stubs
+            var message = "Bla.\n\n@Mention blo. https://t.co/pgtrJi9600";
+            #endregion
+            
+            var service = new StatusExtractor(_settings);
+            var result = service.ExtractTags(message);
+
+            #region Validations
+            Assert.IsTrue(result.content.Contains("Bla."));
+            Assert.IsTrue(result.content.Contains("</p><p>"));
+            #endregion
+        }
+
+        [TestMethod]
+        public void Extract_ReturnSingleLines_Test()
+        {
+            #region Stubs
+            var message = "Bla.\n@Mention blo. https://t.co/pgtrJi9600";
+            #endregion
+
+            var service = new StatusExtractor(_settings);
+            var result = service.ExtractTags(message);
+
+            #region Validations
+            Assert.IsTrue(result.content.Contains("Bla."));
+            Assert.IsTrue(result.content.Contains("<br/>"));
+            #endregion
+        }
+
+        [TestMethod]
         public void Extract_FormatUrl_Test()
         {
             #region Stubs

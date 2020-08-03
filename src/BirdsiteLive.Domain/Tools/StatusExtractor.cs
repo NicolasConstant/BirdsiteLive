@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
@@ -13,11 +14,15 @@ namespace BirdsiteLive.Domain.Tools
     public class StatusExtractor : IStatusExtractor
     {
         private readonly Regex _hastagRegex = new Regex(@"\W(\#[a-zA-Z0-9_ー]+\b)(?!;)");
+        //private readonly Regex _hastagRegex = new Regex(@"#\w+");
         //private readonly Regex _hastagRegex = new Regex(@"(?<=[\s>]|^)#(\w*[a-zA-Z0-9_ー]+\w*)\b(?!;)");
         //private readonly Regex _hastagRegex = new Regex(@"(?<=[\s>]|^)#(\w*[a-zA-Z0-9_ー]+)\b(?!;)");
+
         private readonly Regex _mentionRegex = new Regex(@"\W(\@[a-zA-Z0-9_ー]+\b)(?!;)");
+        //private readonly Regex _mentionRegex = new Regex(@"@\w+");
         //private readonly Regex _mentionRegex = new Regex(@"(?<=[\s>]|^)@(\w*[a-zA-Z0-9_ー]+\w*)\b(?!;)");
         //private readonly Regex _mentionRegex = new Regex(@"(?<=[\s>]|^)@(\w*[a-zA-Z0-9_ー]+)\b(?!;)");
+
         private readonly Regex _urlRegex = new Regex(@"((http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)");
         private readonly InstanceSettings _instanceSettings;
 
@@ -34,12 +39,12 @@ namespace BirdsiteLive.Domain.Tools
             messageContent = $" {messageContent} ";
 
             // Replace return lines
-            messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p>");
-            messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/>");
+            messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p> ");
+            messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/> ");
 
             // Extract Urls
             var urlMatch = _urlRegex.Matches(messageContent);
-            foreach (var m in urlMatch)
+            foreach (Match m in urlMatch)
             {
                 var url = m.ToString().Replace("\n", string.Empty).Trim();
 
@@ -69,8 +74,8 @@ namespace BirdsiteLive.Domain.Tools
             }
 
             // Extract Hashtags
-            var hashtagMatch = _hastagRegex.Matches(messageContent);
-            foreach (var m in hashtagMatch)
+            var hashtagMatch = OrderByLength(_hastagRegex.Matches(messageContent));
+            foreach (Match m in hashtagMatch)
             {
                 var tag = m.ToString().Replace("#", string.Empty).Replace("\n", string.Empty).Trim();
                 var url = $"https://{_instanceSettings.Domain}/tags/{tag}";
@@ -87,8 +92,8 @@ namespace BirdsiteLive.Domain.Tools
             }
 
             // Extract Mentions
-            var mentionMatch = _mentionRegex.Matches(messageContent);
-            foreach (var m in mentionMatch)
+            var mentionMatch = OrderByLength(_mentionRegex.Matches(messageContent));
+            foreach (Match m in mentionMatch)
             {
                 var mention = m.ToString().Replace("@", string.Empty).Replace("\n", string.Empty).Trim();
                 var url = $"https://{_instanceSettings.Domain}/users/{mention}";
@@ -105,7 +110,21 @@ namespace BirdsiteLive.Domain.Tools
                     $@" <span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>");
             }
 
+            // Clean up return lines
+            messageContent = Regex.Replace(messageContent, @"<p> ", "<p>");
+            messageContent = Regex.Replace(messageContent, @"<br/> ", "<br/>");
+
             return (messageContent.Trim(), tags.ToArray());
+        }
+
+        private IEnumerable<Match> OrderByLength(MatchCollection matches)
+        {
+            var result = new List<Match>();
+
+            foreach (Match m in matches) result.Add(m);
+            result = result.OrderByDescending(x => x.Length).ToList();
+
+            return result;
         }
     }
 }
