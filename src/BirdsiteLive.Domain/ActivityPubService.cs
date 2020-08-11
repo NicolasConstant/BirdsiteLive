@@ -73,26 +73,7 @@ namespace BirdsiteLive.Domain
                 to = note.to,
                 cc = note.cc,
                 apObject = note
-                //apObject = new Note()
-                //{
-                //    id = noteUri,
-                //    summary = null,
-                //    inReplyTo = null,
-                //    published = nowString,
-                //    url = noteUrl,
-                //    attributedTo = actor,
-                //    to = new[] { to },
-                //    //cc = new [] { apPublic },
-                //    sensitive = false,
-                //    content = "<p>Woooot</p>",
-                //    attachment = new string[0],
-                //    tag = new string[0]
-                //}
             };
-
-            //TODO Remove this
-            if (targetInbox.Contains(targetHost))
-                targetInbox = targetInbox.Split(new []{ targetHost }, StringSplitOptions.RemoveEmptyEntries).Last();
 
             return await PostDataAsync(noteActivity, targetHost, actor, targetInbox);
         }

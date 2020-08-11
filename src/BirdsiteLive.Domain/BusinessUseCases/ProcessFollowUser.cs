@@ -5,7 +5,7 @@ namespace BirdsiteLive.Domain.BusinessUseCases
 {
     public interface IProcessFollowUser
     {
-        Task ExecuteAsync(string followerUsername, string followerDomain, string followerInbox, string twitterUser);
+        Task ExecuteAsync(string followerUsername, string followerDomain, string twitterUsername, string followerInbox, string sharedInbox);
     }
 
     public class ProcessFollowUser : IProcessFollowUser
@@ -21,13 +21,13 @@ namespace BirdsiteLive.Domain.BusinessUseCases
         }
         #endregion
 
-        public async Task ExecuteAsync(string followerUsername, string followerDomain, string followerInbox, string twitterUsername)
+        public async Task ExecuteAsync(string followerUsername, string followerDomain, string twitterUsername, string followerInbox, string sharedInbox)
         {
             // Get Follower and Twitter Users
             var follower = await _followerDal.GetFollowerAsync(followerUsername, followerDomain);
             if (follower == null)
             {
-                await _followerDal.CreateFollowerAsync(followerUsername, followerDomain, followerInbox);
+                await _followerDal.CreateFollowerAsync(followerUsername, followerDomain, followerInbox, sharedInbox);
                 follower = await _followerDal.GetFollowerAsync(followerUsername, followerDomain);
             }
 

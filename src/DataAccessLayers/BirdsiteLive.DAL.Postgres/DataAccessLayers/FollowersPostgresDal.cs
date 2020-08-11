@@ -20,7 +20,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         }
         #endregion
 
-        public async Task CreateFollowerAsync(string acct, string host, string inboxUrl, int[] followings = null, Dictionary<int, long> followingSyncStatus = null)
+        public async Task CreateFollowerAsync(string acct, string host, string inboxRoute, string sharedInboxRoute, int[] followings = null, Dictionary<int, long> followingSyncStatus = null)
         {
             if(followings == null) followings = new int[0];
             if(followingSyncStatus == null) followingSyncStatus = new Dictionary<int, long>();
@@ -35,8 +35,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 dbConnection.Open();
 
                 await dbConnection.ExecuteAsync(
-                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxUrl,followings,followingsSyncStatus) VALUES(@acct,@host,@inboxUrl,@followings,CAST(@followingsSyncStatus as json))",
-                    new { acct, host, inboxUrl, followings,  followingsSyncStatus = serializedDic });
+                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxRoute,sharedInboxRoute,followings,followingsSyncStatus) VALUES(@acct,@host,@inboxRoute,@sharedInboxRoute,@followings,CAST(@followingsSyncStatus as json))",
+                    new { acct, host, inboxRoute, sharedInboxRoute, followings, followingsSyncStatus = serializedDic });
             }
         }
 
@@ -128,7 +128,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 Id = follower.Id,
                 Acct = follower.Acct,
                 Host = follower.Host,
-                InboxUrl = follower.InboxUrl,
+                InboxRoute = follower.InboxRoute,
+                SharedInboxRoute = follower.SharedInboxRoute,
                 Followings = follower.Followings.ToList(),
                 FollowingsSyncStatus = JsonConvert.DeserializeObject<Dictionary<int,long>>(follower.FollowingsSyncStatus)
             };
@@ -143,6 +144,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public string Acct { get; set; }
         public string Host { get; set; }
-        public string InboxUrl { get; set; }
+        public string InboxRoute { get; set; }
+        public string SharedInboxRoute { get; set; }
     }
 }

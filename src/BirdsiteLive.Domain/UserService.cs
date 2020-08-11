@@ -88,8 +88,15 @@ namespace BirdsiteLive.Domain
             var followerUserName = sigValidation.User.name.ToLowerInvariant();
             var followerHost = sigValidation.User.url.Replace("https://", string.Empty).Split('/').First();
             var followerInbox = sigValidation.User.inbox;
+            var followerSharedInbox = sigValidation.User?.endpoints?.sharedInbox;
             var twitterUser = activity.apObject.Split('/').Last().Replace("@", string.Empty);
-            await _processFollowUser.ExecuteAsync(followerUserName, followerHost, followerInbox, twitterUser);
+
+            // Make sure to only keep routes
+            followerInbox = OnlyKeepRoute(followerInbox, followerHost);
+            followerSharedInbox = OnlyKeepRoute(followerSharedInbox, followerHost);
+            
+            // Execute
+            await _processFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser, followerInbox, followerSharedInbox);
 
             // Send Accept Activity
             var acceptFollow = new ActivityAcceptFollow()
@@ -108,6 +115,17 @@ namespace BirdsiteLive.Domain
             };
             var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
             return result == HttpStatusCode.Accepted;
+        }
+
+        private string OnlyKeepRoute(string inbox, string host)
+        {
+            if (string.IsNullOrWhiteSpace(inbox)) 
+                return null;
+
+            if (inbox.Contains(host))
+                inbox = inbox.Split(new[] { host }, StringSplitOptions.RemoveEmptyEntries).Last();
+
+            return inbox;
         }
 
         public async Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString,

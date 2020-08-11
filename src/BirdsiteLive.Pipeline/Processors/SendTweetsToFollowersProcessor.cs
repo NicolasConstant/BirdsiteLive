@@ -51,11 +51,13 @@ namespace BirdsiteLive.Pipeline.Processors
             return userWithTweetsToSync;
         }
 
-        private async Task ProcessFollowerAsync(IEnumerable<ExtractedTweet> tweets, Follower follower, int userId,
-            SyncTwitterUser user)
+        private async Task ProcessFollowerAsync(IEnumerable<ExtractedTweet> tweets, Follower follower, int userId, SyncTwitterUser user)
         {
             var fromStatusId = follower.FollowingsSyncStatus[userId];
             var tweetsToSend = tweets.Where(x => x.Id > fromStatusId).OrderBy(x => x.Id).ToList();
+            var inbox = string.IsNullOrWhiteSpace(follower.SharedInboxRoute)
+                ? follower.InboxRoute
+                : follower.SharedInboxRoute;
 
             var syncStatus = fromStatusId;
             try
@@ -63,8 +65,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 foreach (var tweet in tweetsToSend)
                 {
                     var note = _statusService.GetStatus(user.Acct, tweet);
-                    var result = await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), follower.Host,
-                        follower.InboxUrl);
+                    var result = await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), follower.Host, inbox);
 
                     if (result == HttpStatusCode.Accepted) 
                         syncStatus = tweet.Id;
