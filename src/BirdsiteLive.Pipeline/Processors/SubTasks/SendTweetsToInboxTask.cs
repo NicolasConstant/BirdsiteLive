@@ -40,9 +40,6 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                 .ToList();
 
             var inbox = follower.InboxRoute;
-            //var inbox = string.IsNullOrWhiteSpace(follower.SharedInboxRoute)
-            //    ? follower.InboxRoute
-            //    : follower.SharedInboxRoute;
 
             var syncStatus = fromStatusId;
             try
