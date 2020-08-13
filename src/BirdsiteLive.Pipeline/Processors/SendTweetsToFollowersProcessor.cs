@@ -57,7 +57,7 @@ namespace BirdsiteLive.Pipeline.Processors
             {
                 try
                 {
-                    await _sendTweetsToSharedInbox.ExecuteAsync(tweets, user, followersPerInstance);
+                    await _sendTweetsToSharedInbox.ExecuteAsync(tweets, user, followersPerInstance.Key, followersPerInstance.ToArray());
                 }
                 catch (Exception e)
                 {

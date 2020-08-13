@@ -11,7 +11,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
 {
     public interface ISendTweetsToSharedInboxTask
     {
-        Task ExecuteAsync(ExtractedTweet[] tweets, SyncTwitterUser user, IGrouping<string, Follower> followersPerInstance);
+        Task ExecuteAsync(ExtractedTweet[] tweets, SyncTwitterUser user, string host, Follower[] followersPerInstance);
     }
 
     public class SendTweetsToSharedInboxTask : ISendTweetsToSharedInboxTask
@@ -29,14 +29,12 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
         }
         #endregion
 
-        public async Task ExecuteAsync(ExtractedTweet[] tweets, SyncTwitterUser user, IGrouping<string, Follower> followersPerInstance)
+        public async Task ExecuteAsync(ExtractedTweet[] tweets, SyncTwitterUser user, string host, Follower[] followersPerInstance)
         {
             var userId = user.Id;
-            var host = followersPerInstance.Key;
-            var groupedFollowers = followersPerInstance.ToList();
-            var inbox = groupedFollowers.First().SharedInboxRoute;
+            var inbox = followersPerInstance.First().SharedInboxRoute;
 
-            var fromStatusId = groupedFollowers
+            var fromStatusId = followersPerInstance
                 .Max(x => x.FollowingsSyncStatus[userId]);
 
             var tweetsToSend = tweets
@@ -63,7 +61,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
             {
                 if (syncStatus != fromStatusId)
                 {
-                    foreach (var f in groupedFollowers)
+                    foreach (var f in followersPerInstance)
                     {
                         f.FollowingsSyncStatus[userId] = syncStatus;
                         await _followersDal.UpdateFollowerAsync(f);
