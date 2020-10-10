@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
@@ -8,6 +8,18 @@ using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.DAL.Models;
+using BirdsiteLive.Pipeline.Processors;
+using BirdsiteLive.Twitter;
+using Castle.DynamicProxy.Generators.Emitters;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BirdsiteLive.Pipeline.Tests.Processors
 {
