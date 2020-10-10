@@ -44,7 +44,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 }
                 else if (tweets.Length > 0 && user.LastTweetPostedId == -1)
                 {
-                    var tweetId = tweets.First().Id;
+                    var tweetId = tweets.Last().Id;
                     await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId);
                 }
             }
