@@ -47,6 +47,32 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
         }
 
         [TestMethod]
+        public async Task GetTwitterUsersAsync_NoUsers_Test()
+        {
+            #region Stubs
+            var buffer = new BufferBlock<SyncTwitterUser[]>();
+            #endregion
+
+            #region Mocks
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
+            twitterUserDalMock
+                .Setup(x => x.GetAllTwitterUsersAsync())
+                .ReturnsAsync(new SyncTwitterUser[0]);
+            #endregion
+
+            var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object);
+            processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
+
+            await Task.Delay(50);
+
+            #region Validations
+            twitterUserDalMock.VerifyAll();
+            Assert.AreEqual(0, buffer.Count);
+            #endregion
+        }
+
+
+        [TestMethod]
         public async Task GetTwitterUsersAsync_Exception_Test()
         {
             #region Stubs

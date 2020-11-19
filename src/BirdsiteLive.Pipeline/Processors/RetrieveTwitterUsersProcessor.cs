@@ -29,7 +29,9 @@ namespace BirdsiteLive.Pipeline.Processors
                 try
                 {
                     var users = await _twitterUserDal.GetAllTwitterUsersAsync();
-                    await twitterUsersBufferBlock.SendAsync(users, ct);
+
+                    if(users.Length > 0)
+                        await twitterUsersBufferBlock.SendAsync(users, ct);
                 }
                 catch (Exception e)
                 {
