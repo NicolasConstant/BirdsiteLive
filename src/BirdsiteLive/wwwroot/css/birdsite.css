@@ -53,6 +53,7 @@
 
 .sub-profile {
     padding: 10px 15px;
+    min-height: 80px;
 }
 
 /*.sub-profile a {

@@ -1,4 +1,5 @@
-﻿@model BirdsiteLive.Twitter.Models.TwitterUser
+﻿@using Tweetinvi.Streams.Model.AccountActivity
+@model DisplayTwitterUser
 @{
     ViewData["Title"] = "User";
 }
@@ -28,7 +29,9 @@
 
         </div>
     </a>
-    <br/>
+    <br />
+    <br />
     <p>Search this handle to find it in your instance:</p>
 
+    <input type="text" name="textbox" value=" @ViewData.Model.InstanceHandle" onclick="this.select()" class="form-control" readonly/>
 </div>

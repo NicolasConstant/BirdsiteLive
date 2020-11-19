@@ -6,7 +6,9 @@ using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Domain;
+using BirdsiteLive.Models;
 using BirdsiteLive.Twitter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,13 +22,15 @@ namespace BirdsiteLive.Controllers
         private readonly ITwitterService _twitterService;
         private readonly IUserService _userService;
         private readonly IStatusService _statusService;
+        private readonly InstanceSettings _instanceSettings;
 
         #region Ctor
-        public UsersController(ITwitterService twitterService, IUserService userService, IStatusService statusService)
+        public UsersController(ITwitterService twitterService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings)
         {
             _twitterService = twitterService;
             _userService = userService;
             _statusService = statusService;
+            _instanceSettings = instanceSettings;
         }
         #endregion
 
@@ -45,7 +49,17 @@ namespace BirdsiteLive.Controllers
                 return Content(jsonApUser, "application/activity+json; charset=utf-8");
             }
 
-            return View(user);
+            var displayableUser = new DisplayTwitterUser
+            {
+                Name = user.Name,
+                Description = user.Description,
+                Acct = user.Acct,
+                Url = user.Url,
+                ProfileImageUrl = user.ProfileImageUrl,
+                
+                InstanceHandle = $"@{user.Acct}@{_instanceSettings.Domain}"
+            };
+            return View(displayableUser);
         }
 
         [Route("/@{id}/{statusId}")]
@@ -81,7 +95,7 @@ namespace BirdsiteLive.Controllers
             using (var reader = new StreamReader(Request.Body))
             {
                 var body = await reader.ReadToEndAsync();
-                //System.IO.File.WriteAllText($@"C:\apdebug\{Guid.NewGuid()}.json", body);
+                System.IO.File.WriteAllText($@"C:\apdebug\{Guid.NewGuid()}.json", body);
 
                 var activity = ApDeserializer.ProcessActivity(body);
                 // Do something
