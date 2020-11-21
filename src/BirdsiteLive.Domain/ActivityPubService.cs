@@ -96,7 +96,7 @@ namespace BirdsiteLive.Domain
             var httpRequestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri($"https://{targetHost}/{usedInbox}"),
+                RequestUri = new Uri($"https://{targetHost}{usedInbox}"),
                 Headers =
                 {
                     {"Host", targetHost},
