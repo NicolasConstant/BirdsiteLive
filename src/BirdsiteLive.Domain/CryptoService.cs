@@ -7,7 +7,7 @@ namespace BirdsiteLive.Domain
     public interface ICryptoService
     {
         string GetUserPem(string id);
-        string SignAndGetSignatureHeader(DateTime date, string actor, string host, string inbox = null);
+        string SignAndGetSignatureHeader(DateTime date, string actor, string host, string digest, string inbox);
     }
 
     public class CryptoService : ICryptoService
@@ -33,7 +33,7 @@ namespace BirdsiteLive.Domain
         /// <param name="actor">in the form of https://domain.io/actor</param>
         /// <param name="host">in the form of domain.io</param>
         /// <returns></returns>
-        public string SignAndGetSignatureHeader(DateTime date, string actor, string targethost, string inbox = null)
+        public string SignAndGetSignatureHeader(DateTime date, string actor, string targethost, string digest, string inbox)
         {
             var usedInbox = "/inbox";
             if (!string.IsNullOrWhiteSpace(inbox))
@@ -41,12 +41,12 @@ namespace BirdsiteLive.Domain
 
             var httpDate = date.ToString("r");
 
-            var signedString = $"(request-target): post {usedInbox}\nhost: {targethost}\ndate: {httpDate}";
+            var signedString = $"(request-target): post {usedInbox}\nhost: {targethost}\ndate: {httpDate}\ndigest: SHA-256={digest}";
             var signedStringBytes = Encoding.UTF8.GetBytes(signedString);
             var signature = _magicKeyFactory.GetMagicKey().Sign(signedStringBytes);
             var sig64 = Convert.ToBase64String(signature);
 
-            var header = "keyId=\"" + actor + "\",headers=\"(request-target) host date\",signature=\"" + sig64 + "\"";
+            var header = "keyId=\"" + actor + "\",algorithm=\"rsa-sha256\",headers=\"(request-target) host date digest\",signature=\"" + sig64 + "\"";
             return header;
         }
     }

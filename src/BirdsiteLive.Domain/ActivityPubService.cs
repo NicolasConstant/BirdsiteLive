@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
@@ -88,9 +89,10 @@ namespace BirdsiteLive.Domain
 
             var date = DateTime.UtcNow.ToUniversalTime();
             var httpDate = date.ToString("r");
-            var signature = _cryptoService.SignAndGetSignatureHeader(date, actorUrl, targetHost, usedInbox);
 
-            
+            var digest = ComputeSha256Hash(json);
+
+            var signature = _cryptoService.SignAndGetSignatureHeader(date, actorUrl, targetHost, digest, usedInbox);
 
             var client = new HttpClient();
             var httpRequestMessage = new HttpRequestMessage
@@ -101,13 +103,25 @@ namespace BirdsiteLive.Domain
                 {
                     {"Host", targetHost},
                     {"Date", httpDate},
-                    {"Signature", signature}
+                    {"Signature", signature},
+                    {"Digest", $"SHA-256={digest}"}
                 },
                 Content = new StringContent(json, Encoding.UTF8, "application/ld+json")
             };
 
             var response = await client.SendAsync(httpRequestMessage);
             return response.StatusCode;
+        }
+
+        static string ComputeSha256Hash(string rawData)
+        {
+            // Create a SHA256   
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // ComputeHash - returns byte array  
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+                return Convert.ToBase64String(bytes);
+            }
         }
     }
 }
