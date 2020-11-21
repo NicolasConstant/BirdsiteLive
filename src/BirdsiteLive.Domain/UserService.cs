@@ -48,7 +48,8 @@ namespace BirdsiteLive.Domain
             var user = new Actor
             {
                 id = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}",
-                type = "Person",
+                type = "Service", //Person Service
+                followers = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}/followers",
                 preferredUsername = twitterUser.Acct,
                 name = twitterUser.Name,
                 inbox = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}/inbox",

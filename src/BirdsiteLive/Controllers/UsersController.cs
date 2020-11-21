@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
+using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Models;
@@ -56,7 +58,7 @@ namespace BirdsiteLive.Controllers
                 Acct = user.Acct,
                 Url = user.Url,
                 ProfileImageUrl = user.ProfileImageUrl,
-                
+
                 InstanceHandle = $"@{user.Acct}@{_instanceSettings.Domain}"
             };
             return View(displayableUser);
@@ -95,7 +97,7 @@ namespace BirdsiteLive.Controllers
             using (var reader = new StreamReader(Request.Body))
             {
                 var body = await reader.ReadToEndAsync();
-                System.IO.File.WriteAllText($@"C:\apdebug\{Guid.NewGuid()}.json", body);
+                //System.IO.File.WriteAllText($@"C:\apdebug\{Guid.NewGuid()}.json", body);
 
                 var activity = ApDeserializer.ProcessActivity(body);
                 // Do something
@@ -128,6 +130,21 @@ namespace BirdsiteLive.Controllers
             }
 
             return Accepted();
+        }
+
+        [Route("/users/{id}/followers")]
+        [HttpGet]
+        public async Task<IActionResult> Followers(string id)
+        {
+            var r = Request.Headers["Accept"].First();
+            if (!r.Contains("application/activity+json")) return NotFound();
+
+            var followers = new Followers
+            {
+                id = $"https://{_instanceSettings.Domain}/users/{id}/followers"
+            };
+            var jsonApUser = JsonConvert.SerializeObject(followers);
+            return Content(jsonApUser, "application/activity+json; charset=utf-8");
         }
 
         private Dictionary<string, string> RequestHeaders(IHeaderDictionary header)
