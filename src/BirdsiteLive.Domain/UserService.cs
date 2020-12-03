@@ -164,6 +164,14 @@ namespace BirdsiteLive.Domain
 
         private async Task<SignatureValidationResult> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders)
         {
+            //Check Date Validity
+            var date = requestHeaders["date"];
+            var d = DateTime.Parse(date).ToUniversalTime();
+            var now = DateTime.UtcNow;
+            var delta = Math.Abs((d - now).TotalSeconds);
+            if (delta > 30) return new SignatureValidationResult { SignatureIsValidated = false };
+            
+            //Check Signature
             var signatures = rawSig.Split(',');
             var signature_header = new Dictionary<string, string>();
             foreach (var signature in signatures)
