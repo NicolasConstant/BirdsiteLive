@@ -6,7 +6,7 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
-COPY . .
+COPY ./src/ ./src/
 RUN dotnet restore "/src/BirdsiteLive/BirdsiteLive.csproj"
 RUN dotnet build "/src/BirdsiteLive/BirdsiteLive.csproj" -c Release -o /app/build
 
