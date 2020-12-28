@@ -4,6 +4,5 @@
     {
         public string Domain { get; set; }
         public string AdminEmail { get; set; }
-        public string PostgresConnString { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.Common.Structs;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Postgres.DataAccessLayers;
 using BirdsiteLive.DAL.Postgres.Settings;
@@ -51,15 +52,26 @@ namespace BirdsiteLive
             var instanceSettings = Configuration.GetSection("Instance").Get<InstanceSettings>();
             services.For<InstanceSettings>().Use(x => instanceSettings);
 
-            var postgresSettings = new PostgresSettings
-            {
-                ConnString = instanceSettings.PostgresConnString
-            };
-            services.For<PostgresSettings>().Use(x => postgresSettings);
+            var dbSettings = Configuration.GetSection("Db").Get<DbSettings>();
+            services.For<DbSettings>().Use(x => dbSettings);
 
-            services.For<ITwitterUserDal>().Use<TwitterUserPostgresDal>().Singleton();
-            services.For<IFollowersDal>().Use<FollowersPostgresDal>().Singleton();
-            services.For<IDbInitializerDal>().Use<DbInitializerPostgresDal>().Singleton();
+            if (string.Equals(dbSettings.Type, DbTypes.Postgres, StringComparison.OrdinalIgnoreCase))
+            {
+                var connString = $"Host={dbSettings.Host};Username={dbSettings.User};Password={dbSettings.Password};Database={dbSettings.Name}";
+                var postgresSettings = new PostgresSettings
+                {
+                    ConnString = connString
+                };
+                services.For<PostgresSettings>().Use(x => postgresSettings);
+
+                services.For<ITwitterUserDal>().Use<TwitterUserPostgresDal>().Singleton();
+                services.For<IFollowersDal>().Use<FollowersPostgresDal>().Singleton();
+                services.For<IDbInitializerDal>().Use<DbInitializerPostgresDal>().Singleton();
+            }
+            else
+            {
+                throw new NotImplementedException($"{dbSettings.Type} is not supported");
+            }
 
             services.Scan(_ =>
             {
