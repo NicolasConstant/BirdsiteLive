@@ -111,7 +111,7 @@ namespace BirdsiteLive.Controllers
                     case "Follow":
                         {
                             var succeeded = await _userService.FollowRequestedAsync(signature, r.Method, r.Path,
-                                r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityFollow);
+                                r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityFollow, body);
                             if (succeeded) return Accepted();
                             else return Unauthorized();
                         }
@@ -119,7 +119,7 @@ namespace BirdsiteLive.Controllers
                         if (activity is ActivityUndoFollow)
                         {
                             var succeeded = await _userService.UndoFollowRequestedAsync(signature, r.Method, r.Path,
-                                r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityUndoFollow);
+                                r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityUndoFollow, body);
                             if (succeeded) return Accepted();
                             else return Unauthorized();
                         }

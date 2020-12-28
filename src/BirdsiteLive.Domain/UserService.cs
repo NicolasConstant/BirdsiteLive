@@ -18,8 +18,8 @@ namespace BirdsiteLive.Domain
     public interface IUserService
     {
         Actor GetUser(TwitterUser twitterUser);
-        Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity);
-        Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity);
+        Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity, string body);
+        Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity, string body);
     }
 
     public class UserService : IUserService
@@ -79,10 +79,10 @@ namespace BirdsiteLive.Domain
             return user;
         }
 
-        public async Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity)
+        public async Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity, string body)
         {
             // Validate
-            var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders);
+            var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders, body);
             if (!sigValidation.SignatureIsValidated) return false;
 
             // Save Follow in DB
@@ -130,10 +130,10 @@ namespace BirdsiteLive.Domain
         }
 
         public async Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString,
-            Dictionary<string, string> requestHeaders, ActivityUndoFollow activity)
+            Dictionary<string, string> requestHeaders, ActivityUndoFollow activity, string body)
         {
             // Validate
-            var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders);
+            var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders, body);
             if (!sigValidation.SignatureIsValidated) return false;
 
             // Save Follow in DB
@@ -162,7 +162,7 @@ namespace BirdsiteLive.Domain
             return result == HttpStatusCode.Accepted;
         }
 
-        private async Task<SignatureValidationResult> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders)
+        private async Task<SignatureValidationResult> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders, string body)
         {
             //Check Date Validity
             var date = requestHeaders["date"];
@@ -171,6 +171,12 @@ namespace BirdsiteLive.Domain
             var delta = Math.Abs((d - now).TotalSeconds);
             if (delta > 30) return new SignatureValidationResult { SignatureIsValidated = false };
             
+            //Check Digest
+            var digest = requestHeaders["digest"];
+            var digestHash = digest.Split(new [] {"SHA-256="},StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+            var calculatedDigestHash = _cryptoService.ComputeSha256Hash(body);
+            if (digestHash != calculatedDigestHash) return new SignatureValidationResult { SignatureIsValidated = false };
+
             //Check Signature
             var signatures = rawSig.Split(',');
             var signature_header = new Dictionary<string, string>();
