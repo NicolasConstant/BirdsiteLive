@@ -36,11 +36,14 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            <a href="https://github.com/NicolasConstant/BirdsiteLive">Github</a> @*<a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>*@
-        </div>
-    </footer>
+<footer class="border-top footer text-muted">
+    <div class="container">
+
+        <a href="https://github.com/NicolasConstant/BirdsiteLive">Github</a> @*<a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>*@
+
+        <span style="float: right;">BirdsiteLIVE @System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(3)</span>
+    </div>
+</footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
