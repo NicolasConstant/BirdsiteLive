@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 using BirdsiteLive.Domain.Factories;
 
@@ -8,6 +9,7 @@ namespace BirdsiteLive.Domain
     {
         string GetUserPem(string id);
         string SignAndGetSignatureHeader(DateTime date, string actor, string host, string digest, string inbox);
+        string ComputeSha256Hash(string data);
     }
 
     public class CryptoService : ICryptoService
@@ -48,6 +50,17 @@ namespace BirdsiteLive.Domain
 
             var header = "keyId=\"" + actor + "\",algorithm=\"rsa-sha256\",headers=\"(request-target) host date digest\",signature=\"" + sig64 + "\"";
             return header;
+        }
+
+        public string ComputeSha256Hash(string data)
+        {
+            // Create a SHA256   
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // ComputeHash - returns byte array  
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(data));
+                return Convert.ToBase64String(bytes);
+            }
         }
     }
 }

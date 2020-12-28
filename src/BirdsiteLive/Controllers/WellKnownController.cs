@@ -50,6 +50,8 @@ namespace BirdsiteLive.Controllers
         [Route("/nodeinfo/{id}.json")]
         public IActionResult NodeInfo(string id)
         {
+            var version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(3);
+
             if (id == "2.0")
             {
                 var nodeInfo = new NodeInfoV20
@@ -66,7 +68,7 @@ namespace BirdsiteLive.Controllers
                     software = new Software()
                     {
                         name = "birdsitelive",
-                        version = "0.1.0"
+                        version = version
                     },
                     protocols = new[]
                     {
@@ -101,7 +103,7 @@ namespace BirdsiteLive.Controllers
                     software = new SoftwareV21()
                     {
                         name = "birdsitelive",
-                        version = "0.1.0",
+                        version = version,
                         repository = "https://github.com/NicolasConstant/BirdsiteLive"
                     },
                     protocols = new[]

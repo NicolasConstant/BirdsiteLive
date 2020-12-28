@@ -90,7 +90,7 @@ namespace BirdsiteLive.Domain
             var date = DateTime.UtcNow.ToUniversalTime();
             var httpDate = date.ToString("r");
 
-            var digest = ComputeSha256Hash(json);
+            var digest = _cryptoService.ComputeSha256Hash(json);
 
             var signature = _cryptoService.SignAndGetSignatureHeader(date, actorUrl, targetHost, digest, usedInbox);
 
@@ -113,15 +113,6 @@ namespace BirdsiteLive.Domain
             return response.StatusCode;
         }
 
-        static string ComputeSha256Hash(string rawData)
-        {
-            // Create a SHA256   
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                // ComputeHash - returns byte array  
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-                return Convert.ToBase64String(bytes);
-            }
-        }
+       
     }
 }
