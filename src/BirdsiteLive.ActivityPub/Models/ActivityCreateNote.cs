@@ -1,4 +1,5 @@
 ﻿using System;
+using BirdsiteLive.ActivityPub.Models;
 using Newtonsoft.Json;
 
 namespace BirdsiteLive.ActivityPub

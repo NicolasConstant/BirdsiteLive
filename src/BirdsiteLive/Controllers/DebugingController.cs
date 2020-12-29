@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
+using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Domain;
 using Microsoft.AspNetCore.Mvc;
@@ -92,8 +93,8 @@ namespace BirdsiteLive.Controllers
                     //cc = new [] { apPublic },
                     sensitive = false,
                     content = "<p>Woooot</p>",
-                    attachment = new string[0],
-                    tag = new string[0]
+                    attachment = new Attachment[0],
+                    tag = new Tag[0]
                 }
             };
 

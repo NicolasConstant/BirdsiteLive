@@ -1,43 +1,73 @@
-﻿.profile {
-    border: 1px #dddddd solid;
-    border-radius: 5px;
-    background-repeat: no-repeat;
-    /*background-attachment: fixed;*/
-    background-position: center;
+﻿.nounderline {
+    text-decoration: none !important
 }
 
+.logo {
+    width: 25px;
+    height: 25px;
+    float: right;
+}
+
+.logo-twitter {
+    filter: invert(51%) sepia(92%) saturate(1166%) hue-rotate(180deg) brightness(94%) contrast(98%);
+    /*background: #349fef;*/
+}
+
+.profile {
+    border: 1px #dddddd solid;
+    border-radius: 15px;
+    /*background-repeat: no-repeat;*/
+    /*background-attachment: fixed;*/
+    /*background-position: center;*/
+    color: black;
+}
+
+    .profile:hover {
+        transition: all .2s;
+        background-color: #f5f8fa;
+    }
+
     .profile h1 {
-        font-size: 32px;
-        margin-left: 120px;
-        padding-top: 8px;
+        font-size: 18px;
+        margin-left: 60px;
+        padding-top: 0px;
     }
 
     .profile h2 {
         font-size: 20px;
-        margin-left: 120px;
+        margin-left: 0px;
     }
 
-    .profile a {
+/*.profile a {
         color: black;
     }
 
-    .profile a:hover {
-        color: #555555;
-    }
+        .profile a:hover {
+            color: #555555;
+        }*/
+
+.handle {
+    color: gray;
+    font-weight: normal;
+}
 
 .sub-profile {
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.7);
+    padding: 10px 15px;
+    min-height: 80px;
 }
+
+/*.sub-profile a {
+        color: black;
+    }*/
 
 .avatar {
     float: left;
-    width: 100px;
+    width: 50px;
     border-radius: 50%;
 }
 
 .description {
-    margin-top: 40px;
-    margin-left: 20px;
-    font-weight: bold;
+    margin-top: 0px;
+    margin-left: 60px;
+    /*font-weight: bold;*/
 }

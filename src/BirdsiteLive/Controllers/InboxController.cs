@@ -19,12 +19,11 @@ namespace BirdsiteLive.Controllers
             using (var reader = new StreamReader(Request.Body))
             {
                 var body = await reader.ReadToEndAsync();
-
+                //System.IO.File.WriteAllText($@"C:\apdebug\inbox\{Guid.NewGuid()}.json", body);
 
             }
 
-
-            throw new NotImplementedException();
+            return Accepted();
         }
     }
 }

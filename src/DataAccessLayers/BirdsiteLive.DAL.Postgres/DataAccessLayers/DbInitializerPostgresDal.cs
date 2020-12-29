@@ -106,8 +106,10 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 followings INTEGER[],
                 followingsSyncStatus JSONB,
 
-                acct VARCHAR(50), 
-                host VARCHAR(253),
+                acct VARCHAR(50) NOT NULL, 
+                host VARCHAR(253) NOT NULL,
+                inboxRoute VARCHAR(2048) NOT NULL,
+                sharedInboxRoute VARCHAR(2048),
                 UNIQUE (acct, host)
 		    );";
             await _tools.ExecuteRequestAsync(createFollowers);

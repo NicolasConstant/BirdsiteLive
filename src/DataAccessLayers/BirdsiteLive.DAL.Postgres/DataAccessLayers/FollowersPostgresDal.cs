@@ -20,8 +20,11 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         }
         #endregion
 
-        public async Task CreateFollowerAsync(string acct, string host, int[] followings, Dictionary<int, long> followingSyncStatus)
+        public async Task CreateFollowerAsync(string acct, string host, string inboxRoute, string sharedInboxRoute, int[] followings = null, Dictionary<int, long> followingSyncStatus = null)
         {
+            if(followings == null) followings = new int[0];
+            if(followingSyncStatus == null) followingSyncStatus = new Dictionary<int, long>();
+
             var serializedDic = JsonConvert.SerializeObject(followingSyncStatus);
 
             acct = acct.ToLowerInvariant();
@@ -32,8 +35,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 dbConnection.Open();
 
                 await dbConnection.ExecuteAsync(
-                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,followings,followingsSyncStatus) VALUES(@acct,@host,@followings, CAST(@followingsSyncStatus as json))",
-                    new { acct, host, followings, followingsSyncStatus = serializedDic });
+                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxRoute,sharedInboxRoute,followings,followingsSyncStatus) VALUES(@acct,@host,@inboxRoute,@sharedInboxRoute,@followings,CAST(@followingsSyncStatus as json))",
+                    new { acct, host, inboxRoute, sharedInboxRoute, followings, followingsSyncStatus = serializedDic });
             }
         }
 
@@ -68,18 +71,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
-        public async Task UpdateFollowerAsync(int id, int[] followings, Dictionary<int, long> followingsSyncStatus)
+        public async Task UpdateFollowerAsync(Follower follower)
         {
-            if (id == default) throw new ArgumentException("id");
+            if (follower == default) throw new ArgumentException("follower");
+            if (follower.Id == default) throw new ArgumentException("id");
 
-            var serializedDic = JsonConvert.SerializeObject(followingsSyncStatus);
+            var serializedDic = JsonConvert.SerializeObject(follower.FollowingsSyncStatus);
             var query = $"UPDATE {_settings.FollowersTableName} SET followings = @followings, followingsSyncStatus =  CAST(@followingsSyncStatus as json) WHERE id = @id";
 
             using (var dbConnection = Connection)
             {
                 dbConnection.Open();
 
-                await dbConnection.QueryAsync(query, new { id, followings, followingsSyncStatus = serializedDic });
+                await dbConnection.QueryAsync(query, new { follower.Id, follower.Followings, followingsSyncStatus = serializedDic });
             }
         }
 
@@ -124,7 +128,9 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 Id = follower.Id,
                 Acct = follower.Acct,
                 Host = follower.Host,
-                Followings = follower.Followings,
+                InboxRoute = follower.InboxRoute,
+                SharedInboxRoute = follower.SharedInboxRoute,
+                Followings = follower.Followings.ToList(),
                 FollowingsSyncStatus = JsonConvert.DeserializeObject<Dictionary<int,long>>(follower.FollowingsSyncStatus)
             };
         }
@@ -138,5 +144,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public string Acct { get; set; }
         public string Host { get; set; }
+        public string InboxRoute { get; set; }
+        public string SharedInboxRoute { get; set; }
     }
 }

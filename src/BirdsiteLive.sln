@@ -25,11 +25,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.ActivityPub.Te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccessLayers", "DataAccessLayers", "{CFAB3509-3931-42DB-AC97-4F91FC2D849C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.DAL", "DataAccessLayers\BirdsiteLive.DAL\BirdsiteLive.DAL.csproj", "{47058CAB-DC43-4DD1-8F68-D3D625332905}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.DAL", "DataAccessLayers\BirdsiteLive.DAL\BirdsiteLive.DAL.csproj", "{47058CAB-DC43-4DD1-8F68-D3D625332905}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.DAL.Postgres", "DataAccessLayers\BirdsiteLive.DAL.Postgres\BirdsiteLive.DAL.Postgres.csproj", "{87E46519-BBF2-437C-8A5B-CF6CDE7CDAA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.DAL.Postgres", "DataAccessLayers\BirdsiteLive.DAL.Postgres\BirdsiteLive.DAL.Postgres.csproj", "{87E46519-BBF2-437C-8A5B-CF6CDE7CDAA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.DAL.Postgres.Tests", "Tests\BirdsiteLive.DAL.Postgres.Tests\BirdsiteLive.DAL.Postgres.Tests.csproj", "{CD9489BF-69C8-4705-8774-81C45F4F8FE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.DAL.Postgres.Tests", "Tests\BirdsiteLive.DAL.Postgres.Tests\BirdsiteLive.DAL.Postgres.Tests.csproj", "{CD9489BF-69C8-4705-8774-81C45F4F8FE1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pipeline", "Pipeline", "{DA3C160C-4811-4E26-A5AD-42B81FAF2D7C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.Pipeline", "BirdsiteLive.Pipeline\BirdsiteLive.Pipeline.csproj", "{2A8CC30D-D775-47D1-9388-F72A5C32DE2A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.Domain.Tests", "Tests\BirdsiteLive.Domain.Tests\BirdsiteLive.Domain.Tests.csproj", "{F544D745-89A8-4DEA-B61C-A7E6C53C1D63}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.Pipeline.Tests", "Tests\BirdsiteLive.Pipeline.Tests\BirdsiteLive.Pipeline.Tests.csproj", "{BF51CA81-5A7A-46F8-B4FB-861C6BE59298}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +89,18 @@ Global
 		{CD9489BF-69C8-4705-8774-81C45F4F8FE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD9489BF-69C8-4705-8774-81C45F4F8FE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD9489BF-69C8-4705-8774-81C45F4F8FE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A8CC30D-D775-47D1-9388-F72A5C32DE2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A8CC30D-D775-47D1-9388-F72A5C32DE2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A8CC30D-D775-47D1-9388-F72A5C32DE2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A8CC30D-D775-47D1-9388-F72A5C32DE2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F544D745-89A8-4DEA-B61C-A7E6C53C1D63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F544D745-89A8-4DEA-B61C-A7E6C53C1D63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F544D745-89A8-4DEA-B61C-A7E6C53C1D63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F544D745-89A8-4DEA-B61C-A7E6C53C1D63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF51CA81-5A7A-46F8-B4FB-861C6BE59298}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF51CA81-5A7A-46F8-B4FB-861C6BE59298}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF51CA81-5A7A-46F8-B4FB-861C6BE59298}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF51CA81-5A7A-46F8-B4FB-861C6BE59298}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,6 +116,9 @@ Global
 		{47058CAB-DC43-4DD1-8F68-D3D625332905} = {CFAB3509-3931-42DB-AC97-4F91FC2D849C}
 		{87E46519-BBF2-437C-8A5B-CF6CDE7CDAA6} = {CFAB3509-3931-42DB-AC97-4F91FC2D849C}
 		{CD9489BF-69C8-4705-8774-81C45F4F8FE1} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
+		{2A8CC30D-D775-47D1-9388-F72A5C32DE2A} = {DA3C160C-4811-4E26-A5AD-42B81FAF2D7C}
+		{F544D745-89A8-4DEA-B61C-A7E6C53C1D63} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
+		{BF51CA81-5A7A-46F8-B4FB-861C6BE59298} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {69E8DCAD-4C37-4010-858F-5F94E6FBABCE}

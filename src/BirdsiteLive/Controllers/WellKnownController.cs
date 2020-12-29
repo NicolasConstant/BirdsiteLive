@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Models;
+using BirdsiteLive.Models.WellKnownModels;
 using BirdsiteLive.Twitter;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -17,10 +18,10 @@ namespace BirdsiteLive.Controllers
         private readonly InstanceSettings _settings;
 
         #region Ctor
-        public WellKnownController(IOptions<InstanceSettings> settings, ITwitterService twitterService)
+        public WellKnownController(InstanceSettings settings, ITwitterService twitterService)
         {
             _twitterService = twitterService;
-            _settings = settings.Value;
+            _settings = settings;
         }
         #endregion
 
@@ -35,39 +36,95 @@ namespace BirdsiteLive.Controllers
                     {
                         rel = "http://nodeinfo.diaspora.software/ns/schema/2.0",
                         href = $"https://{_settings.Domain}/nodeinfo/2.0.json"
+                    },
+                    new Link()
+                    {
+                        rel = "http://nodeinfo.diaspora.software/ns/schema/2.1",
+                        href = $"https://{_settings.Domain}/nodeinfo/2.1.json"
                     }
                 }
             };
             return new JsonResult(nodeInfo);
         }
 
-        [Route("/nodeinfo/2.0.json")]
-        public IActionResult NodeInfo()
+        [Route("/nodeinfo/{id}.json")]
+        public IActionResult NodeInfo(string id)
         {
-            var nodeInfo = new NodeInfo
-            {
-                version = "2.0",
-                usage = new Usage()
-                {
-                    localPosts = 0,
-                    users = new Users()
-                    {
-                        total = 0
-                    }
-                },
-                software = new Software()
-                {
-                    name = "BirdsiteLive",
-                    version = "0.1.0"
-                },
-                protocols = new []
-                {
-                    "activitypub"
-                },
-                openRegistrations = false
-            };
+            var version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(3);
 
-            return new JsonResult(nodeInfo);
+            if (id == "2.0")
+            {
+                var nodeInfo = new NodeInfoV20
+                {
+                    version = "2.0",
+                    usage = new Usage()
+                    {
+                        localPosts = 0,
+                        users = new Users()
+                        {
+                            total = 0
+                        }
+                    },
+                    software = new Software()
+                    {
+                        name = "birdsitelive",
+                        version = version
+                    },
+                    protocols = new[]
+                    {
+                        "activitypub"
+                    },
+                    openRegistrations = false,
+                    services = new Models.WellKnownModels.Services()
+                    {
+                        inbound = new object[0],
+                        outbound = new object[0]
+                    },
+                    metadata = new Metadata()
+                    {
+                        email = _settings.AdminEmail
+                    }
+                };
+                return new JsonResult(nodeInfo);
+            }
+            if (id == "2.1")
+            {
+                var nodeInfo = new NodeInfoV21
+                {
+                    version = "2.1",
+                    usage = new Usage()
+                    {
+                        localPosts = 0,
+                        users = new Users()
+                        {
+                            total = 0
+                        }
+                    },
+                    software = new SoftwareV21()
+                    {
+                        name = "birdsitelive",
+                        version = version,
+                        repository = "https://github.com/NicolasConstant/BirdsiteLive"
+                    },
+                    protocols = new[]
+                    {
+                        "activitypub"
+                    },
+                    openRegistrations = false,
+                    services = new Models.WellKnownModels.Services()
+                    {
+                        inbound = new object[0],
+                        outbound = new object[0]
+                    },
+                    metadata = new Metadata()
+                    {
+                        email = _settings.AdminEmail
+                    }
+                };
+                return new JsonResult(nodeInfo);
+            }
+
+            return NotFound();
         }
 
         [Route("/.well-known/webfinger")]
@@ -129,64 +186,5 @@ namespace BirdsiteLive.Controllers
 
             return new JsonResult(result);
         }
-    }
-
-    public class WebFingerResult
-    {
-        public string subject { get; set; }
-        public string[] aliases { get; set; }
-        public List<WebFingerLink> links { get; set; } = new List<WebFingerLink>();
-    }
-
-    public class WebFingerLink
-    {
-        public string rel { get; set; }
-        public string type { get; set; }
-        public string href { get; set; }
-    }
-
-    public class WellKnownNodeInfo
-    {
-        public Link[] links { get; set; }
-    }
-
-    public class Link
-    {
-        public string href { get; set; }
-        public string rel { get; set; }
-    }
-
-    public class NodeInfo
-    {
-        public string version { get; set; }
-        public string[] protocols { get; set; }
-        public Software software { get; set; }
-        public Usage usage { get; set; }
-        public bool openRegistrations { get; set; }
-        public Services services { get; set; }
-        public object metadata { get; set; }
-    }
-    
-    public class Services
-    {
-        public object[] inbound { get; set; }
-        public object[] outbound { get; set; }
-    }
-
-    public class Software
-    {
-        public string name { get; set; }
-        public string version { get; set; }
-    }
-
-    public class Usage
-    {
-        public int localPosts { get; set; }
-        public Users users { get; set; }
-    }
-
-    public class Users
-    {
-        public int total { get; set; }
     }
 }

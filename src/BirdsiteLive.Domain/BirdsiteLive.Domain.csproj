@@ -8,6 +8,7 @@
     <ProjectReference Include="..\BirdsiteLive.ActivityPub\BirdsiteLive.ActivityPub.csproj" />
     <ProjectReference Include="..\BirdsiteLive.Cryptography\BirdsiteLive.Cryptography.csproj" />
     <ProjectReference Include="..\BirdsiteLive.Twitter\BirdsiteLive.Twitter.csproj" />
+    <ProjectReference Include="..\DataAccessLayers\BirdsiteLive.DAL\BirdsiteLive.DAL.csproj" />
   </ItemGroup>
 
 </Project>

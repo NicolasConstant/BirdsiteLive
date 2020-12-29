@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
+using BirdsiteLive.Domain.BusinessUseCases;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Core.Exceptions;
 using Tweetinvi.Models;
@@ -17,22 +18,28 @@ namespace BirdsiteLive.Domain
     public interface IUserService
     {
         Actor GetUser(TwitterUser twitterUser);
-        Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity);
-        Note GetStatus(TwitterUser user, ITweet tweet);
+        Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity, string body);
+        Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity, string body);
     }
 
     public class UserService : IUserService
     {
+        private readonly IProcessFollowUser _processFollowUser;
+        private readonly IProcessUndoFollowUser _processUndoFollowUser;
+
+        private readonly InstanceSettings _instanceSettings;
         private readonly ICryptoService _cryptoService;
         private readonly IActivityPubService _activityPubService;
-        private readonly string _host;
 
         #region Ctor
-        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService)
+        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser)
         {
+            _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
             _activityPubService = activityPubService;
-            _host = $"https://{instanceSettings.Domain.Replace("https://",string.Empty).Replace("http://", string.Empty).TrimEnd('/')}";
+            _processFollowUser = processFollowUser;
+            _processUndoFollowUser = processUndoFollowUser;
+            //_host = $"https://{instanceSettings.Domain.Replace("https://",string.Empty).Replace("http://", string.Empty).TrimEnd('/')}";
         }
         #endregion
 
@@ -40,17 +47,18 @@ namespace BirdsiteLive.Domain
         {
             var user = new Actor
             {
-                id = $"{_host}/users/{twitterUser.Acct}",
-                type = "Person",
+                id = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}",
+                type = "Service", //Person Service
+                followers = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}/followers",
                 preferredUsername = twitterUser.Acct,
                 name = twitterUser.Name,
-                inbox = $"{_host}/users/{twitterUser.Acct}/inbox",
+                inbox = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}/inbox",
                 summary = twitterUser.Description,
-                url = $"{_host}/@{twitterUser.Acct}",
+                url = $"https://{_instanceSettings.Domain}/@{twitterUser.Acct}",
                 publicKey = new PublicKey()
                 {
-                    id = $"{_host}/users/{twitterUser.Acct}#main-key",
-                    owner = $"{_host}/users/{twitterUser.Acct}",
+                    id = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}#main-key",
+                    owner = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}",
                     publicKeyPem = _cryptoService.GetUserPem(twitterUser.Acct)
                 },
                 icon = new Image
@@ -62,53 +70,36 @@ namespace BirdsiteLive.Domain
                 {
                     mediaType = "image/jpeg",
                     url = twitterUser.ProfileBannerURL
+                },
+                endpoints = new EndPoints
+                {
+                    sharedInbox = $"https://{_instanceSettings.Domain}/inbox"
                 }
             };
             return user;
         }
 
-        public Note GetStatus(TwitterUser user, ITweet tweet)
-        {
-            var actor = GetUser(user);
-
-            var actorUrl = $"{_host}/users/{user.Acct}";
-            var noteId = $"{_host}/users/{user.Acct}/statuses/{tweet.Id}";
-            var noteUrl = $"{_host}/@{user.Acct}/{tweet.Id}";
-
-            var to = $"{actor}/followers";
-            var apPublic = "https://www.w3.org/ns/activitystreams#Public";
-
-            var note = new Note
-            {
-                id = $"{noteId}/activity",
-                
-                published = tweet.CreatedAt.ToString("s") + "Z",
-                url = noteUrl,
-                attributedTo = actorUrl,
-
-                //to = new [] {to},
-                //cc = new [] { apPublic },
-
-                to = new[] { apPublic },
-                cc = new[] { to },
-
-                sensitive = false,
-                content = $"<p>{tweet.Text}</p>",
-                attachment = new string[0],
-                tag = new string[0]
-            };
-            return note;
-        }
-
-        public async Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string>  requestHeaders, ActivityFollow activity)
+        public async Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity, string body)
         {
             // Validate
-            if (!await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders)) return false;
+            var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders, body);
+            if (!sigValidation.SignatureIsValidated) return false;
 
             // Save Follow in DB
+            var followerUserName = sigValidation.User.preferredUsername.ToLowerInvariant();
+            var followerHost = sigValidation.User.url.Replace("https://", string.Empty).Split('/').First();
+            var followerInbox = sigValidation.User.inbox;
+            var followerSharedInbox = sigValidation.User?.endpoints?.sharedInbox;
+            var twitterUser = activity.apObject.Split('/').Last().Replace("@", string.Empty);
+
+            // Make sure to only keep routes
+            followerInbox = OnlyKeepRoute(followerInbox, followerHost);
+            followerSharedInbox = OnlyKeepRoute(followerSharedInbox, followerHost);
             
-            // Send Accept Activity 
-            var targetHost = activity.actor.Replace("https://", string.Empty).Split('/').First();
+            // Execute
+            await _processFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser, followerInbox, followerSharedInbox);
+
+            // Send Accept Activity
             var acceptFollow = new ActivityAcceptFollow()
             {
                 context = "https://www.w3.org/ns/activitystreams",
@@ -123,12 +114,70 @@ namespace BirdsiteLive.Domain
                     apObject = activity.apObject
                 }
             };
-            var result = await _activityPubService.PostDataAsync(acceptFollow, targetHost, activity.apObject);
+            var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
             return result == HttpStatusCode.Accepted;
         }
-        
-        private async Task<bool> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders)
+
+        private string OnlyKeepRoute(string inbox, string host)
         {
+            if (string.IsNullOrWhiteSpace(inbox)) 
+                return null;
+
+            if (inbox.Contains(host))
+                inbox = inbox.Split(new[] { host }, StringSplitOptions.RemoveEmptyEntries).Last();
+
+            return inbox;
+        }
+
+        public async Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString,
+            Dictionary<string, string> requestHeaders, ActivityUndoFollow activity, string body)
+        {
+            // Validate
+            var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders, body);
+            if (!sigValidation.SignatureIsValidated) return false;
+
+            // Save Follow in DB
+            var followerUserName = sigValidation.User.name.ToLowerInvariant();
+            var followerHost = sigValidation.User.url.Replace("https://", string.Empty).Split('/').First();
+            //var followerInbox = sigValidation.User.inbox;
+            var twitterUser = activity.apObject.apObject.Split('/').Last().Replace("@", string.Empty);
+            await _processUndoFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser);
+
+            // Send Accept Activity
+            var acceptFollow = new ActivityAcceptUndoFollow()
+            {
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{activity.apObject.apObject}#accepts/undofollows/{Guid.NewGuid()}",
+                type = "Accept",
+                actor = activity.apObject.apObject,
+                apObject = new ActivityUndoFollow()
+                {
+                    id = activity.id,
+                    type = activity.type,
+                    actor = activity.actor,
+                    apObject = activity.apObject
+                }
+            };
+            var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject.apObject);
+            return result == HttpStatusCode.Accepted;
+        }
+
+        private async Task<SignatureValidationResult> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders, string body)
+        {
+            //Check Date Validity
+            var date = requestHeaders["date"];
+            var d = DateTime.Parse(date).ToUniversalTime();
+            var now = DateTime.UtcNow;
+            var delta = Math.Abs((d - now).TotalSeconds);
+            if (delta > 30) return new SignatureValidationResult { SignatureIsValidated = false };
+            
+            //Check Digest
+            var digest = requestHeaders["digest"];
+            var digestHash = digest.Split(new [] {"SHA-256="},StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+            var calculatedDigestHash = _cryptoService.ComputeSha256Hash(body);
+            if (digestHash != calculatedDigestHash) return new SignatureValidationResult { SignatureIsValidated = false };
+
+            //Check Signature
             var signatures = rawSig.Split(',');
             var signature_header = new Dictionary<string, string>();
             foreach (var signature in signatures)
@@ -184,7 +233,17 @@ namespace BirdsiteLive.Domain
 
             var result = signKey.VerifyData(Encoding.UTF8.GetBytes(toSign.ToString()), sig, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 
-            return result;
+            return new SignatureValidationResult()
+            {
+                SignatureIsValidated = result,
+                User = remoteUser
+            };
         }
+    }
+
+    public class SignatureValidationResult 
+    {
+        public bool SignatureIsValidated { get; set; }
+        public Actor User { get; set; }
     }
 }
