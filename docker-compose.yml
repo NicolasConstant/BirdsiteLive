@@ -1,0 +1,39 @@
+version: "3"
+
+networks:
+    birdsitelivenetwork:
+        external: false
+
+services:
+    server:
+        image: nicolasconstant/birdsitelive:latest
+        restart: always
+        container_name: birdsitelive
+        environment:
+            - Instance:Domain=domain.name
+            - Instance:AdminEmail=name@domain.ext
+            - Db:Type=postgres
+            - Db:Host=db
+            - Db:Name=birdsitelive
+            - Db:User=birdsitelive
+            - Db:Password=birdsitelive
+            - Twitter:ConsumerKey=twitter.api.key
+            - Twitter:ConsumerSecret=twitter.api.key
+        networks:
+            - birdsitelivenetwork
+        ports:
+            - "5000:80"
+        depends_on:
+            - db
+
+    db:
+        image: postgres:9.6
+        restart: always
+        environment:
+            - POSTGRES_USER=birdsitelive
+            - POSTGRES_PASSWORD=birdsitelive
+            - POSTGRES_DB=birdsitelive
+        networks:
+            - birdsitelivenetwork
+        volumes:
+            - ./postgres:/var/lib/postgresql/data
