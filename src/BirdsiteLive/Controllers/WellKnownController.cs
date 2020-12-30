@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Models;
 using BirdsiteLive.Models.WellKnownModels;
 using BirdsiteLive.Twitter;
@@ -15,12 +16,14 @@ namespace BirdsiteLive.Controllers
     public class WellKnownController : ControllerBase
     {
         private readonly ITwitterService _twitterService;
+        private readonly ITwitterUserDal _twitterUserDal;
         private readonly InstanceSettings _settings;
 
         #region Ctor
-        public WellKnownController(InstanceSettings settings, ITwitterService twitterService)
+        public WellKnownController(InstanceSettings settings, ITwitterService twitterService, ITwitterUserDal twitterUserDal)
         {
             _twitterService = twitterService;
+            _twitterUserDal = twitterUserDal;
             _settings = settings;
         }
         #endregion
@@ -48,9 +51,10 @@ namespace BirdsiteLive.Controllers
         }
 
         [Route("/nodeinfo/{id}.json")]
-        public IActionResult NodeInfo(string id)
+        public async Task<IActionResult> NodeInfo(string id)
         {
             var version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(3);
+            var twitterUsersCount = await _twitterUserDal.GetTwitterUsersCountAsync();
 
             if (id == "2.0")
             {
@@ -62,7 +66,7 @@ namespace BirdsiteLive.Controllers
                         localPosts = 0,
                         users = new Users()
                         {
-                            total = 0
+                            total = twitterUsersCount
                         }
                     },
                     software = new Software()
@@ -97,7 +101,7 @@ namespace BirdsiteLive.Controllers
                         localPosts = 0,
                         users = new Users()
                         {
-                            total = 0
+                            total = twitterUsersCount
                         }
                     },
                     software = new SoftwareV21()

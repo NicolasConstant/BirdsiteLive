@@ -138,6 +138,43 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         }
 
         [TestMethod]
+        public async Task CountFollowersAsync()
+        {
+            var dal = new FollowersPostgresDal(_settings);
+
+            var result = await dal.GetFollowersCountAsync();
+            Assert.AreEqual(0, result);
+
+            //User 1 
+            var acct = "myhandle1";
+            var host = "domain.ext";
+            var following = new[] { 1, 2, 3 };
+            var followingSync = new Dictionary<int, long>();
+            var inboxRoute = "/myhandle1/inbox";
+            var sharedInboxRoute = "/inbox";
+            await dal.CreateFollowerAsync(acct, host, inboxRoute, sharedInboxRoute, following, followingSync);
+
+            //User 2 
+            acct = "myhandle2";
+            host = "domain.ext";
+            following = new[] { 2, 4, 5 };
+            inboxRoute = "/myhandle2/inbox";
+            sharedInboxRoute = "/inbox2";
+            await dal.CreateFollowerAsync(acct, host, inboxRoute, sharedInboxRoute, following, followingSync);
+
+            //User 2 
+            acct = "myhandle3";
+            host = "domain.ext";
+            following = new[] { 1 };
+            inboxRoute = "/myhandle3/inbox";
+            sharedInboxRoute = "/inbox3";
+            await dal.CreateFollowerAsync(acct, host, inboxRoute, sharedInboxRoute, following, followingSync);
+
+            result = await dal.GetFollowersCountAsync();
+            Assert.AreEqual(3, result);
+        }
+
+        [TestMethod]
         public async Task CreateUpdateAndGetFollower_Add()
         {
             var acct = "myhandle";
