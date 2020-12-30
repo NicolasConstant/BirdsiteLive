@@ -36,20 +36,30 @@ namespace BirdsiteLive.Controllers
         }
         #endregion
 
+        [Route("/users")]
+        public IActionResult Index()
+        {
+            var r = Request.Headers["Accept"].First();
+            if (r.Contains("application/activity+json")) return NotFound();
+            return View("UserNotFound");
+        }
+
         [Route("/@{id}")]
         [Route("/users/{id}")]
         public IActionResult Index(string id)
         {
             var user = _twitterService.GetUser(id);
-            if (user == null) return NotFound();
 
             var r = Request.Headers["Accept"].First();
             if (r.Contains("application/activity+json"))
             {
+                if (user == null) return NotFound();
                 var apUser = _userService.GetUser(user);
                 var jsonApUser = JsonConvert.SerializeObject(apUser);
                 return Content(jsonApUser, "application/activity+json; charset=utf-8");
             }
+
+            if (user == null) return View("UserNotFound");
 
             var displayableUser = new DisplayTwitterUser
             {
