@@ -141,6 +141,7 @@ You should now have an up and running BirdsiteLIVE instance!
 ## Upgrading 
 
 Make sure your data belong outside the containers before migrating (set by default). 
+
 To upgrade your installation to the latest release:
 
 ```
