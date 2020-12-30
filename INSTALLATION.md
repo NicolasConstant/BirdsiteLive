@@ -137,3 +137,16 @@ sudo ufw status
 ```
 
 You should now have an up and running BirdsiteLIVE instance!
+
+## Upgrading 
+
+Make sure your data belong outside the containers before migrating (set by default). 
+To upgrade your installation to the latest release:
+
+```
+# Edit `docker-compose.yml` to update the version, if you have one specified
+# Pull new images
+docker-compose pull
+# Start a new container, automatically removes old one
+docker-compose up -d
+```
