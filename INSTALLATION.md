@@ -13,7 +13,7 @@ Your instance will need [docker](https://docs.docker.com/engine/install/) and [d
 Download the [docker-compose file](https://github.com/NicolasConstant/BirdsiteLive/blob/master/docker-compose.yml): 
 
 ```
-curl https://raw.githubusercontent.com/NicolasConstant/BirdsiteLive/master/docker-compose.yml --output docker-compose.yml
+sudo curl -L https://raw.githubusercontent.com/NicolasConstant/BirdsiteLive/master/docker-compose.yml -o docker-compose.yml
 ```
 
 Then edit file: 
