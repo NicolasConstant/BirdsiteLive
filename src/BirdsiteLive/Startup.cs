@@ -38,8 +38,12 @@ namespace BirdsiteLive
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.Configure<InstanceSettings>(Configuration.GetSection("Instance"));
-            //services.Configure<TwitterSettings>(Configuration.GetSection("Twitter"));
+            var logsSettings = Configuration.GetSection("Logging").Get<LogsSettings>();
+            if(string.Equals("insights", logsSettings.Type, StringComparison.OrdinalIgnoreCase))
+            {
+                var key = logsSettings.InstrumentationKey;
+                services.AddApplicationInsightsTelemetry(key);
+            }
 
             services.AddControllersWithViews();
         }
@@ -54,6 +58,9 @@ namespace BirdsiteLive
 
             var dbSettings = Configuration.GetSection("Db").Get<DbSettings>();
             services.For<DbSettings>().Use(x => dbSettings);
+
+            var logsSettings = Configuration.GetSection("Logging").Get<LogsSettings>();
+            services.For<LogsSettings>().Use(x => logsSettings);
 
             if (string.Equals(dbSettings.Type, DbTypes.Postgres, StringComparison.OrdinalIgnoreCase))
             {
