@@ -137,7 +137,7 @@ namespace BirdsiteLive.Domain
             if (!sigValidation.SignatureIsValidated) return false;
 
             // Save Follow in DB
-            var followerUserName = sigValidation.User.name.ToLowerInvariant();
+            var followerUserName = sigValidation.User.preferredUsername.ToLowerInvariant();
             var followerHost = sigValidation.User.url.Replace("https://", string.Empty).Split('/').First();
             //var followerInbox = sigValidation.User.inbox;
             var twitterUser = activity.apObject.apObject.Split('/').Last().Replace("@", string.Empty);
