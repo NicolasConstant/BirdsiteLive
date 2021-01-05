@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
 
 namespace BirdsiteLive.Domain.BusinessUseCases
@@ -38,8 +39,16 @@ namespace BirdsiteLive.Domain.BusinessUseCases
             if (follower.FollowingsSyncStatus.ContainsKey(twitterUserId))
                 follower.FollowingsSyncStatus.Remove(twitterUserId);
 
-            // Save Follower
-            await _followerDal.UpdateFollowerAsync(follower);
+            // Save or delete Follower
+            if (follower.Followings.Any())
+                await _followerDal.UpdateFollowerAsync(follower);
+            else
+                await _followerDal.DeleteFollowerAsync(followerUsername, followerDomain); 
+            
+            // Check if TwitterUser has still followers
+            var followers = await _followerDal.GetFollowersAsync(twitterUser.Id);
+            if (!followers.Any())
+                await _twitterUserDal.DeleteTwitterUserAsync(twitterUsername);
         }
     }
 }
