@@ -48,6 +48,7 @@ namespace BirdsiteLive.Controllers
         [Route("/users/{id}")]
         public IActionResult Index(string id)
         {
+            id = id.Trim(new[] {' ', '@'});
             var user = _twitterService.GetUser(id);
 
             var r = Request.Headers["Accept"].First();
