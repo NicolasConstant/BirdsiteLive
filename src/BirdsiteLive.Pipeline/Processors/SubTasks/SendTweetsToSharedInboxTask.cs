@@ -51,7 +51,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                     var result =
                         await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), host, inbox);
 
-                    if (result == HttpStatusCode.Accepted)
+                    if (result == HttpStatusCode.Accepted || result == HttpStatusCode.OK)
                         syncStatus = tweet.Id;
                     else
                         throw new Exception("Posting new note activity failed");

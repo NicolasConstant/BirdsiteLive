@@ -6,7 +6,7 @@ namespace BirdsiteLive.ActivityPub
     public class Activity
     {
         [JsonProperty("@context")]
-        public string context { get; set; }
+        public object context { get; set; }
         public string id { get; set; }
         public string type { get; set; }
         public string actor { get; set; }
