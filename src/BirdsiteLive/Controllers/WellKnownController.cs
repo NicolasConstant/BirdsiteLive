@@ -157,6 +157,7 @@ namespace BirdsiteLive.Controllers
                 return BadRequest();
             }
 
+            // Ensure lowercase
             name = name.ToLowerInvariant();
 
             if (!string.IsNullOrWhiteSpace(domain) && domain != _settings.Domain)
@@ -173,8 +174,6 @@ namespace BirdsiteLive.Controllers
                 subject = $"acct:{name}@{_settings.Domain}",
                 aliases = new[]
                 {
-                    //$"https://{_settings.Domain}/@{name}",
-                    //$"https://{_settings.Domain}/users/{name}"
                     actorUrl
                 },
                 links = new List<WebFingerLink>
@@ -183,14 +182,12 @@ namespace BirdsiteLive.Controllers
                     {
                         rel = "http://webfinger.net/rel/profile-page",
                         type = "text/html",
-                        //href = $"https://{_settings.Domain}/@{name}"
                         href = actorUrl
                     },
                     new WebFingerLink()
                     {
                         rel = "self",
                         type = "application/activity+json",
-                        //href = $"https://{_settings.Domain}/users/{name}"
                         href = actorUrl
                     }
                 }

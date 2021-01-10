@@ -48,10 +48,7 @@ namespace BirdsiteLive.Domain
 
         public async Task<HttpStatusCode> PostNewNoteActivity(Note note, string username, string noteId, string targetHost, string targetInbox)
         {
-            //var actor = $"https://{_instanceSettings.Domain}/users/{username}";
             var actor = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
-
-            //var noteUri = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{noteId}";
             var noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, noteId);
 
             var now = DateTime.UtcNow;

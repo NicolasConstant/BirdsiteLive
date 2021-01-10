@@ -34,12 +34,8 @@ namespace BirdsiteLive.Domain
 
         public Note GetStatus(string username, ExtractedTweet tweet)
         {
-            //var actorUrl = $"https://{_instanceSettings.Domain}/users/{username}";
             var actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
-            //var noteId = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{tweet.Id}";
-            var noteId = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, tweet.Id.ToString());
-            //var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{tweet.Id}";
-            var noteUrl = noteId;
+            var noteUrl = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, tweet.Id.ToString());
 
             var to = $"{actorUrl}/followers";
             var apPublic = "https://www.w3.org/ns/activitystreams#Public";
@@ -52,8 +48,7 @@ namespace BirdsiteLive.Domain
 
             var note = new Note
             {
-                //id = $"{noteId}/activity",
-                id = $"{noteId}",
+                id = noteUrl,
 
                 published = tweet.CreatedAt.ToString("s") + "Z",
                 url = noteUrl,
@@ -72,7 +67,6 @@ namespace BirdsiteLive.Domain
                 attachment = Convert(tweet.Media),
                 tag = extractedTags.tags
             };
-          
 
             return note;
         }
