@@ -48,7 +48,7 @@ namespace BirdsiteLive.Controllers
         [Route("/users/{id}")]
         public IActionResult Index(string id)
         {
-            id = id.Trim(new[] {' ', '@'});
+            id = id.Trim(new[] {' ', '@'}).ToLowerInvariant();
             var user = _twitterService.GetUser(id);
 
             var r = Request.Headers["Accept"].First();
@@ -66,11 +66,11 @@ namespace BirdsiteLive.Controllers
             {
                 Name = user.Name,
                 Description = user.Description,
-                Acct = user.Acct,
+                Acct = user.Acct.ToLowerInvariant(),
                 Url = user.Url,
                 ProfileImageUrl = user.ProfileImageUrl,
 
-                InstanceHandle = $"@{user.Acct}@{_instanceSettings.Domain}"
+                InstanceHandle = $"@{user.Acct.ToLowerInvariant()}@{_instanceSettings.Domain}"
             };
             return View(displayableUser);
         }

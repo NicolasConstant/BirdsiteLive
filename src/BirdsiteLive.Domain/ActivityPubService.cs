@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
+using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
 using Newtonsoft.Json;
@@ -47,18 +48,8 @@ namespace BirdsiteLive.Domain
 
         public async Task<HttpStatusCode> PostNewNoteActivity(Note note, string username, string noteId, string targetHost, string targetInbox)
         {
-            //var username = "gra";
-            var actor = $"https://{_instanceSettings.Domain}/users/{username}";
-            //var targetHost = "mastodon.technology";
-            //var target = $"{targetHost}/users/testtest";
-            //var inbox = $"/users/testtest/inbox";
-
-            //var noteGuid = Guid.NewGuid();
-            var noteUri = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{noteId}";
-            
-            //var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{noteId}";
-            //var to = $"{actor}/followers";
-            //var apPublic = "https://www.w3.org/ns/activitystreams#Public";
+            var actor = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
+            var noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, noteId);
 
             var now = DateTime.UtcNow;
             var nowString = now.ToString("s") + "Z";
