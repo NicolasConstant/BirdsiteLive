@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Models;
@@ -156,6 +157,8 @@ namespace BirdsiteLive.Controllers
                 return BadRequest();
             }
 
+            name = name.ToLowerInvariant();
+
             if (!string.IsNullOrWhiteSpace(domain) && domain != _settings.Domain)
                 return NotFound();
 
@@ -163,13 +166,16 @@ namespace BirdsiteLive.Controllers
             if (user == null)
                 return NotFound();
 
+            var actorUrl = UrlFactory.GetActorUrl(_settings.Domain, name);
+
             var result = new WebFingerResult()
             {
                 subject = $"acct:{name}@{_settings.Domain}",
                 aliases = new[]
                 {
-                    $"https://{_settings.Domain}/@{name}",
-                    $"https://{_settings.Domain}/users/{name}"
+                    //$"https://{_settings.Domain}/@{name}",
+                    //$"https://{_settings.Domain}/users/{name}"
+                    actorUrl
                 },
                 links = new List<WebFingerLink>
                 {
@@ -177,13 +183,15 @@ namespace BirdsiteLive.Controllers
                     {
                         rel = "http://webfinger.net/rel/profile-page",
                         type = "text/html",
-                        href = $"https://{_settings.Domain}/@{name}"
+                        //href = $"https://{_settings.Domain}/@{name}"
+                        href = actorUrl
                     },
                     new WebFingerLink()
                     {
                         rel = "self",
                         type = "application/activity+json",
-                        href = $"https://{_settings.Domain}/users/{name}"
+                        //href = $"https://{_settings.Domain}/users/{name}"
+                        href = actorUrl
                     }
                 }
             };

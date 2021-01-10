@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
+using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
 using BirdsiteLive.Domain.BusinessUseCases;
@@ -45,21 +46,24 @@ namespace BirdsiteLive.Domain
 
         public Actor GetUser(TwitterUser twitterUser)
         {
+            var actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, twitterUser.Acct);
+            var acct = twitterUser.Acct.ToLowerInvariant();
+
             var user = new Actor
             {
-                id = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}",
-                type = "Service", //Person Service
-                followers = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}/followers",
-                preferredUsername = twitterUser.Acct,
+                id = actorUrl,
+                type = "Service", 
+                followers = $"{actorUrl}/followers",
+                preferredUsername = acct,
                 name = twitterUser.Name,
-                inbox = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}/inbox",
+                inbox = $"{actorUrl}/inbox",
                 summary = twitterUser.Description,
-                url = $"https://{_instanceSettings.Domain}/@{twitterUser.Acct}",
+                url = actorUrl,
                 publicKey = new PublicKey()
                 {
-                    id = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}#main-key",
-                    owner = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}",
-                    publicKeyPem = _cryptoService.GetUserPem(twitterUser.Acct)
+                    id = $"{actorUrl}#main-key",
+                    owner = actorUrl,
+                    publicKeyPem = _cryptoService.GetUserPem(acct)
                 },
                 icon = new Image
                 {

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using BirdsiteLive.ActivityPub;
+using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Domain.Tools;
@@ -33,9 +34,12 @@ namespace BirdsiteLive.Domain
 
         public Note GetStatus(string username, ExtractedTweet tweet)
         {
-            var actorUrl = $"https://{_instanceSettings.Domain}/users/{username}";
-            var noteId = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{tweet.Id}";
-            var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{tweet.Id}";
+            //var actorUrl = $"https://{_instanceSettings.Domain}/users/{username}";
+            var actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
+            //var noteId = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{tweet.Id}";
+            var noteId = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, tweet.Id.ToString());
+            //var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{tweet.Id}";
+            var noteUrl = noteId;
 
             var to = $"{actorUrl}/followers";
             var apPublic = "https://www.w3.org/ns/activitystreams#Public";
@@ -44,7 +48,7 @@ namespace BirdsiteLive.Domain
 
             string inReplyTo = null;
             if (tweet.InReplyToStatusId != default)
-                inReplyTo = $"https://{_instanceSettings.Domain}/users/{tweet.InReplyToAccount}/statuses/{tweet.InReplyToStatusId}";
+                inReplyTo = $"https://{_instanceSettings.Domain}/users/{tweet.InReplyToAccount.ToLowerInvariant()}/statuses/{tweet.InReplyToStatusId}";
 
             var note = new Note
             {
