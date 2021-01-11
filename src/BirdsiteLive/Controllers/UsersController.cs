@@ -39,8 +39,12 @@ namespace BirdsiteLive.Controllers
         [Route("/users")]
         public IActionResult Index()
         {
-            var r = Request.Headers["Accept"].First();
-            if (r.Contains("application/activity+json")) return NotFound();
+            var acceptHeaders = Request.Headers["Accept"];
+            if (acceptHeaders.Any())
+            {
+                var r = acceptHeaders.First();
+                if (r.Contains("application/activity+json")) return NotFound();
+            }
             return View("UserNotFound");
         }
 
@@ -48,16 +52,20 @@ namespace BirdsiteLive.Controllers
         [Route("/users/{id}")]
         public IActionResult Index(string id)
         {
-            id = id.Trim(new[] {' ', '@'}).ToLowerInvariant();
+            id = id.Trim(new[] { ' ', '@' }).ToLowerInvariant();
             var user = _twitterService.GetUser(id);
 
-            var r = Request.Headers["Accept"].First();
-            if (r.Contains("application/activity+json"))
+            var acceptHeaders = Request.Headers["Accept"];
+            if (acceptHeaders.Any())
             {
-                if (user == null) return NotFound();
-                var apUser = _userService.GetUser(user);
-                var jsonApUser = JsonConvert.SerializeObject(apUser);
-                return Content(jsonApUser, "application/activity+json; charset=utf-8");
+                var r = acceptHeaders.First();
+                if (r.Contains("application/activity+json"))
+                {
+                    if (user == null) return NotFound();
+                    var apUser = _userService.GetUser(user);
+                    var jsonApUser = JsonConvert.SerializeObject(apUser);
+                    return Content(jsonApUser, "application/activity+json; charset=utf-8");
+                }
             }
 
             if (user == null) return View("UserNotFound");
@@ -79,22 +87,26 @@ namespace BirdsiteLive.Controllers
         [Route("/users/{id}/statuses/{statusId}")]
         public IActionResult Tweet(string id, string statusId)
         {
-            var r = Request.Headers["Accept"].First();
-            if (r.Contains("application/activity+json"))
+            var acceptHeaders = Request.Headers["Accept"];
+            if (acceptHeaders.Any())
             {
-                if (!long.TryParse(statusId, out var parsedStatusId))
-                    return NotFound();
+                var r = acceptHeaders.First();
+                if (r.Contains("application/activity+json"))
+                {
+                    if (!long.TryParse(statusId, out var parsedStatusId))
+                        return NotFound();
 
-                var tweet = _twitterService.GetTweet(parsedStatusId);
-                if (tweet == null)
-                    return NotFound();
+                    var tweet = _twitterService.GetTweet(parsedStatusId);
+                    if (tweet == null)
+                        return NotFound();
 
-                //var user = _twitterService.GetUser(id);
-                //if (user == null) return NotFound();
+                    //var user = _twitterService.GetUser(id);
+                    //if (user == null) return NotFound();
 
-                var status = _statusService.GetStatus(id, tweet);
-                var jsonApUser = JsonConvert.SerializeObject(status);
-                return Content(jsonApUser, "application/activity+json; charset=utf-8");
+                    var status = _statusService.GetStatus(id, tweet);
+                    var jsonApUser = JsonConvert.SerializeObject(status);
+                    return Content(jsonApUser, "application/activity+json; charset=utf-8");
+                }
             }
 
             return View("Tweet", statusId);
