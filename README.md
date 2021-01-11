@@ -16,11 +16,11 @@ You can find an official (and temporary) instance here: [beta.birdsite.live](htt
 
 ## Installation
 
-Please follow [those instructions](https://github.com/NicolasConstant/BirdsiteLive/blob/master/INSTALLATION.md)
+I'm providing a [Docker build](https://hub.docker.com/r/nicolasconstant/birdsitelive), to install it on your own server, please follow [those instructions](https://github.com/NicolasConstant/BirdsiteLive/blob/master/INSTALLATION.md).
 
 ## License
 
-This project is licensed under the AGPLv3 License - see [LICENSE](https://github.com/NicolasConstant/BirdsiteLive/blob/master/LICENSE) for details
+This project is licensed under the AGPLv3 License - see [LICENSE](https://github.com/NicolasConstant/BirdsiteLive/blob/master/LICENSE) for details.
 
 ## Contact
 
