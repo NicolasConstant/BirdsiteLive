@@ -75,6 +75,15 @@ namespace BirdsiteLive.Domain
                     mediaType = "image/jpeg",
                     url = twitterUser.ProfileBannerURL
                 },
+                attachment = new []
+                {
+                    new UserAttachment
+                    {
+                        type = "PropertyValue",
+                        name = "Official",
+                        value = $"<a href=\"https://twitter.com/{acct}\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">twitter.com/{acct}</span></a>"
+                    }
+                },
                 endpoints = new EndPoints
                 {
                     sharedInbox = $"https://{_instanceSettings.Domain}/inbox"

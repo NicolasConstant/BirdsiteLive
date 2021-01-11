@@ -23,5 +23,6 @@ namespace BirdsiteLive.ActivityPub
         public Image icon { get; set; }
         public Image image { get; set; }
         public EndPoints endpoints { get; set; }
+        public UserAttachment[] attachment { get; set; }
     }
 }
