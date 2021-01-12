@@ -10,6 +10,7 @@ using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
 using BirdsiteLive.Domain.BusinessUseCases;
+using BirdsiteLive.Domain.Tools;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Core.Exceptions;
 using Tweetinvi.Models;
@@ -31,15 +32,17 @@ namespace BirdsiteLive.Domain
         private readonly InstanceSettings _instanceSettings;
         private readonly ICryptoService _cryptoService;
         private readonly IActivityPubService _activityPubService;
+        private readonly IStatusExtractor _statusExtractor;
 
         #region Ctor
-        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser)
+        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
             _activityPubService = activityPubService;
             _processFollowUser = processFollowUser;
             _processUndoFollowUser = processUndoFollowUser;
+            _statusExtractor = statusExtractor;
             //_host = $"https://{instanceSettings.Domain.Replace("https://",string.Empty).Replace("http://", string.Empty).TrimEnd('/')}";
         }
         #endregion
@@ -49,6 +52,14 @@ namespace BirdsiteLive.Domain
             var actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, twitterUser.Acct);
             var acct = twitterUser.Acct.ToLowerInvariant();
 
+            // Extract links, mentions, etc
+            var description = twitterUser.Description;
+            if (!string.IsNullOrWhiteSpace(description))
+            {
+                var extracted = _statusExtractor.ExtractTags(description);
+                description = extracted.content;
+            }
+
             var user = new Actor
             {
                 id = actorUrl,
@@ -57,7 +68,7 @@ namespace BirdsiteLive.Domain
                 preferredUsername = acct,
                 name = twitterUser.Name,
                 inbox = $"{actorUrl}/inbox",
-                summary = twitterUser.Description,
+                summary = description,
                 url = actorUrl,
                 publicKey = new PublicKey()
                 {
