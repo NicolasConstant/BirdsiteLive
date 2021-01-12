@@ -314,5 +314,26 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.IsTrue(result.content.Contains(@"<a href=""https://domain.name/tags/dada"" class=""mention hashtag"" rel=""tag"">#<span>dada</span></a>"));
             #endregion
         }
+
+
+        [TestMethod]
+        public void Extract_Emoji_Test()
+        {
+            #region Stubs
+            var message = $"😤@mynickname 😎😍🤗🤩😘";
+            //var message = $"tests@mynickname";
+            #endregion
+
+            var service = new StatusExtractor(_settings);
+            var result = service.ExtractTags(message);
+
+            #region Validations
+            Assert.AreEqual(1, result.tags.Length);
+            Assert.IsTrue(result.content.Contains(
+                @"😤 <span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+
+            Assert.IsTrue(result.content.Contains(@"😎 😍 🤗 🤩 😘"));
+            #endregion
+        }
     }
 }
