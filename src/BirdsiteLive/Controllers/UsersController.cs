@@ -109,7 +109,7 @@ namespace BirdsiteLive.Controllers
                 }
             }
 
-            return View("Tweet", statusId);
+            return Redirect($"https://twitter.com/{id}/status/{statusId}");
         }
 
         [Route("/users/{id}/inbox")]
