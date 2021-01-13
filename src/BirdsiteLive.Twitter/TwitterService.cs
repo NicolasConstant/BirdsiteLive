@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.Statistics.Domain;
 using BirdsiteLive.Twitter.Extractors;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi;
@@ -24,12 +25,14 @@ namespace BirdsiteLive.Twitter
     {
         private readonly TwitterSettings _settings;
         private readonly ITweetExtractor _tweetExtractor;
+        private readonly ITwitterStatisticsHandler _statisticsHandler;
 
         #region Ctor
-        public TwitterService(TwitterSettings settings, ITweetExtractor tweetExtractor)
+        public TwitterService(TwitterSettings settings, ITweetExtractor tweetExtractor, ITwitterStatisticsHandler statisticsHandler)
         {
             _settings = settings;
             _tweetExtractor = tweetExtractor;
+            _statisticsHandler = statisticsHandler;
             Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
         }
         #endregion
@@ -37,6 +40,7 @@ namespace BirdsiteLive.Twitter
         public TwitterUser GetUser(string username)
         {
             var user = User.GetUserFromScreenName(username);
+            _statisticsHandler.CalledUserApi();
             if (user == null) return null;
 
             return new TwitterUser
@@ -55,6 +59,8 @@ namespace BirdsiteLive.Twitter
         {
             TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
             var tweet = Tweet.GetTweet(statusId);
+            _statisticsHandler.CalledTweetApi();
+            if (tweet == null) return null; //TODO: test this
             return _tweetExtractor.Extract(tweet);
         }
 
@@ -63,10 +69,12 @@ namespace BirdsiteLive.Twitter
             TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
 
             var user = User.GetUserFromScreenName(username);
+            _statisticsHandler.CalledUserApi();
             var tweets = new List<ITweet>();
             if (fromTweetId == -1)
             {
                 var timeline = Timeline.GetUserTimeline(user.Id, nberTweets);
+                _statisticsHandler.CalledTimelineApi();
                 if (timeline != null) tweets.AddRange(timeline);
             }
             else
@@ -77,11 +85,11 @@ namespace BirdsiteLive.Twitter
                     MaximumNumberOfTweetsToRetrieve = nberTweets
                 };
                 var timeline = Timeline.GetUserTimeline(user.Id, timelineRequestParameters);
+                _statisticsHandler.CalledTimelineApi();
                 if (timeline != null) tweets.AddRange(timeline);
             }
 
             return tweets.Select(_tweetExtractor.Extract).ToArray();
-            //return tweets.Where(x => returnReplies || string.IsNullOrWhiteSpace(x.InReplyToScreenName)).ToArray();
         }
     }
 }
