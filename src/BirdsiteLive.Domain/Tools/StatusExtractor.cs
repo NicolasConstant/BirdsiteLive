@@ -44,6 +44,7 @@ namespace BirdsiteLive.Domain.Tools
             // Replace return lines
             messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p> ");
             messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/> ");
+            messageContent = Regex.Replace(messageContent, @"\(", "( ");
 
             // Secure emojis
             var emojiMatch = _emojiRegex.Matches(messageContent);
@@ -83,7 +84,7 @@ namespace BirdsiteLive.Domain.Tools
 
             // Extract Hashtags
             var hashtagMatch = OrderByLength(_hastagRegex.Matches(messageContent));
-            foreach (Match m in hashtagMatch)
+            foreach (Match m in hashtagMatch.OrderByDescending(x => x.Length))
             {
                 var tag = m.ToString().Replace("#", string.Empty).Replace("\n", string.Empty).Trim();
                 var url = $"https://{_instanceSettings.Domain}/tags/{tag}";
@@ -101,7 +102,7 @@ namespace BirdsiteLive.Domain.Tools
 
             // Extract Mentions
             var mentionMatch = OrderByLength(_mentionRegex.Matches(messageContent));
-            foreach (Match m in mentionMatch)
+            foreach (Match m in mentionMatch.OrderByDescending(x => x.Length))
             {
                 var mention = m.ToString().Replace("@", string.Empty).Replace("\n", string.Empty).Trim();
                 var url = $"https://{_instanceSettings.Domain}/users/{mention}";
