@@ -335,5 +335,22 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.IsTrue(result.content.Contains(@"😎 😍 🤗 🤩 😘"));
             #endregion
         }
+
+        [TestMethod]
+        public void Extract_Parenthesis_Test()
+        {
+            #region Stubs
+            var message = $"bla (@mynickname test)";
+            //var message = $"tests@mynickname";
+            #endregion
+
+            var service = new StatusExtractor(_settings);
+            var result = service.ExtractTags(message);
+
+            #region Validations
+            Assert.AreEqual(1, result.tags.Length);
+            Assert.IsTrue(result.content.Equals(@"bla ( <span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span> test)"));
+            #endregion
+        }
     }
 }
