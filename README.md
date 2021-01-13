@@ -24,4 +24,6 @@ This project is licensed under the AGPLv3 License - see [LICENSE](https://github
 
 ## Contact
 
-You can contact me via ActivityPub [here](https://social.nicolas-constant.com/NicolasConstant).
+You can contact me via ActivityPub <a rel="me" href="https://fosstodon.org/@BirdsiteLIVE">here</a>.
+
+
