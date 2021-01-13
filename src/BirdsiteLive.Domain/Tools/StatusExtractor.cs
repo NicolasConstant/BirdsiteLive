@@ -44,7 +44,8 @@ namespace BirdsiteLive.Domain.Tools
             // Replace return lines
             messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p> ");
             messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/> ");
-            messageContent = Regex.Replace(messageContent, @"\(", "( ");
+            messageContent = Regex.Replace(messageContent, @"\(@", "( @");
+            messageContent = Regex.Replace(messageContent, @"\(#", "( #");
 
             // Secure emojis
             var emojiMatch = _emojiRegex.Matches(messageContent);
