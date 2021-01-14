@@ -45,6 +45,10 @@ namespace BirdsiteLive.Twitter.Extractors
                     message = message.Replace("RT", "[RT]");
             }
 
+            // Expand URLs
+            foreach (var url in tweet.Urls.OrderByDescending(x => x.URL.Length))
+                message = message.Replace(url.URL, url.ExpandedURL);
+
             return message;
         }
 
