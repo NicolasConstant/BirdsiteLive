@@ -10,6 +10,7 @@ using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
 using BirdsiteLive.Domain.BusinessUseCases;
+using BirdsiteLive.Domain.Statistics;
 using BirdsiteLive.Domain.Tools;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Core.Exceptions;
@@ -33,9 +34,10 @@ namespace BirdsiteLive.Domain
         private readonly ICryptoService _cryptoService;
         private readonly IActivityPubService _activityPubService;
         private readonly IStatusExtractor _statusExtractor;
+        private readonly IExtractionStatisticsHandler _statisticsHandler;
 
         #region Ctor
-        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor)
+        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
@@ -43,6 +45,7 @@ namespace BirdsiteLive.Domain
             _processFollowUser = processFollowUser;
             _processUndoFollowUser = processUndoFollowUser;
             _statusExtractor = statusExtractor;
+            _statisticsHandler = statisticsHandler;
             //_host = $"https://{instanceSettings.Domain.Replace("https://",string.Empty).Replace("http://", string.Empty).TrimEnd('/')}";
         }
         #endregion
@@ -58,6 +61,8 @@ namespace BirdsiteLive.Domain
             {
                 var extracted = _statusExtractor.ExtractTags(description);
                 description = extracted.content;
+
+                _statisticsHandler.ExtractedDescription(extracted.tags.Count(x => x.type == "Mention"));
             }
 
             var user = new Actor
