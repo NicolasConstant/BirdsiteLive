@@ -43,11 +43,16 @@ namespace BirdsiteLive.Twitter
             _statisticsHandler.CalledUserApi();
             if (user == null) return null;
 
+            // Expand URLs
+            var description = user.Description;
+            foreach (var descriptionUrl in user.Entities?.Description?.Urls?.OrderByDescending(x => x.URL.Length))
+                description = description.Replace(descriptionUrl.URL, descriptionUrl.ExpandedURL);
+
             return new TwitterUser
             {
                 Acct = username,
                 Name = user.Name,
-                Description = user.Description,
+                Description = description,
                 Url = $"https://twitter.com/{username}",
                 ProfileImageUrl = user.ProfileImageUrlFullSize,
                 ProfileBackgroundImageUrl = user.ProfileBackgroundImageUrlHttps,
