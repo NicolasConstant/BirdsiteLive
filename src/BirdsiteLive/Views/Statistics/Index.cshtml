@@ -12,9 +12,17 @@
     <li>Followers: @Model.FollowersCount</li>
 </ul>
 
-<h4>Twitter API</h4>
+<h4>Twitter API (Min, Avg, Max for the last 24h)</h4>
 <ul>
-    <li>Users Calls: @Model.TwitterStatistics.UserCallsCount / @Model.TwitterStatistics.UserCallsMax</li>
-    <li>Tweets Calls: @Model.TwitterStatistics.TweetCallsCount / @Model.TwitterStatistics.TweetCallsMax</li>
-    <li>Timeline Calls: @Model.TwitterStatistics.TimelineCallsCount / @Model.TwitterStatistics.TimelineCallsMax</li>
+    <li>Users Calls: @Model.TwitterStatistics.UserCallsCountMin ;  @Model.TwitterStatistics.UserCallsCountAvg ;  @Model.TwitterStatistics.UserCallsCountMax / @Model.TwitterStatistics.UserCallsMax</li>
+    <li>Tweets Calls: @Model.TwitterStatistics.TweetCallsCountMin ; @Model.TwitterStatistics.TweetCallsCountAvg ; @Model.TwitterStatistics.TweetCallsCountMax / @Model.TwitterStatistics.TweetCallsMax</li>
+    <li>Timeline Calls: @Model.TwitterStatistics.TimelineCallsCountMin ; @Model.TwitterStatistics.TimelineCallsCountAvg ; @Model.TwitterStatistics.TimelineCallsCountMax / @Model.TwitterStatistics.TimelineCallsMax</li>
+</ul>
+
+<h4>Mentions Extraction</h4>
+<ul>
+    <li>Current day in descriptions:  @Model.ExtractionStatistics.MentionsInDescriptionsExtraction</li>
+    <li>Current day in statuses: @Model.ExtractionStatistics.MentionsInStatusesExtraction</li>
+    <li>Last day in descriptions: @Model.ExtractionStatistics.LastMentionsInDescriptionsExtraction</li>
+    <li>Last day in statuses: @Model.ExtractionStatistics.LastMentionsInStatusesExtraction</li>
 </ul>

@@ -7,6 +7,7 @@ using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.Domain.Statistics;
 using BirdsiteLive.Domain.Tools;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Models;
@@ -23,12 +24,14 @@ namespace BirdsiteLive.Domain
     {
         private readonly InstanceSettings _instanceSettings;
         private readonly IStatusExtractor _statusExtractor;
-
+        private readonly IExtractionStatisticsHandler _statisticsHandler;
+        
         #region Ctor
-        public StatusService(InstanceSettings instanceSettings, IStatusExtractor statusExtractor)
+        public StatusService(InstanceSettings instanceSettings, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler)
         {
             _instanceSettings = instanceSettings;
             _statusExtractor = statusExtractor;
+            _statisticsHandler = statisticsHandler;
         }
         #endregion
 
@@ -41,6 +44,7 @@ namespace BirdsiteLive.Domain
             var apPublic = "https://www.w3.org/ns/activitystreams#Public";
 
             var extractedTags = _statusExtractor.ExtractTags(tweet.MessageContent);
+            _statisticsHandler.ExtractedStatus(extractedTags.tags.Count(x => x.type == "Mention"));
 
             string inReplyTo = null;
             if (tweet.InReplyToStatusId != default)
