@@ -125,10 +125,7 @@ namespace BirdsiteLive.Controllers
                 var activity = ApDeserializer.ProcessActivity(body);
                 // Do something
                 var signature = r.Headers["Signature"].First();
-
-                Console.WriteLine(body);
-                Console.WriteLine();
-
+                
                 switch (activity?.type)
                 {
                     case "Follow":
