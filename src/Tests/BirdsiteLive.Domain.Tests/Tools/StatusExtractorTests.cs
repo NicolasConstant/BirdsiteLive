@@ -30,7 +30,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
             
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.IsTrue(result.content.Contains("Bla."));
@@ -46,7 +46,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.IsTrue(result.content.Contains("Bla."));
@@ -62,7 +62,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(0, result.tags.Length);
@@ -80,7 +80,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(0, result.tags.Length);
@@ -98,7 +98,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(0, result.tags.Length);
@@ -116,7 +116,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(0, result.tags.Length);
@@ -136,7 +136,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(1, result.tags.Length);
@@ -157,7 +157,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(1, result.tags.Length);
@@ -178,7 +178,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(1, result.tags.Length);
@@ -199,7 +199,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(4, result.tags.Length);
@@ -219,7 +219,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(1, result.tags.Length);
@@ -240,7 +240,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(1, result.tags.Length);
@@ -261,7 +261,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(1, result.tags.Length);
@@ -282,7 +282,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(4, result.tags.Length);
@@ -302,7 +302,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(5, result.tags.Length);
@@ -325,7 +325,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(1, result.tags.Length);
@@ -345,7 +345,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #endregion
 
             var service = new StatusExtractor(_settings);
-            var result = service.ExtractTags(message);
+            var result = service.Extract(message);
 
             #region Validations
             Assert.AreEqual(1, result.tags.Length);
