@@ -43,7 +43,7 @@ namespace BirdsiteLive.Domain
             var to = $"{actorUrl}/followers";
             var apPublic = "https://www.w3.org/ns/activitystreams#Public";
 
-            var extractedTags = _statusExtractor.ExtractTags(tweet.MessageContent);
+            var extractedTags = _statusExtractor.Extract(tweet.MessageContent);
             _statisticsHandler.ExtractedStatus(extractedTags.tags.Count(x => x.type == "Mention"));
 
             string inReplyTo = null;

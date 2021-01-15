@@ -8,7 +8,7 @@ namespace BirdsiteLive.Domain.Tools
 {
     public interface IStatusExtractor
     {
-        (string content, Tag[] tags) ExtractTags(string messageContent);
+        (string content, Tag[] tags) Extract(string messageContent, bool extractMentions = true);
     }
 
     public class StatusExtractor : IStatusExtractor
@@ -36,7 +36,7 @@ namespace BirdsiteLive.Domain.Tools
         }
         #endregion
 
-        public (string content, Tag[] tags) ExtractTags(string messageContent)
+        public (string content, Tag[] tags) Extract(string messageContent, bool extractMentions = true)
         {
             var tags = new List<Tag>();
             messageContent = $" {messageContent} ";
@@ -102,22 +102,25 @@ namespace BirdsiteLive.Domain.Tools
             }
 
             // Extract Mentions
-            var mentionMatch = OrderByLength(_mentionRegex.Matches(messageContent));
-            foreach (Match m in mentionMatch.OrderByDescending(x => x.Length))
+            if (extractMentions)
             {
-                var mention = m.ToString().Replace("@", string.Empty).Replace("\n", string.Empty).Trim();
-                var url = $"https://{_instanceSettings.Domain}/users/{mention}";
-                var name = $"@{mention}@{_instanceSettings.Domain}";
-
-                tags.Add(new Tag
+                var mentionMatch = OrderByLength(_mentionRegex.Matches(messageContent));
+                foreach (Match m in mentionMatch.OrderByDescending(x => x.Length))
                 {
-                    name = name,
-                    href = url,
-                    type = "Mention"
-                });
+                    var mention = m.ToString().Replace("@", string.Empty).Replace("\n", string.Empty).Trim();
+                    var url = $"https://{_instanceSettings.Domain}/users/{mention}";
+                    var name = $"@{mention}@{_instanceSettings.Domain}";
 
-                messageContent = Regex.Replace(messageContent, m.ToString(),
-                    $@" <span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>");
+                    tags.Add(new Tag
+                    {
+                        name = name,
+                        href = url,
+                        type = "Mention"
+                    });
+
+                    messageContent = Regex.Replace(messageContent, m.ToString(),
+                        $@" <span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>");
+                }
             }
 
             // Clean up return lines

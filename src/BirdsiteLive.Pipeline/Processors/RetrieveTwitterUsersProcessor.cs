@@ -36,6 +36,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
+                    //TODO handle error
                 }
 
                 await Task.Delay(SyncPeriod * 1000 * 60, ct);
