@@ -9,7 +9,7 @@ namespace BirdsiteLive.Domain.Statistics
         void ExtractedStatus(int mentionsCount);
         ExtractionStatistics GetStatistics();
     }
-    
+
     public class ExtractionStatisticsHandler : IExtractionStatisticsHandler
     {
         private static int _lastDescriptionMentionsExtracted;
@@ -17,7 +17,7 @@ namespace BirdsiteLive.Domain.Statistics
 
         private static int _descriptionMentionsExtracted;
         private static int _statusMentionsExtracted;
-        
+
         private static System.Timers.Timer _resetTimer;
 
         #region Ctor
@@ -45,12 +45,14 @@ namespace BirdsiteLive.Domain.Statistics
 
         public void ExtractedDescription(int mentionsCount)
         {
-            Interlocked.Increment(ref _descriptionMentionsExtracted);
+            for (var i = 0; i < mentionsCount; i++)
+                Interlocked.Increment(ref _descriptionMentionsExtracted);
         }
 
         public void ExtractedStatus(int mentionsCount)
         {
-            Interlocked.Increment(ref _statusMentionsExtracted);
+            for (var i = 0; i < mentionsCount; i++)
+                Interlocked.Increment(ref _statusMentionsExtracted);
         }
 
         public ExtractionStatistics GetStatistics()
