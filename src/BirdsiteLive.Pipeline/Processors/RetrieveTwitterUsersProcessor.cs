@@ -5,18 +5,21 @@ using System.Threading.Tasks.Dataflow;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Pipeline.Contracts;
+using Microsoft.Extensions.Logging;
 
 namespace BirdsiteLive.Pipeline.Processors
 {
     public class RetrieveTwitterUsersProcessor : IRetrieveTwitterUsersProcessor
     {
         private readonly ITwitterUserDal _twitterUserDal;
+        private readonly ILogger<RetrieveTwitterUsersProcessor> _logger;
         private const int SyncPeriod = 15; //in minutes
 
         #region Ctor
-        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal)
+        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, ILogger<RetrieveTwitterUsersProcessor> logger)
         {
             _twitterUserDal = twitterUserDal;
+            _logger = logger;
         }
         #endregion
 
@@ -35,8 +38,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
-                    //TODO handle error
+                    _logger.LogError(e, "Failing retrieving Twitter Users.");
                 }
 
                 await Task.Delay(SyncPeriod * 1000 * 60, ct);

@@ -18,7 +18,7 @@ namespace BirdsiteLive.Domain
     {
         Task<Actor> GetUser(string objectId);
         Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null);
-        Task<HttpStatusCode> PostNewNoteActivity(Note note, string username, string noteId, string targetHost,
+        Task PostNewNoteActivity(Note note, string username, string noteId, string targetHost,
             string targetInbox);
     }
 
@@ -46,7 +46,7 @@ namespace BirdsiteLive.Domain
             }
         }
 
-        public async Task<HttpStatusCode> PostNewNoteActivity(Note note, string username, string noteId, string targetHost, string targetInbox)
+        public async Task PostNewNoteActivity(Note note, string username, string noteId, string targetHost, string targetInbox)
         {
             var actor = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
             var noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, noteId);
@@ -67,7 +67,7 @@ namespace BirdsiteLive.Domain
                 apObject = note
             };
 
-            return await PostDataAsync(noteActivity, targetHost, actor, targetInbox);
+            await PostDataAsync(noteActivity, targetHost, actor, targetInbox);
         }
 
         public async Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null)
@@ -85,7 +85,7 @@ namespace BirdsiteLive.Domain
 
             var signature = _cryptoService.SignAndGetSignatureHeader(date, actorUrl, targetHost, digest, usedInbox);
 
-            var client = new HttpClient();
+            var client = new HttpClient(); //TODO: remove this from here
             var httpRequestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
@@ -101,9 +101,8 @@ namespace BirdsiteLive.Domain
             };
 
             var response = await client.SendAsync(httpRequestMessage);
+            response.EnsureSuccessStatusCode();
             return response.StatusCode;
         }
-
-       
     }
 }
