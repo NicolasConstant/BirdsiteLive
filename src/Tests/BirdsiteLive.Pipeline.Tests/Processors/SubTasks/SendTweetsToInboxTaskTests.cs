@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.DAL.Contracts;
@@ -63,7 +64,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     It.Is<string>(y => y == tweetId.ToString()),
                     It.Is<string>(y => y == host),
                     It.Is<string>(y => y == inbox)))
-                .ReturnsAsync(HttpStatusCode.Accepted);
+                .Returns(Task.CompletedTask);
 
             var statusServiceMock = new Mock<IStatusService>(MockBehavior.Strict);
             statusServiceMock
@@ -136,7 +137,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                         It.Is<string>(y => y == tweetId.ToString()),
                         It.Is<string>(y => y == host),
                         It.Is<string>(y => y == inbox)))
-                    .ReturnsAsync(HttpStatusCode.Accepted);
+                    .Returns(Task.CompletedTask);
             }
 
             var statusServiceMock = new Mock<IStatusService>(MockBehavior.Strict);
@@ -168,7 +169,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(HttpRequestException))]
         public async Task ExecuteAsync_MultipleTweets_Error_Test()
         {
             #region Stubs
@@ -213,7 +214,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     It.Is<string>(y => y == tweetId2.ToString()),
                     It.Is<string>(y => y == host),
                     It.Is<string>(y => y == inbox)))
-                .ReturnsAsync(HttpStatusCode.Accepted);
+                .Returns(Task.CompletedTask);
 
             activityPubService
                 .Setup(x => x.PostNewNoteActivity(
@@ -222,7 +223,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     It.Is<string>(y => y == tweetId3.ToString()),
                     It.Is<string>(y => y == host),
                     It.Is<string>(y => y == inbox)))
-                .ReturnsAsync(HttpStatusCode.InternalServerError);
+                .Throws(new HttpRequestException());
 
             var statusServiceMock = new Mock<IStatusService>(MockBehavior.Strict);
             foreach (var tweetId in new[] { tweetId2, tweetId3 })
