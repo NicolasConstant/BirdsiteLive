@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Common.Structs;
@@ -46,6 +47,8 @@ namespace BirdsiteLive
             }
 
             services.AddControllersWithViews();
+
+            services.AddHttpClient();
         }
 
         public void ConfigureContainer(ServiceRegistry services)
