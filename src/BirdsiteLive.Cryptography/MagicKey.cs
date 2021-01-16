@@ -105,25 +105,6 @@ namespace BirdsiteLive.Cryptography
             return new MagicKey(JsonConvert.SerializeObject(RSAKeyParms.From(rsa.ExportParameters(true))));
         }
 
-        //public static async Task<MagicKey> KeyForAuthor(ASObject obj)
-        //{
-        //    var authorId = (string)obj["email"].FirstOrDefault()?.Primitive;
-        //    if (authorId == null)
-        //    {
-        //        authorId = obj["name"].FirstOrDefault()?.Primitive + "@" + new Uri(obj.Id).Host;
-        //    }
-
-        //    var domain = authorId.Split('@')[1];
-        //    var hc = new HttpClient();
-        //    var wf = JsonConvert.DeserializeObject<WebfingerResult>(await hc.GetStringAsync($"https://{domain}/.well-known/webfinger?resource=acct:{Uri.EscapeDataString(authorId)}"));
-        //    var link = wf.links.FirstOrDefault(a => a.rel == "magic-public-key");
-        //    if (link == null) return null;
-
-        //    if (!link.href.StartsWith("data:")) return null; // does this happen?
-
-        //    return new MagicKey(link.href.Split(new char[] { ',' }, 2)[1]);
-        //}
-
         public byte[] BuildSignedData(string data, string dataType, string encoding, string algorithm)
         {
             var sig = data + "." + _encodeBase64Url(Encoding.UTF8.GetBytes(dataType)) + "." + _encodeBase64Url(Encoding.UTF8.GetBytes(encoding)) + "." + _encodeBase64Url(Encoding.UTF8.GetBytes(algorithm));

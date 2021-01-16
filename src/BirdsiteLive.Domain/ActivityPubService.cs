@@ -25,25 +25,25 @@ namespace BirdsiteLive.Domain
     public class ActivityPubService : IActivityPubService
     {
         private readonly InstanceSettings _instanceSettings;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ICryptoService _cryptoService;
 
         #region Ctor
-        public ActivityPubService(ICryptoService cryptoService, InstanceSettings instanceSettings)
+        public ActivityPubService(ICryptoService cryptoService, InstanceSettings instanceSettings, IHttpClientFactory httpClientFactory)
         {
             _cryptoService = cryptoService;
             _instanceSettings = instanceSettings;
+            _httpClientFactory = httpClientFactory;
         }
         #endregion
 
         public async Task<Actor> GetUser(string objectId)
         {
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-                var result = await httpClient.GetAsync(objectId);
-                var content = await result.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<Actor>(content);
-            }
+            var httpClient = _httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+            var result = await httpClient.GetAsync(objectId);
+            var content = await result.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<Actor>(content);
         }
 
         public async Task PostNewNoteActivity(Note note, string username, string noteId, string targetHost, string targetInbox)
@@ -53,7 +53,7 @@ namespace BirdsiteLive.Domain
 
             var now = DateTime.UtcNow;
             var nowString = now.ToString("s") + "Z";
-            
+
             var noteActivity = new ActivityCreateNote()
             {
                 context = "https://www.w3.org/ns/activitystreams",
@@ -85,7 +85,7 @@ namespace BirdsiteLive.Domain
 
             var signature = _cryptoService.SignAndGetSignatureHeader(date, actorUrl, targetHost, digest, usedInbox);
 
-            var client = new HttpClient(); //TODO: remove this from here
+            var client = _httpClientFactory.CreateClient();
             var httpRequestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
