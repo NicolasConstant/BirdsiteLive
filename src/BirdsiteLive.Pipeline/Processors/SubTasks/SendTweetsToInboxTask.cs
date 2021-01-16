@@ -47,12 +47,8 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                 foreach (var tweet in tweetsToSend)
                 {
                     var note = _statusService.GetStatus(user.Acct, tweet);
-                    var result = await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), follower.Host, inbox);
-
-                    if (result == HttpStatusCode.Accepted || result == HttpStatusCode.OK)
-                        syncStatus = tweet.Id;
-                    else
-                        throw new Exception("Posting new note activity failed");
+                    await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), follower.Host, inbox);
+                    syncStatus = tweet.Id;
                 }
             }
             finally

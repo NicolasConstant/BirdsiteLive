@@ -19,7 +19,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
         private readonly IStatusService _statusService;
         private readonly IActivityPubService _activityPubService;
         private readonly IFollowersDal _followersDal;
-        
+
         #region Ctor
         public SendTweetsToSharedInboxTask(IActivityPubService activityPubService, IStatusService statusService, IFollowersDal followersDal)
         {
@@ -48,13 +48,8 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                 foreach (var tweet in tweetsToSend)
                 {
                     var note = _statusService.GetStatus(user.Acct, tweet);
-                    var result =
-                        await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), host, inbox);
-
-                    if (result == HttpStatusCode.Accepted || result == HttpStatusCode.OK)
-                        syncStatus = tweet.Id;
-                    else
-                        throw new Exception("Posting new note activity failed");
+                    await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), host, inbox);
+                    syncStatus = tweet.Id;
                 }
             }
             finally
