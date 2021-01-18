@@ -14,13 +14,13 @@ namespace BirdsiteLive.Pipeline.Processors
 {
     public class RetrieveTweetsProcessor : IRetrieveTweetsProcessor
     {
-        private readonly ITwitterService _twitterService;
+        private readonly ITwitterTweetsService _twitterTweetsService;
         private readonly ITwitterUserDal _twitterUserDal;
 
         #region Ctor
-        public RetrieveTweetsProcessor(ITwitterService twitterService, ITwitterUserDal twitterUserDal)
+        public RetrieveTweetsProcessor(ITwitterTweetsService twitterTweetsService, ITwitterUserDal twitterUserDal)
         {
-            _twitterService = twitterService;
+            _twitterTweetsService = twitterTweetsService;
             _twitterUserDal = twitterUserDal;
         }
         #endregion
@@ -56,9 +56,9 @@ namespace BirdsiteLive.Pipeline.Processors
         {
             ExtractedTweet[] tweets;
             if (user.LastTweetPostedId == -1)
-                tweets = _twitterService.GetTimeline(user.Acct, 1);
+                tweets = _twitterTweetsService.GetTimeline(user.Acct, 1);
             else
-                tweets = _twitterService.GetTimeline(user.Acct, 200, user.LastTweetSynchronizedForAllFollowersId);
+                tweets = _twitterTweetsService.GetTimeline(user.Acct, 200, user.LastTweetSynchronizedForAllFollowersId);
 
             return tweets;
         }

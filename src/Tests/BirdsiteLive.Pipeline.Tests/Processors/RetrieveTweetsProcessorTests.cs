@@ -40,7 +40,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             #region Mocks
-            var twitterServiceMock = new Mock<ITwitterService>(MockBehavior.Strict);
+            var twitterServiceMock = new Mock<ITwitterTweetsService>(MockBehavior.Strict);
             twitterServiceMock
                 .Setup(x => x.GetTimeline(
                     It.Is<string>(y => y == user1.Acct),
@@ -105,7 +105,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             #region Mocks
-            var twitterServiceMock = new Mock<ITwitterService>(MockBehavior.Strict);
+            var twitterServiceMock = new Mock<ITwitterTweetsService>(MockBehavior.Strict);
             twitterServiceMock
                 .Setup(x => x.GetTimeline(
                     It.Is<string>(y => y == user1.Acct),
@@ -165,7 +165,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             #region Mocks
-            var twitterServiceMock = new Mock<ITwitterService>(MockBehavior.Strict);
+            var twitterServiceMock = new Mock<ITwitterTweetsService>(MockBehavior.Strict);
             twitterServiceMock
                 .Setup(x => x.GetTimeline(
                     It.Is<string>(y => y == user1.Acct),

@@ -1,65 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Statistics.Domain;
 using BirdsiteLive.Twitter.Extractors;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi;
 using Tweetinvi.Models;
-using Tweetinvi.Models.Entities;
 using Tweetinvi.Parameters;
 
 namespace BirdsiteLive.Twitter
 {
-    public interface ITwitterService
+    public interface ITwitterTweetsService
     {
-        TwitterUser GetUser(string username);
         ExtractedTweet GetTweet(long statusId);
         ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1);
     }
 
-    public class TwitterService : ITwitterService
+    public class TwitterTweetsService : ITwitterTweetsService
     {
         private readonly TwitterSettings _settings;
         private readonly ITweetExtractor _tweetExtractor;
         private readonly ITwitterStatisticsHandler _statisticsHandler;
+        private readonly ITwitterUserService _twitterUserService;
 
         #region Ctor
-        public TwitterService(TwitterSettings settings, ITweetExtractor tweetExtractor, ITwitterStatisticsHandler statisticsHandler)
+        public TwitterTweetsService(TwitterSettings settings, ITweetExtractor tweetExtractor, ITwitterStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService)
         {
             _settings = settings;
             _tweetExtractor = tweetExtractor;
             _statisticsHandler = statisticsHandler;
+            _twitterUserService = twitterUserService;
             Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
         }
         #endregion
-
-        public TwitterUser GetUser(string username)
-        {
-            var user = User.GetUserFromScreenName(username);
-            _statisticsHandler.CalledUserApi();
-            if (user == null) return null;
-
-            // Expand URLs
-            var description = user.Description;
-            foreach (var descriptionUrl in user.Entities?.Description?.Urls?.OrderByDescending(x => x.URL.Length))
-                description = description.Replace(descriptionUrl.URL, descriptionUrl.ExpandedURL);
-
-            return new TwitterUser
-            {
-                Acct = username,
-                Name = user.Name,
-                Description = description,
-                Url = $"https://twitter.com/{username}",
-                ProfileImageUrl = user.ProfileImageUrlFullSize,
-                ProfileBackgroundImageUrl = user.ProfileBackgroundImageUrlHttps,
-                ProfileBannerURL = user.ProfileBannerURL
-            };
-        }
-
+        
         public ExtractedTweet GetTweet(long statusId)
         {
             TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
@@ -72,9 +46,9 @@ namespace BirdsiteLive.Twitter
         public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)
         {
             TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
+            
+            var user = _twitterUserService.GetUser(username);
 
-            var user = User.GetUserFromScreenName(username);
-            _statisticsHandler.CalledUserApi();
             var tweets = new List<ITweet>();
             if (fromTweetId == -1)
             {
