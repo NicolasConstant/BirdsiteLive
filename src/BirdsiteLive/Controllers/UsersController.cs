@@ -21,18 +21,20 @@ namespace BirdsiteLive.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly ITwitterService _twitterService;
+        private readonly ITwitterUserService _twitterUserService;
+        private readonly ITwitterTweetsService _twitterTweetService;
         private readonly IUserService _userService;
         private readonly IStatusService _statusService;
         private readonly InstanceSettings _instanceSettings;
 
         #region Ctor
-        public UsersController(ITwitterService twitterService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings)
+        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService)
         {
-            _twitterService = twitterService;
+            _twitterUserService = twitterUserService;
             _userService = userService;
             _statusService = statusService;
             _instanceSettings = instanceSettings;
+            _twitterTweetService = twitterTweetService;
         }
         #endregion
 
@@ -53,7 +55,7 @@ namespace BirdsiteLive.Controllers
         public IActionResult Index(string id)
         {
             id = id.Trim(new[] { ' ', '@' }).ToLowerInvariant();
-            var user = _twitterService.GetUser(id);
+            var user = _twitterUserService.GetUser(id);
 
             var acceptHeaders = Request.Headers["Accept"];
             if (acceptHeaders.Any())
@@ -96,7 +98,7 @@ namespace BirdsiteLive.Controllers
                     if (!long.TryParse(statusId, out var parsedStatusId))
                         return NotFound();
 
-                    var tweet = _twitterService.GetTweet(parsedStatusId);
+                    var tweet = _twitterTweetService.GetTweet(parsedStatusId);
                     if (tweet == null)
                         return NotFound();
 

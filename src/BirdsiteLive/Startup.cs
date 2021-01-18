@@ -84,8 +84,8 @@ namespace BirdsiteLive
                 throw new NotImplementedException($"{dbSettings.Type} is not supported");
             }
             
-            services.For<ITwitterService>().DecorateAllWith<CachedTwitterService>();
-            services.For<ITwitterService>().Use<TwitterService>().Singleton();
+            services.For<ITwitterUserService>().DecorateAllWith<CachedTwitterUserService>();
+            services.For<ITwitterUserService>().Use<TwitterUserService>().Singleton();
 
             services.Scan(_ =>
             {

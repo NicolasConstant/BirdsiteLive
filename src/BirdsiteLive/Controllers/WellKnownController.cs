@@ -16,14 +16,14 @@ namespace BirdsiteLive.Controllers
     [ApiController]
     public class WellKnownController : ControllerBase
     {
-        private readonly ITwitterService _twitterService;
+        private readonly ITwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly InstanceSettings _settings;
 
         #region Ctor
-        public WellKnownController(InstanceSettings settings, ITwitterService twitterService, ITwitterUserDal twitterUserDal)
+        public WellKnownController(InstanceSettings settings, ITwitterUserService twitterUserService, ITwitterUserDal twitterUserDal)
         {
-            _twitterService = twitterService;
+            _twitterUserService = twitterUserService;
             _twitterUserDal = twitterUserDal;
             _settings = settings;
         }
@@ -163,7 +163,7 @@ namespace BirdsiteLive.Controllers
             if (!string.IsNullOrWhiteSpace(domain) && domain != _settings.Domain)
                 return NotFound();
 
-            var user = _twitterService.GetUser(name);
+            var user = _twitterUserService.GetUser(name);
             if (user == null)
                 return NotFound();
 

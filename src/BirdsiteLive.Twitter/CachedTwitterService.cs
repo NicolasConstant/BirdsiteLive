@@ -4,9 +4,9 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace BirdsiteLive.Twitter
 {
-    public class CachedTwitterService : ITwitterService
+    public class CachedTwitterUserService : ITwitterUserService
     {
-        private readonly ITwitterService _twitterService;
+        private readonly ITwitterUserService _twitterService;
 
         private MemoryCache _userCache = new MemoryCache(new MemoryCacheOptions()
         {
@@ -22,7 +22,7 @@ namespace BirdsiteLive.Twitter
             .SetAbsoluteExpiration(TimeSpan.FromDays(30));
 
         #region Ctor
-        public CachedTwitterService(ITwitterService twitterService)
+        public CachedTwitterUserService(ITwitterUserService twitterService)
         {
             _twitterService = twitterService;
         }
@@ -37,16 +37,6 @@ namespace BirdsiteLive.Twitter
             }
 
             return user;
-        }
-
-        public ExtractedTweet GetTweet(long statusId)
-        {
-            return _twitterService.GetTweet(statusId);
-        }
-
-        public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)
-        {
-            return _twitterService.GetTimeline(username, nberTweets, fromTweetId);
         }
     }
 }
