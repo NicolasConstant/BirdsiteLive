@@ -144,7 +144,7 @@ namespace BirdsiteLive.Domain
                 }
             };
             var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
-            return result == HttpStatusCode.Accepted || result == HttpStatusCode.OK;
+            return result == HttpStatusCode.Accepted || result == HttpStatusCode.OK; //TODO: revamp this for better error handling
         }
 
         private string OnlyKeepRoute(string inbox, string host)
@@ -188,7 +188,7 @@ namespace BirdsiteLive.Domain
                 }
             };
             var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject.apObject);
-            return result == HttpStatusCode.Accepted || result == HttpStatusCode.OK;
+            return result == HttpStatusCode.Accepted || result == HttpStatusCode.OK; //TODO: revamp this for better error handling
         }
 
         private async Task<SignatureValidationResult> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders, string body)

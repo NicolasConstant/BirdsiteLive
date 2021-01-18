@@ -13,6 +13,7 @@ using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Pipeline.Processors.SubTasks;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
+using Microsoft.Extensions.Logging;
 using Tweetinvi.Models;
 
 namespace BirdsiteLive.Pipeline.Processors
@@ -21,12 +22,14 @@ namespace BirdsiteLive.Pipeline.Processors
     {
         private readonly ISendTweetsToInboxTask _sendTweetsToInboxTask;
         private readonly ISendTweetsToSharedInboxTask _sendTweetsToSharedInbox;
+        private readonly ILogger<SendTweetsToFollowersProcessor> _logger;
 
         #region Ctor
-        public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox)
+        public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox, ILogger<SendTweetsToFollowersProcessor> logger)
         {
             _sendTweetsToInboxTask = sendTweetsToInboxTask;
             _sendTweetsToSharedInbox = sendTweetsToSharedInbox;
+            _logger = logger;
         }
         #endregion
 
@@ -61,8 +64,8 @@ namespace BirdsiteLive.Pipeline.Processors
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
-                    //TODO handle error
+                    var follower = followersPerInstance.First();
+                    _logger.LogError(e, "Posting to {Host}{Route} failed", follower.Host, follower.SharedInboxRoute);
                 }
             }
         }
@@ -77,8 +80,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
-                    //TODO handle error
+                    _logger.LogError(e, "Posting to {Host}{Route} failed", follower.Host, follower.InboxRoute);
                 }
             }
         }
