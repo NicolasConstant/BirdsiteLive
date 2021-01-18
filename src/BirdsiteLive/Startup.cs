@@ -9,6 +9,7 @@ using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Postgres.DataAccessLayers;
 using BirdsiteLive.DAL.Postgres.Settings;
 using BirdsiteLive.Models;
+using BirdsiteLive.Twitter;
 using Lamar;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -64,7 +65,7 @@ namespace BirdsiteLive
 
             var logsSettings = Configuration.GetSection("Logging").Get<LogsSettings>();
             services.For<LogsSettings>().Use(x => logsSettings);
-
+            
             if (string.Equals(dbSettings.Type, DbTypes.Postgres, StringComparison.OrdinalIgnoreCase))
             {
                 var connString = $"Host={dbSettings.Host};Username={dbSettings.User};Password={dbSettings.Password};Database={dbSettings.Name}";
@@ -73,7 +74,7 @@ namespace BirdsiteLive
                     ConnString = connString
                 };
                 services.For<PostgresSettings>().Use(x => postgresSettings);
-
+                
                 services.For<ITwitterUserDal>().Use<TwitterUserPostgresDal>().Singleton();
                 services.For<IFollowersDal>().Use<FollowersPostgresDal>().Singleton();
                 services.For<IDbInitializerDal>().Use<DbInitializerPostgresDal>().Singleton();
@@ -82,6 +83,9 @@ namespace BirdsiteLive
             {
                 throw new NotImplementedException($"{dbSettings.Type} is not supported");
             }
+            
+            services.For<ITwitterService>().DecorateAllWith<CachedTwitterService>();
+            services.For<ITwitterService>().Use<TwitterService>().Singleton();
 
             services.Scan(_ =>
             {
