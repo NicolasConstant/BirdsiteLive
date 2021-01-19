@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using BirdsiteLive.Common.Extensions;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Pipeline.Contracts;
@@ -13,7 +15,7 @@ namespace BirdsiteLive.Pipeline.Processors
     {
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly ILogger<RetrieveTwitterUsersProcessor> _logger;
-        private const int SyncPeriod = 15; //in minutes
+        public int WaitFactor = 1000 * 60; //1 min
 
         #region Ctor
         public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, ILogger<RetrieveTwitterUsersProcessor> logger)
@@ -25,7 +27,7 @@ namespace BirdsiteLive.Pipeline.Processors
 
         public async Task GetTwitterUsersAsync(BufferBlock<SyncTwitterUser[]> twitterUsersBufferBlock, CancellationToken ct)
         {
-            for (;;)
+            for (; ; )
             {
                 ct.ThrowIfCancellationRequested();
 
@@ -33,15 +35,26 @@ namespace BirdsiteLive.Pipeline.Processors
                 {
                     var users = await _twitterUserDal.GetAllTwitterUsersAsync();
 
-                    if(users.Length > 0)
-                        await twitterUsersBufferBlock.SendAsync(users, ct);
+                    var userCount = users.Any() ? users.Length : 1;
+                    var splitNumber = (int) Math.Ceiling(userCount / 15d);
+                    var splitUsers = users.Split(splitNumber).ToList();
+
+                    foreach (var u in splitUsers)
+                    {
+                        ct.ThrowIfCancellationRequested();
+
+                        await twitterUsersBufferBlock.SendAsync(u.ToArray(), ct);
+
+                        await Task.Delay(WaitFactor, ct);
+                    }
+
+                    var splitCount = splitUsers.Count();
+                    if (splitCount < 15) await Task.Delay((15 - splitCount) * WaitFactor, ct);
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Failing retrieving Twitter Users.");
                 }
-
-                await Task.Delay(SyncPeriod * 1000 * 60, ct);
             }
         }
     }
