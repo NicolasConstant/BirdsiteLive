@@ -10,6 +10,7 @@ using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Pipeline.Processors.SubTasks;
 using BirdsiteLive.Twitter.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -100,9 +101,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                         It.Is<Follower>(y => y.Id == follower.Id && y.FollowingsSyncStatus[twitterUserId] == tweetId)))
                     .Returns(Task.CompletedTask);
             }
+
+            var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, loggerMock.Object);
             await task.ExecuteAsync(tweets.ToArray(), twitterUser, host, followers.ToArray());
 
             #region Validations
@@ -197,9 +200,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                         It.Is<Follower>(y => y.Id == follower.Id && y.FollowingsSyncStatus[twitterUserId] == tweetId3)))
                     .Returns(Task.CompletedTask);
             }
+
+            var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, loggerMock.Object);
             await task.ExecuteAsync(tweets.ToArray(), twitterUser, host, followers.ToArray());
 
             #region Validations
@@ -302,9 +307,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                         It.Is<Follower>(y => y.Id == follower.Id && y.FollowingsSyncStatus[twitterUserId] == tweetId2)))
                     .Returns(Task.CompletedTask);
             }
+
+            var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, loggerMock.Object);
 
             try
             {
