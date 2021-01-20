@@ -2,6 +2,7 @@
 {
     public class InstanceSettings
     {
+        public string Name { get; set; }
         public string Domain { get; set; }
         public string AdminEmail { get; set; }
         public bool ResolveMentionsInProfiles { get; set; }
