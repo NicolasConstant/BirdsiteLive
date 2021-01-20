@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -37,13 +38,84 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, loggerMock.Object);
+            processor.WaitFactor = 10;
             processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
             await Task.Delay(50);
 
             #region Validations
             twitterUserDalMock.VerifyAll();
-            Assert.AreEqual(1, buffer.Count);
+            Assert.AreEqual(3, buffer.Count);
+            buffer.TryReceive(out var result);
+            Assert.AreEqual(1, result.Length);
+            #endregion
+        }
+
+        [TestMethod]
+        public async Task GetTwitterUsersAsync_Multi_Test()
+        {
+            #region Stubs
+            var buffer = new BufferBlock<SyncTwitterUser[]>();
+            var users = new List<SyncTwitterUser>();
+
+            for (var i = 0; i < 30; i++)
+                users.Add(new SyncTwitterUser());
+            #endregion
+
+            #region Mocks
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
+            twitterUserDalMock
+                .SetupSequence(x => x.GetAllTwitterUsersAsync())
+                .ReturnsAsync(users.ToArray())
+                .ReturnsAsync(new SyncTwitterUser[0]);
+
+            var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
+            #endregion
+
+            var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, loggerMock.Object);
+            processor.WaitFactor = 2;
+            processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
+
+            await Task.Delay(200);
+
+            #region Validations
+            twitterUserDalMock.VerifyAll();
+            Assert.AreEqual(15, buffer.Count);
+            buffer.TryReceive(out var result);
+            Assert.AreEqual(2, result.Length);
+            #endregion
+        }
+
+        [TestMethod]
+        public async Task GetTwitterUsersAsync_Multi2_Test()
+        {
+            #region Stubs
+            var buffer = new BufferBlock<SyncTwitterUser[]>();
+            var users = new List<SyncTwitterUser>();
+
+            for (var i = 0; i < 31; i++)
+                users.Add(new SyncTwitterUser());
+            #endregion
+
+            #region Mocks
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
+            twitterUserDalMock
+                .SetupSequence(x => x.GetAllTwitterUsersAsync())
+                .ReturnsAsync(users.ToArray())
+                .ReturnsAsync(new SyncTwitterUser[0]);
+
+            var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
+            #endregion
+
+            var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, loggerMock.Object);
+            processor.WaitFactor = 2;
+            processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
+
+            await Task.Delay(200);
+
+            #region Validations
+            twitterUserDalMock.VerifyAll();
+            Assert.AreEqual(11, buffer.Count);
             buffer.TryReceive(out var result);
             Assert.AreEqual(3, result.Length);
             #endregion
@@ -66,6 +138,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, loggerMock.Object);
+            processor.WaitFactor = 1;
             processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
             await Task.Delay(50);
@@ -75,8 +148,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             Assert.AreEqual(0, buffer.Count);
             #endregion
         }
-
-
+        
         [TestMethod]
         public async Task GetTwitterUsersAsync_Exception_Test()
         {
@@ -88,12 +160,13 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetAllTwitterUsersAsync())
-                .Throws(new Exception());
+                .Returns(async () => await DelayFaultedTask<SyncTwitterUser[]>(new Exception()));
 
             var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
             #endregion
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, loggerMock.Object);
+            processor.WaitFactor = 10;
             var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
             await Task.WhenAny(t, Task.Delay(50));
@@ -103,7 +176,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             Assert.AreEqual(0, buffer.Count);
             #endregion
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(OperationCanceledException))]
@@ -121,7 +193,14 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, loggerMock.Object);
+            processor.WaitFactor = 1;
             await processor.GetTwitterUsersAsync(buffer, canTokenS.Token);
+        }
+
+        private static async Task<T> DelayFaultedTask<T>(Exception e)
+        {
+            await Task.Delay(30);
+            throw e;
         }
     }
 }
