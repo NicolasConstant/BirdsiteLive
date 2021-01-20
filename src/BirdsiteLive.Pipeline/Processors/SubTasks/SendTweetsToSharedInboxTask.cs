@@ -6,6 +6,7 @@ using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Twitter.Models;
+using Microsoft.Extensions.Logging;
 
 namespace BirdsiteLive.Pipeline.Processors.SubTasks
 {
@@ -19,13 +20,15 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
         private readonly IStatusService _statusService;
         private readonly IActivityPubService _activityPubService;
         private readonly IFollowersDal _followersDal;
+        private readonly ILogger<SendTweetsToSharedInboxTask> _logger;
 
         #region Ctor
-        public SendTweetsToSharedInboxTask(IActivityPubService activityPubService, IStatusService statusService, IFollowersDal followersDal)
+        public SendTweetsToSharedInboxTask(IActivityPubService activityPubService, IStatusService statusService, IFollowersDal followersDal, ILogger<SendTweetsToSharedInboxTask> logger)
         {
             _activityPubService = activityPubService;
             _statusService = statusService;
             _followersDal = followersDal;
+            _logger = logger;
         }
         #endregion
 
@@ -47,8 +50,23 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
             {
                 foreach (var tweet in tweetsToSend)
                 {
-                    var note = _statusService.GetStatus(user.Acct, tweet);
-                    await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), host, inbox);
+                    try
+                    {
+                        var note = _statusService.GetStatus(user.Acct, tweet);
+                        await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), host, inbox);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        if (e.Message.Contains("Invalid pattern") && e.Message.Contains("at offset")) //Regex exception
+                        {
+                            _logger.LogError(e, "Can't parse {MessageContent} from Tweet {Id}", tweet.MessageContent, tweet.Id);
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    
                     syncStatus = tweet.Id;
                 }
             }
