@@ -151,3 +151,7 @@ docker-compose pull
 # Start a new container, automatically removes old one
 docker-compose up -d
 ```
+
+## More options 
+
+You can find more options available [here](https://github.com/NicolasConstant/BirdsiteLive/blob/master/VARIABLES.md)

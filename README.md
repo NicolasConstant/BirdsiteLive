@@ -16,7 +16,7 @@ You can find an official (and temporary) instance here: [beta.birdsite.live](htt
 
 ## Installation
 
-I'm providing a [Docker build](https://hub.docker.com/r/nicolasconstant/birdsitelive), to install it on your own server, please follow [those instructions](https://github.com/NicolasConstant/BirdsiteLive/blob/master/INSTALLATION.md).
+I'm providing a [docker build](https://hub.docker.com/r/nicolasconstant/birdsitelive). To install it on your own server, please follow [those instructions](https://github.com/NicolasConstant/BirdsiteLive/blob/master/INSTALLATION.md). More [options](https://github.com/NicolasConstant/BirdsiteLive/blob/master/VARIABLES.md) are also available.
 
 ## License
 

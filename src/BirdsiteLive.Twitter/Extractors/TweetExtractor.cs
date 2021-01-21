@@ -89,8 +89,8 @@ namespace BirdsiteLive.Twitter.Extractors
             switch (mediaType)
             {
                 case "photo":
-                    var ext = Path.GetExtension(mediaUrl);
-                    switch (ext)
+                    var pExt = Path.GetExtension(mediaUrl);
+                    switch (pExt)
                     {
                         case ".jpg":
                         case ".jpeg":
@@ -101,8 +101,15 @@ namespace BirdsiteLive.Twitter.Extractors
                     return null;
 
                 case "animated_gif":
+                    var vExt = Path.GetExtension(mediaUrl);
+                    switch (vExt)
+                    {
+                        case ".gif":
+                            return "image/gif";
+                        case ".mp4":
+                            return "video/mp4";
+                    }
                     return "image/gif";
-
                 case "video":
                     return "video/mp4";
             }
