@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain;
@@ -20,14 +21,16 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
         private readonly IStatusService _statusService;
         private readonly IActivityPubService _activityPubService;
         private readonly IFollowersDal _followersDal;
+        private readonly InstanceSettings _settings;
         private readonly ILogger<SendTweetsToSharedInboxTask> _logger;
 
         #region Ctor
-        public SendTweetsToSharedInboxTask(IActivityPubService activityPubService, IStatusService statusService, IFollowersDal followersDal, ILogger<SendTweetsToSharedInboxTask> logger)
+        public SendTweetsToSharedInboxTask(IActivityPubService activityPubService, IStatusService statusService, IFollowersDal followersDal, InstanceSettings settings, ILogger<SendTweetsToSharedInboxTask> logger)
         {
             _activityPubService = activityPubService;
             _statusService = statusService;
             _followersDal = followersDal;
+            _settings = settings;
             _logger = logger;
         }
         #endregion
@@ -52,8 +55,13 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                 {
                     try
                     {
-                        var note = _statusService.GetStatus(user.Acct, tweet);
-                        await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), host, inbox);
+                        if (!tweet.IsReply ||
+                            tweet.IsReply && tweet.IsThread ||
+                            _settings.PublishReplies)
+                        {
+                            var note = _statusService.GetStatus(user.Acct, tweet);
+                            await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), host, inbox);
+                        }
                     }
                     catch (ArgumentException e)
                     {
@@ -66,7 +74,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                             throw;
                         }
                     }
-                    
+
                     syncStatus = tweet.Id;
                 }
             }
