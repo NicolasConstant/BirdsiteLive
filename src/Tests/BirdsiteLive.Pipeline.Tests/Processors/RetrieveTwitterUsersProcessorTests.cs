@@ -29,7 +29,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             };
             var settings = new InstanceSettings
             {
-                MaxUsersCapacity = 10
+                MaxUsersCapacity = 40
             };
             #endregion
 
@@ -37,8 +37,12 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetAllTwitterUsersAsync(
-                    It.Is<int>(y => y == settings.MaxUsersCapacity)))
+                    It.Is<int>(y => y == settings.MaxUsersCapacity/4)))
                 .ReturnsAsync(users);
+
+            twitterUserDalMock
+                .Setup(x => x.GetTwitterUsersCountAsync())
+                .ReturnsAsync(10);
 
             var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
             #endregion
@@ -69,7 +73,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var settings = new InstanceSettings
             {
-                MaxUsersCapacity = 100
+                MaxUsersCapacity = 400
             };
             #endregion
 
@@ -80,6 +84,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.Is<int>(y => y == settings.MaxUsersCapacity)))
                 .ReturnsAsync(users.ToArray())
                 .ReturnsAsync(new SyncTwitterUser[0]);
+
+            twitterUserDalMock
+                .Setup(x => x.GetTwitterUsersCountAsync())
+                .ReturnsAsync(30);
 
             var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
             #endregion
@@ -110,7 +118,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var settings = new InstanceSettings
             {
-                MaxUsersCapacity = 10
+                MaxUsersCapacity = 400
             };
             #endregion
 
@@ -118,9 +126,13 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .SetupSequence(x => x.GetAllTwitterUsersAsync(
-                    It.Is<int>(y => y == settings.MaxUsersCapacity)))
+                    It.Is<int>(y => y == settings.MaxUsersCapacity/4)))
                 .ReturnsAsync(users.ToArray())
                 .ReturnsAsync(new SyncTwitterUser[0]);
+
+            twitterUserDalMock
+                .Setup(x => x.GetTwitterUsersCountAsync())
+                .ReturnsAsync(31);
 
             var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
             #endregion
@@ -158,6 +170,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.Is<int>(y => y == settings.MaxUsersCapacity)))
                 .ReturnsAsync(new SyncTwitterUser[0]);
 
+            twitterUserDalMock
+                .Setup(x => x.GetTwitterUsersCountAsync())
+                .ReturnsAsync(1000);
+
             var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
             #endregion
 
@@ -192,6 +208,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.Is<int>(y => y == settings.MaxUsersCapacity)))
                 .Returns(async () => await DelayFaultedTask<SyncTwitterUser[]>(new Exception()));
 
+            twitterUserDalMock
+                .Setup(x => x.GetTwitterUsersCountAsync())
+                .ReturnsAsync(1000);
+
             var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
             #endregion
 
@@ -224,6 +244,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             #region Mocks
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
+
+            twitterUserDalMock
+                .Setup(x => x.GetTwitterUsersCountAsync())
+                .ReturnsAsync(1000);
+
             var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
             #endregion
 

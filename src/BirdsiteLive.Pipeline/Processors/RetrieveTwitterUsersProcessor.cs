@@ -19,7 +19,6 @@ namespace BirdsiteLive.Pipeline.Processors
         private readonly InstanceSettings _instanceSettings;
         
         public int WaitFactor = 1000 * 60; //1 min
-        private int StartUpWarming = 4;
 
         #region Ctor
         public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, InstanceSettings instanceSettings, ILogger<RetrieveTwitterUsersProcessor> logger)
@@ -32,16 +31,20 @@ namespace BirdsiteLive.Pipeline.Processors
 
         public async Task GetTwitterUsersAsync(BufferBlock<SyncTwitterUser[]> twitterUsersBufferBlock, CancellationToken ct)
         {
+            var totalUsers = await _twitterUserDal.GetTwitterUsersCountAsync();
+            var warmUpMaxCapacity = _instanceSettings.MaxUsersCapacity / 4;
+            var warmUpIterations = warmUpMaxCapacity == 0 ? 0 : (int) (totalUsers / (float) warmUpMaxCapacity);
+
             for (; ; )
             {
                 ct.ThrowIfCancellationRequested();
 
                 try
                 {
-                    var maxUsers = StartUpWarming > 0
+                    var maxUsers = warmUpIterations > 0
                         ? _instanceSettings.MaxUsersCapacity / 4
                         : _instanceSettings.MaxUsersCapacity;
-                    StartUpWarming--;
+                    warmUpIterations--;
                     var users = await _twitterUserDal.GetAllTwitterUsersAsync(maxUsers);
 
                     var userCount = users.Any() ? users.Length : 1;

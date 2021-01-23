@@ -120,6 +120,41 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         }
 
         [TestMethod]
+        public async Task GetAllTwitterUsers_Limited()
+        {
+            var now = DateTime.Now;
+            var oldest = now.AddDays(-3);
+            var newest = now.AddDays(-2);
+
+            var dal = new TwitterUserPostgresDal(_settings);
+            for (var i = 0; i < 20; i++)
+            {
+                var acct = $"myid{i}";
+                var lastTweetId = 1548L;
+
+                await dal.CreateTwitterUserAsync(acct, lastTweetId);
+            }
+
+            var allUsers = await dal.GetAllTwitterUsersAsync(100);
+            for (var i = 0; i < 20; i++)
+            {
+                var user = allUsers[i];
+                var date = i % 2 == 0 ? oldest : newest;
+                await dal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, date);
+            }
+
+            var result = await dal.GetAllTwitterUsersAsync(10);
+            Assert.AreEqual(10, result.Length);
+            Assert.IsFalse(result[0].Id == default);
+            Assert.IsFalse(result[0].Acct == default);
+            Assert.IsFalse(result[0].LastTweetPostedId == default);
+            Assert.IsFalse(result[0].LastTweetSynchronizedForAllFollowersId == default);
+
+            foreach (var acc in result)
+                Assert.IsTrue(Math.Abs((acc.LastSync - oldest.ToUniversalTime()).TotalMilliseconds) < 1000);
+        }
+
+        [TestMethod]
         public async Task CountTwitterUsers()
         {
             var dal = new TwitterUserPostgresDal(_settings);
