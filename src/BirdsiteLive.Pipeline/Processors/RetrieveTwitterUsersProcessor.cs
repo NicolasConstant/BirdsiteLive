@@ -4,9 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using BirdsiteLive.Common.Extensions;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Pipeline.Contracts;
+using BirdsiteLive.Pipeline.Tools;
 using Microsoft.Extensions.Logging;
 
 namespace BirdsiteLive.Pipeline.Processors
@@ -14,13 +16,16 @@ namespace BirdsiteLive.Pipeline.Processors
     public class RetrieveTwitterUsersProcessor : IRetrieveTwitterUsersProcessor
     {
         private readonly ITwitterUserDal _twitterUserDal;
+        private readonly IMaxUsersNumberProvider _maxUsersNumberProvider;
         private readonly ILogger<RetrieveTwitterUsersProcessor> _logger;
+        
         public int WaitFactor = 1000 * 60; //1 min
 
         #region Ctor
-        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, ILogger<RetrieveTwitterUsersProcessor> logger)
+        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, IMaxUsersNumberProvider maxUsersNumberProvider, ILogger<RetrieveTwitterUsersProcessor> logger)
         {
             _twitterUserDal = twitterUserDal;
+            _maxUsersNumberProvider = maxUsersNumberProvider;
             _logger = logger;
         }
         #endregion
@@ -33,7 +38,8 @@ namespace BirdsiteLive.Pipeline.Processors
 
                 try
                 {
-                    var users = await _twitterUserDal.GetAllTwitterUsersAsync();
+                    var maxUsersNumber = await _maxUsersNumberProvider.GetMaxUsersNumberAsync();
+                    var users = await _twitterUserDal.GetAllTwitterUsersAsync(maxUsersNumber);
 
                     var userCount = users.Any() ? users.Length : 1;
                     var splitNumber = (int) Math.Ceiling(userCount / 15d);

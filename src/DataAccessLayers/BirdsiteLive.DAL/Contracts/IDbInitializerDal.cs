@@ -9,7 +9,7 @@ namespace BirdsiteLive.DAL.Contracts
         Task<Version> GetCurrentDbVersionAsync();
         Version GetMandatoryDbVersion();
         Tuple<Version, Version>[] GetMigrationPatterns();
-        Task MigrateDbAsync(Version from, Version to);
-        Task InitDbAsync();
+        Task<Version> MigrateDbAsync(Version from, Version to);
+        Task<Version> InitDbAsync();
     }
 }

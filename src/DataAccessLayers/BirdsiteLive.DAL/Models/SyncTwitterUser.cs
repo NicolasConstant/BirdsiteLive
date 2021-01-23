@@ -1,4 +1,6 @@
-﻿namespace BirdsiteLive.DAL.Models
+﻿using System;
+
+namespace BirdsiteLive.DAL.Models
 {
     public class SyncTwitterUser
     {
@@ -7,5 +9,7 @@
 
         public long LastTweetPostedId { get; set; }
         public long LastTweetSynchronizedForAllFollowersId { get; set; }
+
+        public DateTime LastSync { get; set; }
     }
 }

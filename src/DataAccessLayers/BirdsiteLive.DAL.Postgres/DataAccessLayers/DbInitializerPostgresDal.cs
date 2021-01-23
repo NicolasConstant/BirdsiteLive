@@ -23,7 +23,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
     public class DbInitializerPostgresDal : PostgresBase, IDbInitializerDal
     {
         private readonly PostgresTools _tools;
-        private readonly Version _currentVersion = new Version(1,0);
+        private readonly Version _currentVersion = new Version(2, 0);
         private const string DbVersionType = "db-version";
 
         #region Ctor
@@ -32,7 +32,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             _tools = tools;
         }
         #endregion
-        
+
         public async Task<Version> GetCurrentDbVersionAsync()
         {
             var query = $"SELECT * FROM {_settings.DbVersionTableName} WHERE type = @type";
@@ -65,17 +65,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             return _currentVersion;
         }
 
-        public Tuple<Version, Version>[] GetMigrationPatterns()
-        {
-            return new Tuple<Version, Version>[0];
-        }
-
-        public Task MigrateDbAsync(Version from, Version to)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task InitDbAsync()
+        public async Task<Version> InitDbAsync()
         {
             // Create version table 
             var createVersion = $@"CREATE TABLE {_settings.DbVersionTableName}
@@ -124,13 +114,53 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             await _tools.ExecuteRequestAsync(createCachedTweets);
 
             // Insert version to db
+            var firstVersion = new Version(1, 0);
             using (var dbConnection = Connection)
             {
                 dbConnection.Open();
 
                 await dbConnection.ExecuteAsync(
                     $"INSERT INTO {_settings.DbVersionTableName} (type,major,minor) VALUES(@type,@major,@minor)",
-                    new { type = DbVersionType, major = _currentVersion.Major, minor = _currentVersion.Minor });
+                    new { type = DbVersionType, major = firstVersion.Major, minor = firstVersion.Minor });
+            }
+
+            return firstVersion;
+        }
+
+        public Tuple<Version, Version>[] GetMigrationPatterns()
+        {
+            return new[]
+            {
+                new Tuple<Version, Version>(new Version(1,0), new Version(2,0))
+            };
+        }
+
+        public async Task<Version> MigrateDbAsync(Version from, Version to)
+        {
+            if (from == new Version(1, 0) && to == new Version(2, 0))
+            {
+                var addLastSync = $@"ALTER TABLE {_settings.TwitterUserTableName} ADD lastSync TIMESTAMP (2) WITHOUT TIME ZONE";
+                await _tools.ExecuteRequestAsync(addLastSync);
+
+                var addIndex = $@"CREATE INDEX IF NOT EXISTS lastsync_twitteruser ON {_settings.TwitterUserTableName}(lastSync)";
+                await _tools.ExecuteRequestAsync(addIndex);
+
+                await UpdateDbVersionAsync(to);
+                return to;
+            }
+
+            throw new NotImplementedException();
+        }
+
+        private async Task UpdateDbVersionAsync(Version newVersion)
+        {
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                await dbConnection.ExecuteAsync(
+                    $"UPDATE {_settings.DbVersionTableName} SET major = @major, minor = @minor WHERE type = @type",
+                    new { type = DbVersionType, major = newVersion.Major, minor = newVersion.Minor });
             }
         }
 

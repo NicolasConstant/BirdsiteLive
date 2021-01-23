@@ -62,32 +62,33 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
-        public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync()
+        public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync(int maxNumber)
         {
-            var query = $"SELECT * FROM {_settings.TwitterUserTableName}";
+            var query = $"SELECT * FROM {_settings.TwitterUserTableName} ORDER BY lastSync ASC LIMIT @maxNumber";
 
             using (var dbConnection = Connection)
             {
                 dbConnection.Open();
 
-                var result = await dbConnection.QueryAsync<SyncTwitterUser>(query);
+                var result = await dbConnection.QueryAsync<SyncTwitterUser>(query, new { maxNumber });
                 return result.ToArray();
             }
         }
 
-        public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId)
+        public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId, DateTime lastSync)
         {
             if(id == default) throw new ArgumentException("id");
             if(lastTweetPostedId == default) throw new ArgumentException("lastTweetPostedId");
             if(lastTweetSynchronizedForAllFollowersId == default) throw new ArgumentException("lastTweetSynchronizedForAllFollowersId");
-            
-            var query = $"UPDATE {_settings.TwitterUserTableName} SET lastTweetPostedId = @lastTweetPostedId, lastTweetSynchronizedForAllFollowersId = @lastTweetSynchronizedForAllFollowersId WHERE id = @id";
+            if(lastSync == default) throw new ArgumentException("lastSync");
+
+            var query = $"UPDATE {_settings.TwitterUserTableName} SET lastTweetPostedId = @lastTweetPostedId, lastTweetSynchronizedForAllFollowersId = @lastTweetSynchronizedForAllFollowersId, lastSync = @lastSync WHERE id = @id";
 
             using (var dbConnection = Connection)
             {
                 dbConnection.Open();
 
-                await dbConnection.QueryAsync(query, new { id, lastTweetPostedId,  lastTweetSynchronizedForAllFollowersId });
+                await dbConnection.QueryAsync(query, new { id, lastTweetPostedId,  lastTweetSynchronizedForAllFollowersId, lastSync = lastSync.ToUniversalTime() });
             }
         }
 

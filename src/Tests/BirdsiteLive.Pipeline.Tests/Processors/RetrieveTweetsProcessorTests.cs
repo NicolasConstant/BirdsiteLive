@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,7 +55,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Setup(x => x.UpdateTwitterUserAsync(
                     It.Is<int>(y => y == user1.Id),
                     It.Is<long>(y => y == tweets.Last().Id),
-                    It.Is<long>(y => y == tweets.Last().Id)
+                    It.Is<long>(y => y == tweets.Last().Id),
+                    It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
             #endregion
