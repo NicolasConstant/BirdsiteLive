@@ -18,4 +18,8 @@
     <ProjectReference Include="..\..\BirdsiteLive.Pipeline\BirdsiteLive.Pipeline.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Tools\" />
+  </ItemGroup>
+
 </Project>

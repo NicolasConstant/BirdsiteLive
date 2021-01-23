@@ -8,6 +8,7 @@ using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Pipeline.Contracts;
+using BirdsiteLive.Pipeline.Tools;
 using Microsoft.Extensions.Logging;
 
 namespace BirdsiteLive.Pipeline.Processors
@@ -15,37 +16,30 @@ namespace BirdsiteLive.Pipeline.Processors
     public class RetrieveTwitterUsersProcessor : IRetrieveTwitterUsersProcessor
     {
         private readonly ITwitterUserDal _twitterUserDal;
+        private readonly IMaxUsersNumberProvider _maxUsersNumberProvider;
         private readonly ILogger<RetrieveTwitterUsersProcessor> _logger;
-        private readonly InstanceSettings _instanceSettings;
         
         public int WaitFactor = 1000 * 60; //1 min
 
         #region Ctor
-        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, InstanceSettings instanceSettings, ILogger<RetrieveTwitterUsersProcessor> logger)
+        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, IMaxUsersNumberProvider maxUsersNumberProvider, ILogger<RetrieveTwitterUsersProcessor> logger)
         {
             _twitterUserDal = twitterUserDal;
-            _instanceSettings = instanceSettings;
+            _maxUsersNumberProvider = maxUsersNumberProvider;
             _logger = logger;
         }
         #endregion
 
         public async Task GetTwitterUsersAsync(BufferBlock<SyncTwitterUser[]> twitterUsersBufferBlock, CancellationToken ct)
         {
-            var totalUsers = await _twitterUserDal.GetTwitterUsersCountAsync();
-            var warmUpMaxCapacity = _instanceSettings.MaxUsersCapacity / 4;
-            var warmUpIterations = warmUpMaxCapacity == 0 ? 0 : (int) (totalUsers / (float) warmUpMaxCapacity);
-
             for (; ; )
             {
                 ct.ThrowIfCancellationRequested();
 
                 try
                 {
-                    var maxUsers = warmUpIterations > 0
-                        ? _instanceSettings.MaxUsersCapacity / 4
-                        : _instanceSettings.MaxUsersCapacity;
-                    warmUpIterations--;
-                    var users = await _twitterUserDal.GetAllTwitterUsersAsync(maxUsers);
+                    var maxUsersNumber = await _maxUsersNumberProvider.GetMaxUsersNumberAsync();
+                    var users = await _twitterUserDal.GetAllTwitterUsersAsync(maxUsersNumber);
 
                     var userCount = users.Any() ? users.Length : 1;
                     var splitNumber = (int) Math.Ceiling(userCount / 15d);
