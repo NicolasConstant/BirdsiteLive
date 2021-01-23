@@ -13,7 +13,11 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         public async Task CleanUp()
         {
             var dal = new DbInitializerPostgresDal(_settings, _tools);
-            await dal.DeleteAllAsync();
+            try
+            {
+                await dal.DeleteAllAsync();
+            }
+            catch (Exception ) { }
         }
 
         [TestMethod]

@@ -141,6 +141,10 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             {
                 var addLastSync = $@"ALTER TABLE {_settings.TwitterUserTableName} ADD lastSync TIMESTAMP (2) WITHOUT TIME ZONE";
                 await _tools.ExecuteRequestAsync(addLastSync);
+
+                var addIndex = $@"CREATE INDEX IF NOT EXISTS lastsync_twitteruser ON {_settings.TwitterUserTableName}(lastSync)";
+                await _tools.ExecuteRequestAsync(addIndex);
+
                 return new Version(2, 0);
             }
 

@@ -18,18 +18,11 @@ namespace BirdsiteLive.DAL.Postgres.Tools
 
         public async Task ExecuteRequestAsync(string request)
         {
-            try
+            using (var conn = new NpgsqlConnection(_settings.ConnString))
+            using (var cmd = new NpgsqlCommand(request, conn))
             {
-                using (var conn = new NpgsqlConnection(_settings.ConnString))
-                using (var cmd = new NpgsqlCommand(request, conn))
-                {
-                    await conn.OpenAsync();
-                    await cmd.ExecuteNonQueryAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
+                await conn.OpenAsync();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }
