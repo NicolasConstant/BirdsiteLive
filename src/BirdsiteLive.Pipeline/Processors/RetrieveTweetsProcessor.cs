@@ -49,6 +49,11 @@ namespace BirdsiteLive.Pipeline.Processors
                     var now = DateTime.UtcNow;
                     await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, now);
                 }
+                else
+                {
+                    var now = DateTime.UtcNow;
+                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, now);
+                }
             }
 
             return usersWtTweets.ToArray();
