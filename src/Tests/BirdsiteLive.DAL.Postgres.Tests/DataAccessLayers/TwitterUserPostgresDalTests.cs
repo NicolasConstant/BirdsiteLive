@@ -111,7 +111,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
                 await dal.CreateTwitterUserAsync(acct, lastTweetId);
             }
 
-            var result = await dal.GetAllTwitterUsersAsync();
+            var result = await dal.GetAllTwitterUsersAsync(1000);
             Assert.AreEqual(1000, result.Length);
             Assert.IsFalse(result[0].Id == default);
             Assert.IsFalse(result[0].Acct == default);

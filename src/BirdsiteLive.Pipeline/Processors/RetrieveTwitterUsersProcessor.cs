@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using BirdsiteLive.Common.Extensions;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Pipeline.Contracts;
@@ -15,12 +16,16 @@ namespace BirdsiteLive.Pipeline.Processors
     {
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly ILogger<RetrieveTwitterUsersProcessor> _logger;
+        private readonly InstanceSettings _instanceSettings;
+        
         public int WaitFactor = 1000 * 60; //1 min
+        private int StartUpWarming = 4;
 
         #region Ctor
-        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, ILogger<RetrieveTwitterUsersProcessor> logger)
+        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, InstanceSettings instanceSettings, ILogger<RetrieveTwitterUsersProcessor> logger)
         {
             _twitterUserDal = twitterUserDal;
+            _instanceSettings = instanceSettings;
             _logger = logger;
         }
         #endregion
@@ -33,7 +38,11 @@ namespace BirdsiteLive.Pipeline.Processors
 
                 try
                 {
-                    var users = await _twitterUserDal.GetAllTwitterUsersAsync();
+                    var maxUsers = StartUpWarming > 0
+                        ? _instanceSettings.MaxUsersCapacity / 4
+                        : _instanceSettings.MaxUsersCapacity;
+                    StartUpWarming--;
+                    var users = await _twitterUserDal.GetAllTwitterUsersAsync(maxUsers);
 
                     var userCount = users.Any() ? users.Length : 1;
                     var splitNumber = (int) Math.Ceiling(userCount / 15d);

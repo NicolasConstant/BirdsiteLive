@@ -62,15 +62,15 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
-        public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync()
+        public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync(int maxNumber)
         {
-            var query = $"SELECT * FROM {_settings.TwitterUserTableName}";
+            var query = $"SELECT * FROM {_settings.TwitterUserTableName} ORDER BY lastSync ASC LIMIT @maxNumber";
 
             using (var dbConnection = Connection)
             {
                 dbConnection.Open();
 
-                var result = await dbConnection.QueryAsync<SyncTwitterUser>(query);
+                var result = await dbConnection.QueryAsync<SyncTwitterUser>(query, new { maxNumber });
                 return result.ToArray();
             }
         }

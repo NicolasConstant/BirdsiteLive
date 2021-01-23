@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
@@ -23,7 +24,8 @@ namespace BirdsiteLive.Pipeline.Processors
             var userId = userWithTweetsToSync.User.Id;
             var lastPostedTweet = userWithTweetsToSync.Tweets.Select(x => x.Id).Max();
             var minimumSync = userWithTweetsToSync.Followers.Select(x => x.FollowingsSyncStatus[userId]).Min();
-            await _twitterUserDal.UpdateTwitterUserAsync(userId, lastPostedTweet, minimumSync);
+            var now = DateTime.UtcNow;
+            await _twitterUserDal.UpdateTwitterUserAsync(userId, lastPostedTweet, minimumSync, now);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,7 +46,8 @@ namespace BirdsiteLive.Pipeline.Processors
                 else if (tweets.Length > 0 && user.LastTweetPostedId == -1)
                 {
                     var tweetId = tweets.Last().Id;
-                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId);
+                    var now = DateTime.UtcNow;
+                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, now);
                 }
             }
 
