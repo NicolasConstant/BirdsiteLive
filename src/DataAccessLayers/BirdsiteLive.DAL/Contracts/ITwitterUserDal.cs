@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BirdsiteLive.DAL.Models;
 
 namespace BirdsiteLive.DAL.Contracts
@@ -8,7 +9,7 @@ namespace BirdsiteLive.DAL.Contracts
         Task CreateTwitterUserAsync(string acct, long lastTweetPostedId);
         Task<SyncTwitterUser> GetTwitterUserAsync(string acct);
         Task<SyncTwitterUser[]> GetAllTwitterUsersAsync();
-        Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId);
+        Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId, DateTime lastSync);
         Task DeleteTwitterUserAsync(string acct);
         Task<int> GetTwitterUsersCountAsync();
     }

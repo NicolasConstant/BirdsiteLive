@@ -7,7 +7,7 @@ namespace BirdsiteLive.DAL
 {
     public interface IDatabaseInitializer
     {
-        Task DbInitAsync();
+        Task InitAndMigrateDbAsync();
     }
 
     public class DatabaseInitializer : IDatabaseInitializer
@@ -21,7 +21,7 @@ namespace BirdsiteLive.DAL
         }
         #endregion
 
-        public async Task DbInitAsync()
+        public async Task InitAndMigrateDbAsync()
         {
             var currentVersion = await _dbInitializerDal.GetCurrentDbVersionAsync();
             var mandatoryVersion = _dbInitializerDal.GetMandatoryDbVersion();

@@ -24,7 +24,7 @@ namespace BirdsiteLive.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await _databaseInitializer.DbInitAsync();
+            await _databaseInitializer.InitAndMigrateDbAsync();
             await _statusPublicationPipeline.ExecuteAsync(stoppingToken);
         }
     }

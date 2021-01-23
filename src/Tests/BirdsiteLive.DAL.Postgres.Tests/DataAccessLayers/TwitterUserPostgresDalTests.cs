@@ -14,7 +14,8 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         public async Task TestInit()
         {
             var dal = new DbInitializerPostgresDal(_settings, _tools);
-            await dal.InitDbAsync();
+            var init = new DatabaseInitializer(dal);
+            await init.InitAndMigrateDbAsync();
         }
 
         [TestCleanup]
@@ -70,13 +71,15 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
 
             var updatedLastTweetId = 1600L;
             var updatedLastSyncId = 1550L;
-            await dal.UpdateTwitterUserAsync(result.Id, updatedLastTweetId, updatedLastSyncId);
+            var now = DateTime.Now;
+            await dal.UpdateTwitterUserAsync(result.Id, updatedLastTweetId, updatedLastSyncId, now);
 
             result = await dal.GetTwitterUserAsync(acct);
 
             Assert.AreEqual(acct, result.Acct);
             Assert.AreEqual(updatedLastTweetId, result.LastTweetPostedId);
             Assert.AreEqual(updatedLastSyncId, result.LastTweetSynchronizedForAllFollowersId);
+            Assert.IsTrue(Math.Abs((now.ToUniversalTime() - result.LastSync).Milliseconds) < 100);
         }
 
         [TestMethod]

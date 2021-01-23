@@ -31,7 +31,7 @@ namespace BirdsiteLive.DAL.Tests
             #endregion
 
             var dbInitializer = new DatabaseInitializer(dbInitializerDal.Object);
-            await dbInitializer.DbInitAsync();
+            await dbInitializer.InitAndMigrateDbAsync();
 
             #region Validations
             dbInitializerDal.VerifyAll();
@@ -69,7 +69,7 @@ namespace BirdsiteLive.DAL.Tests
             #endregion
 
             var dbInitializer = new DatabaseInitializer(dbInitializerDal.Object);
-            await dbInitializer.DbInitAsync();
+            await dbInitializer.InitAndMigrateDbAsync();
 
             #region Validations
             dbInitializerDal.VerifyAll();
@@ -122,7 +122,7 @@ namespace BirdsiteLive.DAL.Tests
             #endregion
 
             var dbInitializer = new DatabaseInitializer(dbInitializerDal.Object);
-            await dbInitializer.DbInitAsync();
+            await dbInitializer.InitAndMigrateDbAsync();
 
             #region Validations
             dbInitializerDal.VerifyAll();
@@ -171,7 +171,7 @@ namespace BirdsiteLive.DAL.Tests
             #endregion
 
             var dbInitializer = new DatabaseInitializer(dbInitializerDal.Object);
-            await dbInitializer.DbInitAsync();
+            await dbInitializer.InitAndMigrateDbAsync();
 
             #region Validations
             dbInitializerDal.VerifyAll();
@@ -227,7 +227,7 @@ namespace BirdsiteLive.DAL.Tests
             var dbInitializer = new DatabaseInitializer(dbInitializerDal.Object);
             try
             {
-                await dbInitializer.DbInitAsync();
+                await dbInitializer.InitAndMigrateDbAsync();
             }
             finally
             {
