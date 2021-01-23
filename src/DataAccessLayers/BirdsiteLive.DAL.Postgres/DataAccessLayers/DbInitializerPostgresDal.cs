@@ -145,10 +145,23 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 var addIndex = $@"CREATE INDEX IF NOT EXISTS lastsync_twitteruser ON {_settings.TwitterUserTableName}(lastSync)";
                 await _tools.ExecuteRequestAsync(addIndex);
 
-                return new Version(2, 0);
+                await UpdateDbVersionAsync(to);
+                return to;
             }
 
             throw new NotImplementedException();
+        }
+
+        private async Task UpdateDbVersionAsync(Version newVersion)
+        {
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                await dbConnection.ExecuteAsync(
+                    $"UPDATE {_settings.DbVersionTableName} SET major = @major, minor = @minor WHERE type = @type",
+                    new { type = DbVersionType, major = newVersion.Major, minor = newVersion.Minor });
+            }
         }
 
         public async Task DeleteAllAsync()
