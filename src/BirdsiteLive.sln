@@ -39,6 +39,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.Domain.Tests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.Pipeline.Tests", "Tests\BirdsiteLive.Pipeline.Tests\BirdsiteLive.Pipeline.Tests.csproj", "{BF51CA81-5A7A-46F8-B4FB-861C6BE59298}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.DAL.Tests", "Tests\BirdsiteLive.DAL.Tests\BirdsiteLive.DAL.Tests.csproj", "{5A1E3EB5-6CBB-470D-8A0D-10F8C18353D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,10 @@ Global
 		{BF51CA81-5A7A-46F8-B4FB-861C6BE59298}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF51CA81-5A7A-46F8-B4FB-861C6BE59298}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF51CA81-5A7A-46F8-B4FB-861C6BE59298}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A1E3EB5-6CBB-470D-8A0D-10F8C18353D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A1E3EB5-6CBB-470D-8A0D-10F8C18353D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A1E3EB5-6CBB-470D-8A0D-10F8C18353D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A1E3EB5-6CBB-470D-8A0D-10F8C18353D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +125,7 @@ Global
 		{2A8CC30D-D775-47D1-9388-F72A5C32DE2A} = {DA3C160C-4811-4E26-A5AD-42B81FAF2D7C}
 		{F544D745-89A8-4DEA-B61C-A7E6C53C1D63} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
 		{BF51CA81-5A7A-46F8-B4FB-861C6BE59298} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
+		{5A1E3EB5-6CBB-470D-8A0D-10F8C18353D5} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {69E8DCAD-4C37-4010-858F-5F94E6FBABCE}
