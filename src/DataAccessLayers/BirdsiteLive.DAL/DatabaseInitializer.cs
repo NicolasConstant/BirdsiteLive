@@ -29,11 +29,11 @@ namespace BirdsiteLive.DAL
             if (currentVersion == mandatoryVersion) return;
 
             // Init Db
-            var migrationPatterns = _dbInitializerDal.GetMigrationPatterns();
             if (currentVersion == null)
                 currentVersion = await _dbInitializerDal.InitDbAsync();
 
             // Migrate Db
+            var migrationPatterns = _dbInitializerDal.GetMigrationPatterns();
             while (migrationPatterns.Any(x => x.Item1 == currentVersion))
             {
                 var migration = migrationPatterns.First(x => x.Item1 == currentVersion);
