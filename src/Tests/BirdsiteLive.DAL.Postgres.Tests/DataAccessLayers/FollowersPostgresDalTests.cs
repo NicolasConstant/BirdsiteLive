@@ -24,14 +24,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         public async Task CleanUp()
         {
             var dal = new DbInitializerPostgresDal(_settings, _tools);
-            try
-            {
-                await dal.DeleteAllAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            await dal.DeleteAllAsync();
         }
 
         [TestMethod]
@@ -39,7 +32,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         {
             var acct = "myhandle";
             var host = "domain.ext";
-            var following = new[] {12, 19, 23};
+            var following = new[] { 12, 19, 23 };
             var followingSync = new Dictionary<int, long>()
             {
                 {12, 165L},
@@ -48,7 +41,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             };
             var inboxRoute = "/myhandle/inbox";
             var sharedInboxRoute = "/inbox";
-            
+
             var dal = new FollowersPostgresDal(_settings);
             await dal.CreateFollowerAsync(acct, host, inboxRoute, sharedInboxRoute, following, followingSync);
 
@@ -106,7 +99,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             //User 1 
             var acct = "myhandle1";
             var host = "domain.ext";
-            var following = new[] { 1,2,3 };
+            var following = new[] { 1, 2, 3 };
             var followingSync = new Dictionary<int, long>();
             var inboxRoute = "/myhandle1/inbox";
             var sharedInboxRoute = "/inbox";
@@ -203,7 +196,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             };
             result.Followings = updatedFollowing.ToList();
             result.FollowingsSyncStatus = updatedFollowingSync;
-            
+
 
             await dal.UpdateFollowerAsync(result);
             result = await dal.GetFollowerAsync(acct, host);
