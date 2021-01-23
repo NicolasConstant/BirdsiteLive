@@ -40,7 +40,7 @@ namespace BirdsiteLive.Twitter
             var tweet = Tweet.GetTweet(statusId);
             _statisticsHandler.CalledTweetApi();
             if (tweet == null) return null; //TODO: test this
-            return _tweetExtractor.Extract(tweet);
+             return _tweetExtractor.Extract(tweet);
         }
 
         public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)

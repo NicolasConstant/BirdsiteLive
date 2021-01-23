@@ -11,5 +11,7 @@ namespace BirdsiteLive.Twitter.Models
         public ExtractedMedia[] Media { get; set; }
         public DateTime CreatedAt { get; set; }
         public string InReplyToAccount { get; set; }
+        public bool IsReply { get; set; }
+        public bool IsThread { get; set; }
     }
 }

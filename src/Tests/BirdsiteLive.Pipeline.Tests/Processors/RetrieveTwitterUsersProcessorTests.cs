@@ -76,7 +76,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             processor.WaitFactor = 2;
             processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
-            await Task.Delay(200);
+            await Task.Delay(300);
 
             #region Validations
             twitterUserDalMock.VerifyAll();
