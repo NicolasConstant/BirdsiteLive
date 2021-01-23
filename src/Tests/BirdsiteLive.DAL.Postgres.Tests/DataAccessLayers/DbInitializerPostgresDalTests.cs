@@ -35,11 +35,11 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         [TestMethod]
         public async Task InitDbAsync()
         {
+            var mandatory = new Version(1, 0);
             var dal = new DbInitializerPostgresDal(_settings, _tools);
 
             await dal.InitDbAsync();
             var current = await dal.GetCurrentDbVersionAsync();
-            var mandatory = dal.GetMandatoryDbVersion();
             Assert.IsNotNull(current);
             Assert.AreEqual(mandatory.Minor, current.Minor);
             Assert.AreEqual(mandatory.Major, current.Major);
