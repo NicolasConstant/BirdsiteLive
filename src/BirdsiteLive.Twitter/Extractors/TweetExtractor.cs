@@ -24,7 +24,9 @@ namespace BirdsiteLive.Twitter.Extractors
                 InReplyToAccount = tweet.InReplyToScreenName,
                 MessageContent = ExtractMessage(tweet),
                 Media = ExtractMedia(tweet.Media),
-                CreatedAt = tweet.CreatedAt.ToUniversalTime()
+                CreatedAt = tweet.CreatedAt.ToUniversalTime(),
+                IsReply = tweet.InReplyToUserId != null,
+                IsThread = tweet.InReplyToUserId != null && tweet.InReplyToUserId == tweet.CreatedBy.Id
             };
             return extractedTweet;
         }

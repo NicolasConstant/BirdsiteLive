@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
@@ -60,7 +61,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Setup(x => x.UpdateTwitterUserAsync(
                     It.Is<int>(y => y == user.Id),
                     It.Is<long>(y => y == tweet2.Id),
-                    It.Is<long>(y => y == tweet2.Id)
+                    It.Is<long>(y => y == tweet2.Id),
+                    It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
             #endregion
@@ -123,7 +125,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Setup(x => x.UpdateTwitterUserAsync(
                     It.Is<int>(y => y == user.Id),
                     It.Is<long>(y => y == tweet3.Id),
-                    It.Is<long>(y => y == tweet2.Id)
+                    It.Is<long>(y => y == tweet2.Id),
+                    It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
             #endregion
@@ -194,7 +197,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Setup(x => x.UpdateTwitterUserAsync(
                     It.Is<int>(y => y == user.Id),
                     It.Is<long>(y => y == tweet3.Id),
-                    It.Is<long>(y => y == tweet2.Id)
+                    It.Is<long>(y => y == tweet2.Id),
+                    It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
             #endregion
