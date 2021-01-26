@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Statistics.Domain;
-using BirdsiteLive.Twitter.Extractors;
 using BirdsiteLive.Twitter.Models;
+using Microsoft.Extensions.Logging;
 using Tweetinvi;
+using Tweetinvi.Models;
 
 namespace BirdsiteLive.Twitter
 {
@@ -15,24 +17,34 @@ namespace BirdsiteLive.Twitter
     public class TwitterUserService : ITwitterUserService
     {
         private readonly TwitterSettings _settings;
-        private readonly ITweetExtractor _tweetExtractor;
         private readonly ITwitterStatisticsHandler _statisticsHandler;
+        private readonly ILogger<TwitterUserService> _logger;
 
         #region Ctor
-        public TwitterUserService(TwitterSettings settings, ITweetExtractor tweetExtractor, ITwitterStatisticsHandler statisticsHandler)
+        public TwitterUserService(TwitterSettings settings, ITwitterStatisticsHandler statisticsHandler, ILogger<TwitterUserService> logger)
         {
             _settings = settings;
-            _tweetExtractor = tweetExtractor;
             _statisticsHandler = statisticsHandler;
+            _logger = logger;
             Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
+            ExceptionHandler.SwallowWebExceptions = false;
         }
         #endregion
 
         public TwitterUser GetUser(string username)
         {
-            var user = User.GetUserFromScreenName(username);
-            _statisticsHandler.CalledUserApi();
-            if (user == null) return null;
+            IUser user;
+            try
+            {
+                user = User.GetUserFromScreenName(username);
+                _statisticsHandler.CalledUserApi();
+                if (user == null) return null;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error retrieving user {Username}", username);
+                return null;
+            }
 
             // Expand URLs
             var description = user.Description;

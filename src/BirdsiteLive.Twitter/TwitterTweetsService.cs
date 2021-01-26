@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Statistics.Domain;
 using BirdsiteLive.Twitter.Extractors;
 using BirdsiteLive.Twitter.Models;
+using Microsoft.Extensions.Logging;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
@@ -22,50 +24,69 @@ namespace BirdsiteLive.Twitter
         private readonly ITweetExtractor _tweetExtractor;
         private readonly ITwitterStatisticsHandler _statisticsHandler;
         private readonly ITwitterUserService _twitterUserService;
+        private readonly ILogger<TwitterTweetsService> _logger;
 
         #region Ctor
-        public TwitterTweetsService(TwitterSettings settings, ITweetExtractor tweetExtractor, ITwitterStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService)
+        public TwitterTweetsService(TwitterSettings settings, ITweetExtractor tweetExtractor, ITwitterStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, ILogger<TwitterTweetsService> logger)
         {
             _settings = settings;
             _tweetExtractor = tweetExtractor;
             _statisticsHandler = statisticsHandler;
             _twitterUserService = twitterUserService;
+            _logger = logger;
             Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
+            ExceptionHandler.SwallowWebExceptions = false;
         }
         #endregion
-        
+
         public ExtractedTweet GetTweet(long statusId)
         {
-            TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
-            var tweet = Tweet.GetTweet(statusId);
-            _statisticsHandler.CalledTweetApi();
-            if (tweet == null) return null; //TODO: test this
-             return _tweetExtractor.Extract(tweet);
+            try
+            {
+                TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
+                var tweet = Tweet.GetTweet(statusId);
+                _statisticsHandler.CalledTweetApi();
+                if (tweet == null) return null; //TODO: test this
+                return _tweetExtractor.Extract(tweet);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error retrieving tweet {TweetId}", statusId);
+                return null;
+            }
         }
 
         public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)
         {
             TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
-            
+
             var user = _twitterUserService.GetUser(username);
 
             var tweets = new List<ITweet>();
-            if (fromTweetId == -1)
+
+            try
             {
-                var timeline = Timeline.GetUserTimeline(user.Id, nberTweets);
-                _statisticsHandler.CalledTimelineApi();
-                if (timeline != null) tweets.AddRange(timeline);
-            }
-            else
-            {
-                var timelineRequestParameters = new UserTimelineParameters
+                if (fromTweetId == -1)
                 {
-                    SinceId = fromTweetId,
-                    MaximumNumberOfTweetsToRetrieve = nberTweets
-                };
-                var timeline = Timeline.GetUserTimeline(user.Id, timelineRequestParameters);
-                _statisticsHandler.CalledTimelineApi();
-                if (timeline != null) tweets.AddRange(timeline);
+                    var timeline = Timeline.GetUserTimeline(user.Id, nberTweets);
+                    _statisticsHandler.CalledTimelineApi();
+                    if (timeline != null) tweets.AddRange(timeline);
+                }
+                else
+                {
+                    var timelineRequestParameters = new UserTimelineParameters
+                    {
+                        SinceId = fromTweetId,
+                        MaximumNumberOfTweetsToRetrieve = nberTweets
+                    };
+                    var timeline = Timeline.GetUserTimeline(user.Id, timelineRequestParameters);
+                    _statisticsHandler.CalledTimelineApi();
+                    if (timeline != null) tweets.AddRange(timeline);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error retrieving timeline from {Username}, from {TweetId}", username, fromTweetId);
             }
 
             return tweets.Select(_tweetExtractor.Extract).ToArray();
