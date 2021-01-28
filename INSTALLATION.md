@@ -127,8 +127,8 @@ sudo certbot renew --dry-run
 Make sure you're securing your firewall correctly:
 
 ```
+sudo apt install ufw #if not installed
 sudo ufw app list
-sudo ufw allow 'Nginx Full'
 sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
