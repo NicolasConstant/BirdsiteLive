@@ -61,9 +61,9 @@ namespace BirdsiteLive.Twitter
             TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
 
             var user = _twitterUserService.GetUser(username);
+            if (user.Protected) return new ExtractedTweet[0];
 
             var tweets = new List<ITweet>();
-
             try
             {
                 if (fromTweetId == -1)
