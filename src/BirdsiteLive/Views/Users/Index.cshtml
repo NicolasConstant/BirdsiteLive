@@ -21,7 +21,6 @@
 
                 @*<h2>@@@ViewData.Model.Acct</h2>*@
 
-
                 <div class="description">
                     @ViewData.Model.Description
                 </div>
@@ -31,7 +30,19 @@
     </a>
     <br />
     <br />
-    <p>Search this handle to find it in your instance:</p>
 
-    <input type="text" name="textbox" value="@ViewData.Model.InstanceHandle" onclick="this.select()" class="form-control" readonly/>
+    @if (ViewData.Model.Protected)
+    {
+        <div class="alert alert-danger" role="alert">
+            This account is protected, BirdsiteLIVE cannot fetch their tweets and will not provide follow support until it is unprotected again.
+        </div>
+    }
+    else
+    {
+        <div>
+            <p>Search this handle to find it in your instance:</p>
+
+            <input type="text" name="textbox" value="@ViewData.Model.InstanceHandle" onclick="this.select()" class="form-control" readonly />
+        </div>
+    }
 </div>

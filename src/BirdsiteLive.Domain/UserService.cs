@@ -12,6 +12,7 @@ using BirdsiteLive.Cryptography;
 using BirdsiteLive.Domain.BusinessUseCases;
 using BirdsiteLive.Domain.Statistics;
 using BirdsiteLive.Domain.Tools;
+using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
 using Tweetinvi.Core.Exceptions;
 using Tweetinvi.Models;
@@ -36,8 +37,10 @@ namespace BirdsiteLive.Domain
         private readonly IStatusExtractor _statusExtractor;
         private readonly IExtractionStatisticsHandler _statisticsHandler;
 
+        private readonly ITwitterUserService _twitterUserService;
+
         #region Ctor
-        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler)
+        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
@@ -46,7 +49,7 @@ namespace BirdsiteLive.Domain
             _processUndoFollowUser = processUndoFollowUser;
             _statusExtractor = statusExtractor;
             _statisticsHandler = statisticsHandler;
-            //_host = $"https://{instanceSettings.Domain.Replace("https://",string.Empty).Replace("http://", string.Empty).TrimEnd('/')}";
+            _twitterUserService = twitterUserService;
         }
         #endregion
 
@@ -75,6 +78,7 @@ namespace BirdsiteLive.Domain
                 inbox = $"{actorUrl}/inbox",
                 summary = description,
                 url = actorUrl,
+                manuallyApprovesFollowers = twitterUser.Protected,
                 publicKey = new PublicKey()
                 {
                     id = $"{actorUrl}#main-key",
@@ -125,26 +129,50 @@ namespace BirdsiteLive.Domain
             followerInbox = OnlyKeepRoute(followerInbox, followerHost);
             followerSharedInbox = OnlyKeepRoute(followerSharedInbox, followerHost);
             
-            // Execute
-            await _processFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser, followerInbox, followerSharedInbox);
-
-            // Send Accept Activity
-            var acceptFollow = new ActivityAcceptFollow()
+            var user = _twitterUserService.GetUser(twitterUser);
+            if (!user.Protected)
             {
-                context = "https://www.w3.org/ns/activitystreams",
-                id = $"{activity.apObject}#accepts/follows/{Guid.NewGuid()}",
-                type = "Accept",
-                actor = activity.apObject,
-                apObject = new ActivityFollow()
+                // Execute
+                await _processFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser, followerInbox, followerSharedInbox);
+
+                // Send Accept Activity
+                var acceptFollow = new ActivityAcceptFollow()
                 {
-                    id = activity.id,
-                    type = activity.type,
-                    actor = activity.actor,
-                    apObject = activity.apObject
-                }
-            };
-            var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
-            return result == HttpStatusCode.Accepted || result == HttpStatusCode.OK; //TODO: revamp this for better error handling
+                    context = "https://www.w3.org/ns/activitystreams",
+                    id = $"{activity.apObject}#accepts/follows/{Guid.NewGuid()}",
+                    type = "Accept",
+                    actor = activity.apObject,
+                    apObject = new ActivityFollow()
+                    {
+                        id = activity.id,
+                        type = activity.type,
+                        actor = activity.actor,
+                        apObject = activity.apObject
+                    }
+                };
+                var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
+                return result == HttpStatusCode.Accepted || result == HttpStatusCode.OK; //TODO: revamp this for better error handling
+            }
+            else
+            {
+                // Send Reject Activity
+                var acceptFollow = new ActivityRejectFollow()
+                {
+                    context = "https://www.w3.org/ns/activitystreams",
+                    id = $"{activity.apObject}#rejects/follows/{Guid.NewGuid()}",
+                    type = "Reject",
+                    actor = activity.apObject,
+                    apObject = new ActivityFollow()
+                    {
+                        id = activity.id,
+                        type = activity.type,
+                        actor = activity.actor,
+                        apObject = activity.apObject
+                    }
+                };
+                var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
+                return result == HttpStatusCode.Accepted || result == HttpStatusCode.OK; //TODO: revamp this for better error handling
+            }
         }
 
         private string OnlyKeepRoute(string inbox, string host)

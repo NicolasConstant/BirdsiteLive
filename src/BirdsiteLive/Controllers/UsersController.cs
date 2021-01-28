@@ -79,6 +79,7 @@ namespace BirdsiteLive.Controllers
                 Acct = user.Acct.ToLowerInvariant(),
                 Url = user.Url,
                 ProfileImageUrl = user.ProfileImageUrl,
+                Protected = user.Protected,
 
                 InstanceHandle = $"@{user.Acct.ToLowerInvariant()}@{_instanceSettings.Domain}"
             };

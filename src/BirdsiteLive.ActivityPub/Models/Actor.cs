@@ -17,6 +17,7 @@ namespace BirdsiteLive.ActivityPub
         public string name { get; set; }
         public string summary { get; set; }
         public string url { get; set; }
+        public bool manuallyApprovesFollowers { get; set; }
         public string inbox { get; set; }
         public bool? discoverable { get; set; } = true;
         public PublicKey publicKey { get; set; }

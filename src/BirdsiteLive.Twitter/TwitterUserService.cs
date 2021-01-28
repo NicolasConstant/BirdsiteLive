@@ -60,7 +60,8 @@ namespace BirdsiteLive.Twitter
                 Url = $"https://twitter.com/{username}",
                 ProfileImageUrl = user.ProfileImageUrlFullSize,
                 ProfileBackgroundImageUrl = user.ProfileBackgroundImageUrlHttps,
-                ProfileBannerURL = user.ProfileBannerURL
+                ProfileBannerURL = user.ProfileBannerURL,
+                Protected = user.Protected
             };
         }
     }

@@ -10,5 +10,6 @@
         public string ProfileBackgroundImageUrl { get; set; }
         public string Acct { get; set; }
         public string ProfileBannerURL { get; set; }
+        public bool Protected { get; set; }
     }
 }

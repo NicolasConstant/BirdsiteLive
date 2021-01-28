@@ -7,6 +7,7 @@
         public string Acct { get; set; }
         public string Url { get; set; }
         public string ProfileImageUrl { get; set; }
+        public bool Protected { get; set; }
 
         public string InstanceHandle { get; set; }
     }
