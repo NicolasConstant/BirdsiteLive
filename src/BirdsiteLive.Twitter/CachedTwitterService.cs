@@ -33,7 +33,7 @@ namespace BirdsiteLive.Twitter
             if (!_userCache.TryGetValue(username, out TwitterUser user))
             {
                 user = _twitterService.GetUser(username);
-                _userCache.Set(username, user, _cacheEntryOptions);
+                if(user != null) _userCache.Set(username, user, _cacheEntryOptions);
             }
 
             return user;
