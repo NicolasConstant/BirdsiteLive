@@ -46,6 +46,17 @@ namespace BirdsiteLive.Domain
             var extractedTags = _statusExtractor.Extract(tweet.MessageContent);
             _statisticsHandler.ExtractedStatus(extractedTags.tags.Count(x => x.type == "Mention"));
 
+            // Replace RT by a link
+            var content = extractedTags.content;
+            if (content.Contains("{RT}") && tweet.IsRetweet)
+            {
+                if (!string.IsNullOrWhiteSpace(tweet.RetweetUrl))
+                    content = content.Replace("{RT}",
+                        $@"<a href=""{tweet.RetweetUrl}"" rel=""nofollow noopener noreferrer"" target=""_blank"">RT</a>");
+                else
+                    content = content.Replace("{RT}", "RT");
+            }
+
             string inReplyTo = null;
             if (tweet.InReplyToStatusId != default)
                 inReplyTo = $"https://{_instanceSettings.Domain}/users/{tweet.InReplyToAccount.ToLowerInvariant()}/statuses/{tweet.InReplyToStatusId}";
@@ -67,7 +78,7 @@ namespace BirdsiteLive.Domain
                 cc = new string[0],
 
                 sensitive = false,
-                content = $"<p>{extractedTags.content}</p>",
+                content = $"<p>{content}</p>",
                 attachment = Convert(tweet.Media),
                 tag = extractedTags.tags
             };
