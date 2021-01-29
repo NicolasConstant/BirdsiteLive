@@ -50,7 +50,12 @@ namespace BirdsiteLive.Twitter.Extractors
             var tweetUrls = tweet.Media.Select(x => x.URL).Distinct();
             var message = tweet.FullText;
             foreach (var tweetUrl in tweetUrls)
-                message = message.Replace(tweetUrl, string.Empty).Trim();
+            {
+                if(tweet.IsRetweet)
+                    message = tweet.RetweetedTweet.FullText.Replace(tweetUrl, string.Empty).Trim();
+                else 
+                    message = message.Replace(tweetUrl, string.Empty).Trim();
+            }
 
             if (tweet.QuotedTweet != null) message = $"[Quote {{RT}}]{Environment.NewLine}{message}";
             if (tweet.IsRetweet)
