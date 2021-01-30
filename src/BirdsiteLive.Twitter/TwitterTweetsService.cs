@@ -35,7 +35,6 @@ namespace BirdsiteLive.Twitter
             _twitterUserService = twitterUserService;
             _logger = logger;
             Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
-            ExceptionHandler.SwallowWebExceptions = false;
         }
         #endregion
 
@@ -43,6 +42,7 @@ namespace BirdsiteLive.Twitter
         {
             try
             {
+                ExceptionHandler.SwallowWebExceptions = false;
                 TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
                 var tweet = Tweet.GetTweet(statusId);
                 _statisticsHandler.CalledTweetApi();
@@ -58,6 +58,7 @@ namespace BirdsiteLive.Twitter
 
         public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)
         {
+            ExceptionHandler.SwallowWebExceptions = false;
             TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
             
             var tweets = new List<ITweet>();

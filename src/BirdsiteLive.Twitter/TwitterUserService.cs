@@ -27,12 +27,13 @@ namespace BirdsiteLive.Twitter
             _statisticsHandler = statisticsHandler;
             _logger = logger;
             Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
-            ExceptionHandler.SwallowWebExceptions = false;
         }
         #endregion
 
         public TwitterUser GetUser(string username)
         {
+            ExceptionHandler.SwallowWebExceptions = false;
+
             IUser user;
             try
             {
