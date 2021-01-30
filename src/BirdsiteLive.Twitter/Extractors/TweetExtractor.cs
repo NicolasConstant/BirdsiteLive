@@ -26,9 +26,23 @@ namespace BirdsiteLive.Twitter.Extractors
                 Media = ExtractMedia(tweet.Media),
                 CreatedAt = tweet.CreatedAt.ToUniversalTime(),
                 IsReply = tweet.InReplyToUserId != null,
-                IsThread = tweet.InReplyToUserId != null && tweet.InReplyToUserId == tweet.CreatedBy.Id
+                IsThread = tweet.InReplyToUserId != null && tweet.InReplyToUserId == tweet.CreatedBy.Id,
+                IsRetweet = tweet.IsRetweet || tweet.QuotedStatusId != null,
+                RetweetUrl = ExtractRetweetUrl(tweet)
             };
+
             return extractedTweet;
+        }
+
+        private string ExtractRetweetUrl(ITweet tweet)
+        {
+            if (tweet.IsRetweet && tweet.FullText.Contains("https://t.co/"))
+            {
+                var retweetId = tweet.FullText.Split(new[] { "https://t.co/" }, StringSplitOptions.RemoveEmptyEntries).Last();
+                return $"https://t.co/{retweetId}";
+            }
+
+            return null;
         }
 
         public string ExtractMessage(ITweet tweet)
@@ -36,15 +50,20 @@ namespace BirdsiteLive.Twitter.Extractors
             var tweetUrls = tweet.Media.Select(x => x.URL).Distinct();
             var message = tweet.FullText;
             foreach (var tweetUrl in tweetUrls)
-                message = message.Replace(tweetUrl, string.Empty).Trim();
+            {
+                if(tweet.IsRetweet)
+                    message = tweet.RetweetedTweet.FullText.Replace(tweetUrl, string.Empty).Trim();
+                else 
+                    message = message.Replace(tweetUrl, string.Empty).Trim();
+            }
 
-            if (tweet.QuotedTweet != null) message = $"[Quote RT]{Environment.NewLine}{message}";
+            if (tweet.QuotedTweet != null) message = $"[Quote {{RT}}]{Environment.NewLine}{message}";
             if (tweet.IsRetweet)
             {
                 if (tweet.RetweetedTweet != null)
-                    message = $"[RT @{tweet.RetweetedTweet.CreatedBy.ScreenName}]{Environment.NewLine}{tweet.RetweetedTweet.FullText}";
+                    message = $"[{{RT}} @{tweet.RetweetedTweet.CreatedBy.ScreenName}]{Environment.NewLine}{message}";
                 else
-                    message = message.Replace("RT", "[RT]");
+                    message = message.Replace("RT", "[{{RT}}]");
             }
 
             // Expand URLs

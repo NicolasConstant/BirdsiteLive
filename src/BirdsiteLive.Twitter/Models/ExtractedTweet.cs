@@ -13,5 +13,7 @@ namespace BirdsiteLive.Twitter.Models
         public string InReplyToAccount { get; set; }
         public bool IsReply { get; set; }
         public bool IsThread { get; set; }
+        public bool IsRetweet { get; set; }
+        public string RetweetUrl { get; set; }
     }
 }
