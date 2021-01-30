@@ -13,4 +13,8 @@
     <ProjectReference Include="..\BirdsiteLive.Common\BirdsiteLive.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Tools\" />
+  </ItemGroup>
+
 </Project>

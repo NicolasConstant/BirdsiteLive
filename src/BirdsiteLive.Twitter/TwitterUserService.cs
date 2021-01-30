@@ -3,6 +3,7 @@ using System.Linq;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Statistics.Domain;
 using BirdsiteLive.Twitter.Models;
+using BirdsiteLive.Twitter.Tools;
 using Microsoft.Extensions.Logging;
 using Tweetinvi;
 using Tweetinvi.Models;
@@ -16,29 +17,34 @@ namespace BirdsiteLive.Twitter
 
     public class TwitterUserService : ITwitterUserService
     {
-        private readonly TwitterSettings _settings;
+        private readonly ITwitterAuthenticationInitializer _twitterAuthenticationInitializer;
         private readonly ITwitterStatisticsHandler _statisticsHandler;
         private readonly ILogger<TwitterUserService> _logger;
 
         #region Ctor
-        public TwitterUserService(TwitterSettings settings, ITwitterStatisticsHandler statisticsHandler, ILogger<TwitterUserService> logger)
+        public TwitterUserService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ILogger<TwitterUserService> logger)
         {
-            _settings = settings;
+            _twitterAuthenticationInitializer = twitterAuthenticationInitializer;
             _statisticsHandler = statisticsHandler;
             _logger = logger;
-            Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
-            ExceptionHandler.SwallowWebExceptions = false;
         }
         #endregion
 
         public TwitterUser GetUser(string username)
         {
+            _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
+            ExceptionHandler.SwallowWebExceptions = false;
+
             IUser user;
             try
             {
                 user = User.GetUserFromScreenName(username);
                 _statisticsHandler.CalledUserApi();
-                if (user == null) return null;
+                if (user == null)
+                {
+                    _logger.LogWarning("User {username} not found", username);
+                    return null;
+                }
             }
             catch (Exception e)
             {

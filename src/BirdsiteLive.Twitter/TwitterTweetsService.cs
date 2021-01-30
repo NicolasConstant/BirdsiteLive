@@ -5,6 +5,7 @@ using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Statistics.Domain;
 using BirdsiteLive.Twitter.Extractors;
 using BirdsiteLive.Twitter.Models;
+using BirdsiteLive.Twitter.Tools;
 using Microsoft.Extensions.Logging;
 using Tweetinvi;
 using Tweetinvi.Models;
@@ -20,22 +21,20 @@ namespace BirdsiteLive.Twitter
 
     public class TwitterTweetsService : ITwitterTweetsService
     {
-        private readonly TwitterSettings _settings;
+        private readonly ITwitterAuthenticationInitializer _twitterAuthenticationInitializer;
         private readonly ITweetExtractor _tweetExtractor;
         private readonly ITwitterStatisticsHandler _statisticsHandler;
         private readonly ITwitterUserService _twitterUserService;
         private readonly ILogger<TwitterTweetsService> _logger;
 
         #region Ctor
-        public TwitterTweetsService(TwitterSettings settings, ITweetExtractor tweetExtractor, ITwitterStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, ILogger<TwitterTweetsService> logger)
+        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITweetExtractor tweetExtractor, ITwitterStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, ILogger<TwitterTweetsService> logger)
         {
-            _settings = settings;
+            _twitterAuthenticationInitializer = twitterAuthenticationInitializer;
             _tweetExtractor = tweetExtractor;
             _statisticsHandler = statisticsHandler;
             _twitterUserService = twitterUserService;
             _logger = logger;
-            Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
-            ExceptionHandler.SwallowWebExceptions = false;
         }
         #endregion
 
@@ -43,7 +42,10 @@ namespace BirdsiteLive.Twitter
         {
             try
             {
+                _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
+                ExceptionHandler.SwallowWebExceptions = false;
                 TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
+
                 var tweet = Tweet.GetTweet(statusId);
                 _statisticsHandler.CalledTweetApi();
                 if (tweet == null) return null; //TODO: test this
@@ -58,14 +60,16 @@ namespace BirdsiteLive.Twitter
 
         public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)
         {
-            TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
-
-            var user = _twitterUserService.GetUser(username);
-            if (user.Protected) return new ExtractedTweet[0];
-
             var tweets = new List<ITweet>();
             try
             {
+                _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
+                ExceptionHandler.SwallowWebExceptions = false;
+                TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
+
+                var user = _twitterUserService.GetUser(username);
+                if (user == null || user.Protected) return new ExtractedTweet[0];
+
                 if (fromTweetId == -1)
                 {
                     var timeline = Timeline.GetUserTimeline(user.Id, nberTweets);
