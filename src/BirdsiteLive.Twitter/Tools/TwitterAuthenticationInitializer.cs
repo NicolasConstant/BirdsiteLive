@@ -31,10 +31,10 @@ namespace BirdsiteLive.Twitter.Tools
         {
             if (_initialized) return;
             _semaphoregate.Wait();
-            if (_initialized) return;
-
+           
             try
             {
+                if (_initialized) return;
                 InitTwitterCredentials();
             }
             finally
