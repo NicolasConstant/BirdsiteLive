@@ -38,7 +38,11 @@ namespace BirdsiteLive.Twitter
             {
                 user = User.GetUserFromScreenName(username);
                 _statisticsHandler.CalledUserApi();
-                if (user == null) return null;
+                if (user == null)
+                {
+                    _logger.LogWarning("User {username} not found", username);
+                    return null;
+                }
             }
             catch (Exception e)
             {

@@ -59,13 +59,13 @@ namespace BirdsiteLive.Twitter
         public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)
         {
             TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
-
-            var user = _twitterUserService.GetUser(username);
-            if (user.Protected) return new ExtractedTweet[0];
-
+            
             var tweets = new List<ITweet>();
             try
             {
+                var user = _twitterUserService.GetUser(username);
+                if (user == null || user.Protected) return new ExtractedTweet[0];
+
                 if (fromTweetId == -1)
                 {
                     var timeline = Timeline.GetUserTimeline(user.Id, nberTweets);
