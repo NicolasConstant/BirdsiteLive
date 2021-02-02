@@ -4,6 +4,8 @@ using System.Text.RegularExpressions;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.Twitter;
+using Microsoft.Extensions.Logging;
 
 namespace BirdsiteLive.Domain.Tools
 {
@@ -14,7 +16,7 @@ namespace BirdsiteLive.Domain.Tools
 
     public class StatusExtractor : IStatusExtractor
     {
-        private readonly Regex _hastagRegex = new Regex(@"\W(\#[a-zA-Z0-9_ー]+\b)(?!;)");
+        //private readonly Regex _hastagRegex = new Regex(@"\W(\#[a-zA-Z0-9_ー]+\b)(?!;)");
         //private readonly Regex _hastagRegex = new Regex(@"#\w+");
         //private readonly Regex _hastagRegex = new Regex(@"(?<=[\s>]|^)#(\w*[a-zA-Z0-9_ー]+\w*)\b(?!;)");
         //private readonly Regex _hastagRegex = new Regex(@"(?<=[\s>]|^)#(\w*[a-zA-Z0-9_ー]+)\b(?!;)");
@@ -27,29 +29,31 @@ namespace BirdsiteLive.Domain.Tools
         private readonly Regex _urlRegex = new Regex(@"((http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)");
 
         private readonly InstanceSettings _instanceSettings;
+        private readonly ILogger<StatusExtractor> _logger;
 
         #region Ctor
-        public StatusExtractor(InstanceSettings instanceSettings)
+        public StatusExtractor(InstanceSettings instanceSettings, ILogger<StatusExtractor> logger)
         {
             _instanceSettings = instanceSettings;
+            _logger = logger;
         }
         #endregion
 
         public (string content, Tag[] tags) Extract(string messageContent, bool extractMentions = true)
         {
             var tags = new List<Tag>();
-            messageContent = $" {messageContent} ";
+            //messageContent = $" {messageContent} ";
 
             // Replace return lines
-            messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p> ");
-            messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/> ");
-            messageContent = Regex.Replace(messageContent, @"\(@", "( @");
-            messageContent = Regex.Replace(messageContent, @"\(#", "( #");
+            messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p>");
+            messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/>");
+            //messageContent = Regex.Replace(messageContent, @"\(@", "( @");
+            //messageContent = Regex.Replace(messageContent, @"\(#", "( #");
 
-            // Secure emojis
-            var emojiMatch = EmojiRegexes.Emoji.Matches(messageContent);
-            foreach (Match m in emojiMatch)
-                messageContent = Regex.Replace(messageContent, m.ToString(), $" {m} ");
+            //// Secure emojis
+            //var emojiMatch = EmojiRegexes.Emoji.Matches(messageContent);
+            //foreach (Match m in emojiMatch)
+            //    messageContent = Regex.Replace(messageContent, m.ToString(), $" {m} ");
 
             // Extract Urls
             var urlMatch = _urlRegex.Matches(messageContent);
@@ -83,12 +87,19 @@ namespace BirdsiteLive.Domain.Tools
             }
 
             // Extract Hashtags
-            var hashtagMatch = OrderByLength(_hastagRegex.Matches(messageContent));
+            var hashtagMatch = OrderByLength(HashtagRegexes.Hashtag.Matches(messageContent));
             foreach (Match m in hashtagMatch.OrderByDescending(x => x.Length))
             {
-                var tag = m.ToString().Replace("#", string.Empty).Replace("\n", string.Empty).Trim();
-                var url = $"https://{_instanceSettings.Domain}/tags/{tag}";
+                var tag = m.Groups[2].ToString();
+                //var tag = m.ToString().Replace("#", string.Empty).Replace("\n", string.Empty).Trim();
 
+                if (!HashtagRegexes.HashtagName.IsMatch(tag))
+                {
+                    _logger.LogError("Parsing Hashtag failed: {Tag} on {Content}", tag, messageContent);
+                    continue;
+                }
+
+                var url = $"https://{_instanceSettings.Domain}/tags/{tag}";
                 tags.Add(new Tag
                 {
                     name = $"#{tag}",
@@ -96,8 +107,11 @@ namespace BirdsiteLive.Domain.Tools
                     type = "Hashtag"
                 });
 
-                messageContent = Regex.Replace(messageContent, m.ToString(),
-                    $@" <a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>");
+                //messageContent = Regex.Replace(messageContent, m.ToString(), 
+                //    $@" <a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>");
+
+                messageContent = Regex.Replace(messageContent, m.Groups[0].ToString(),
+                    $@"{m.Groups[1]}<a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>{m.Groups[3]}");
             }
 
             // Extract Mentions
