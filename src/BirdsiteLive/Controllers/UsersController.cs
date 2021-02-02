@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Models;
+using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Models;
@@ -28,7 +29,6 @@ namespace BirdsiteLive.Controllers
         private readonly IUserService _userService;
         private readonly IStatusService _statusService;
         private readonly InstanceSettings _instanceSettings;
-        private readonly Regex _twitterAccountRegex = new Regex(@"^[a-zA-Z0-9_]+$");
 
         #region Ctor
         public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService)
@@ -62,7 +62,7 @@ namespace BirdsiteLive.Controllers
             // Ensure valid username 
             // https://help.twitter.com/en/managing-your-account/twitter-username-rules
             TwitterUser user = null;
-            if (!string.IsNullOrWhiteSpace(id) && _twitterAccountRegex.IsMatch(id) && id.Length <= 15)
+            if (!string.IsNullOrWhiteSpace(id) && UserRegex.TwitterAccountRegex.IsMatch(id) && id.Length <= 15)
                 user = _twitterUserService.GetUser(id);
 
             var acceptHeaders = Request.Headers["Accept"];
