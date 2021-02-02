@@ -16,18 +16,6 @@ namespace BirdsiteLive.Domain.Tools
 
     public class StatusExtractor : IStatusExtractor
     {
-        //private readonly Regex _hastagRegex = new Regex(@"\W(\#[a-zA-Z0-9_ー]+\b)(?!;)");
-        //private readonly Regex _hastagRegex = new Regex(@"#\w+");
-        //private readonly Regex _hastagRegex = new Regex(@"(?<=[\s>]|^)#(\w*[a-zA-Z0-9_ー]+\w*)\b(?!;)");
-        //private readonly Regex _hastagRegex = new Regex(@"(?<=[\s>]|^)#(\w*[a-zA-Z0-9_ー]+)\b(?!;)");
-
-        //private readonly Regex _mentionRegex = new Regex(@"\W(\@[a-zA-Z0-9_ー]+\b)(?!;)");
-        //private readonly Regex _mentionRegex = new Regex(@"@\w+");
-        //private readonly Regex _mentionRegex = new Regex(@"(?<=[\s>]|^)@(\w*[a-zA-Z0-9_ー]+\w*)\b(?!;)");
-        //private readonly Regex _mentionRegex = new Regex(@"(?<=[\s>]|^)@(\w*[a-zA-Z0-9_ー]+)\b(?!;)");
-
-        private readonly Regex _urlRegex = new Regex(@"((http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)");
-
         private readonly InstanceSettings _instanceSettings;
         private readonly ILogger<StatusExtractor> _logger;
 
@@ -53,7 +41,7 @@ namespace BirdsiteLive.Domain.Tools
             //    messageContent = Regex.Replace(messageContent, m.ToString(), $" {m} ");
 
             // Extract Urls
-            var urlMatch = _urlRegex.Matches(messageContent);
+            var urlMatch = UrlRegexes.Url.Matches(messageContent);
             foreach (Match m in urlMatch)
             {
                 var url = m.ToString().Replace("\n", string.Empty).Trim();
