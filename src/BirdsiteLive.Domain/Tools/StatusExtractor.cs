@@ -21,7 +21,7 @@ namespace BirdsiteLive.Domain.Tools
         //private readonly Regex _hastagRegex = new Regex(@"(?<=[\s>]|^)#(\w*[a-zA-Z0-9_ー]+\w*)\b(?!;)");
         //private readonly Regex _hastagRegex = new Regex(@"(?<=[\s>]|^)#(\w*[a-zA-Z0-9_ー]+)\b(?!;)");
 
-        private readonly Regex _mentionRegex = new Regex(@"\W(\@[a-zA-Z0-9_ー]+\b)(?!;)");
+        //private readonly Regex _mentionRegex = new Regex(@"\W(\@[a-zA-Z0-9_ー]+\b)(?!;)");
         //private readonly Regex _mentionRegex = new Regex(@"@\w+");
         //private readonly Regex _mentionRegex = new Regex(@"(?<=[\s>]|^)@(\w*[a-zA-Z0-9_ー]+\w*)\b(?!;)");
         //private readonly Regex _mentionRegex = new Regex(@"(?<=[\s>]|^)@(\w*[a-zA-Z0-9_ー]+)\b(?!;)");
@@ -110,17 +110,25 @@ namespace BirdsiteLive.Domain.Tools
                 //messageContent = Regex.Replace(messageContent, m.ToString(), 
                 //    $@" <a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>");
 
-                messageContent = Regex.Replace(messageContent, m.Groups[0].ToString(),
+                messageContent = Regex.Replace(messageContent, Regex.Escape(m.Groups[0].ToString()),
                     $@"{m.Groups[1]}<a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>{m.Groups[3]}");
             }
 
             // Extract Mentions
             if (extractMentions)
             {
-                var mentionMatch = OrderByLength(_mentionRegex.Matches(messageContent));
+                var mentionMatch = OrderByLength(UserRegexes.Mention.Matches(messageContent));
                 foreach (Match m in mentionMatch.OrderByDescending(x => x.Length))
                 {
-                    var mention = m.ToString().Replace("@", string.Empty).Replace("\n", string.Empty).Trim();
+                    var mention = m.Groups[2].ToString();
+                    //var mention = m.ToString().Replace("@", string.Empty).Replace("\n", string.Empty).Trim();
+
+                    if (!UserRegexes.TwitterAccount.IsMatch(mention))
+                    {
+                        _logger.LogError("Parsing Mention failed: {Mention} on {Content}", mention, messageContent);
+                        continue;
+                    }
+
                     var url = $"https://{_instanceSettings.Domain}/users/{mention}";
                     var name = $"@{mention}@{_instanceSettings.Domain}";
 
@@ -131,16 +139,19 @@ namespace BirdsiteLive.Domain.Tools
                         type = "Mention"
                     });
 
-                    messageContent = Regex.Replace(messageContent, m.ToString(),
-                        $@" <span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>");
+                    //messageContent = Regex.Replace(messageContent, m.ToString(),
+                    //    $@" <span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>");
+
+                    messageContent = Regex.Replace(messageContent, Regex.Escape(m.Groups[0].ToString()),
+                        $@"{m.Groups[1]}<span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>{m.Groups[3]}");
                 }
             }
 
-            // Clean up return lines
-            messageContent = Regex.Replace(messageContent, @"<p> ", "<p>");
-            messageContent = Regex.Replace(messageContent, @"<br/> ", "<br/>");
-            messageContent = Regex.Replace(messageContent, @"   ", " ");
-            messageContent = Regex.Replace(messageContent, @"  ", " ");
+            //// Clean up return lines
+            //messageContent = Regex.Replace(messageContent, @"<p> ", "<p>");
+            //messageContent = Regex.Replace(messageContent, @"<br/> ", "<br/>");
+            //messageContent = Regex.Replace(messageContent, @"   ", " ");
+            //messageContent = Regex.Replace(messageContent, @"  ", " ");
 
             return (messageContent.Trim(), tags.ToArray());
         }

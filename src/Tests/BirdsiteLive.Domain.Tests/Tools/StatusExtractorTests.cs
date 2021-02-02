@@ -267,7 +267,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
         public void Extract_SingleMentionTag_Test()
         {
             #region Stubs
-            var message = $"Bla!{Environment.NewLine}@mynickname⁠";
+            var message = $"Bla!{Environment.NewLine}@mynickname";
             #endregion
 
             #region Mocks
@@ -293,7 +293,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
         public void Extract_SingleMentionTag_SpecialChar_Test()
         {
             #region Stubs
-            var message = $"Bla!{Environment.NewLine}@my___nickname⁠";
+            var message = $"Bla!{Environment.NewLine}@my___nickname";
             #endregion
 
             #region Mocks
@@ -391,8 +391,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.IsTrue(result.content.Contains(@"<a href=""https://domain.name/tags/dada"" class=""mention hashtag"" rel=""tag"">#<span>dada</span></a>"));
             #endregion
         }
-
-
+        
         [TestMethod]
         public void Extract_Emoji_Test()
         {
@@ -412,9 +411,9 @@ namespace BirdsiteLive.Domain.Tests.Tools
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
             Assert.IsTrue(result.content.Contains(
-                @"😤 <span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+                @"😤<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
 
-            Assert.IsTrue(result.content.Contains(@"😎 😍 🤗 🤩 😘"));
+            Assert.IsTrue(result.content.Contains(@"😎😍🤗🤩😘"));
             #endregion
         }
 
@@ -436,7 +435,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #region Validations
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
-            Assert.IsTrue(result.content.Equals(@"bla ( <span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span> test)"));
+            Assert.IsTrue(result.content.Equals(@"bla (<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span> test)"));
             #endregion
         }
     }
