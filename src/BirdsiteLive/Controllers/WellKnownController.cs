@@ -164,7 +164,7 @@ namespace BirdsiteLive.Controllers
 
             // Ensure valid username 
             // https://help.twitter.com/en/managing-your-account/twitter-username-rules
-            if (string.IsNullOrWhiteSpace(name) || !UserRegex.TwitterAccountRegex.IsMatch(name) || name.Length > 15 )
+            if (string.IsNullOrWhiteSpace(name) || !UserRegexes.TwitterAccount.IsMatch(name) || name.Length > 15 )
                 return NotFound();
 
             if (!string.IsNullOrWhiteSpace(domain) && domain != _settings.Domain)

@@ -62,7 +62,7 @@ namespace BirdsiteLive.Controllers
             // Ensure valid username 
             // https://help.twitter.com/en/managing-your-account/twitter-username-rules
             TwitterUser user = null;
-            if (!string.IsNullOrWhiteSpace(id) && UserRegex.TwitterAccountRegex.IsMatch(id) && id.Length <= 15)
+            if (!string.IsNullOrWhiteSpace(id) && UserRegexes.TwitterAccount.IsMatch(id) && id.Length <= 15)
                 user = _twitterUserService.GetUser(id);
 
             var acceptHeaders = Request.Headers["Accept"];
