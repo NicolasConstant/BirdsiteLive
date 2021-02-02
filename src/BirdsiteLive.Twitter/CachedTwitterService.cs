@@ -38,5 +38,10 @@ namespace BirdsiteLive.Twitter
 
             return user;
         }
+
+        public void PurgeUser(string username)
+        {
+            _userCache.Remove(username);
+        }
     }
 }

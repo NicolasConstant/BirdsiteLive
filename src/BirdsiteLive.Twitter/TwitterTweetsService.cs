@@ -61,36 +61,30 @@ namespace BirdsiteLive.Twitter
         public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)
         {
             var tweets = new List<ITweet>();
-            try
+
+            _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
+            ExceptionHandler.SwallowWebExceptions = false;
+            TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
+
+            var user = _twitterUserService.GetUser(username);
+            if (user == null || user.Protected) return new ExtractedTweet[0];
+
+            if (fromTweetId == -1)
             {
-                _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
-                ExceptionHandler.SwallowWebExceptions = false;
-                TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
-
-                var user = _twitterUserService.GetUser(username);
-                if (user == null || user.Protected) return new ExtractedTweet[0];
-
-                if (fromTweetId == -1)
-                {
-                    var timeline = Timeline.GetUserTimeline(user.Id, nberTweets);
-                    _statisticsHandler.CalledTimelineApi();
-                    if (timeline != null) tweets.AddRange(timeline);
-                }
-                else
-                {
-                    var timelineRequestParameters = new UserTimelineParameters
-                    {
-                        SinceId = fromTweetId,
-                        MaximumNumberOfTweetsToRetrieve = nberTweets
-                    };
-                    var timeline = Timeline.GetUserTimeline(user.Id, timelineRequestParameters);
-                    _statisticsHandler.CalledTimelineApi();
-                    if (timeline != null) tweets.AddRange(timeline);
-                }
+                var timeline = Timeline.GetUserTimeline(user.Id, nberTweets);
+                _statisticsHandler.CalledTimelineApi();
+                if (timeline != null) tweets.AddRange(timeline);
             }
-            catch (Exception e)
+            else
             {
-                _logger.LogError(e, "Error retrieving timeline from {Username}, from {TweetId}", username, fromTweetId);
+                var timelineRequestParameters = new UserTimelineParameters
+                {
+                    SinceId = fromTweetId,
+                    MaximumNumberOfTweetsToRetrieve = nberTweets
+                };
+                var timeline = Timeline.GetUserTimeline(user.Id, timelineRequestParameters);
+                _statisticsHandler.CalledTimelineApi();
+                if (timeline != null) tweets.AddRange(timeline);
             }
 
             return tweets.Select(_tweetExtractor.Extract).ToArray();
