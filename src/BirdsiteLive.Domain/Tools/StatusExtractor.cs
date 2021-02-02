@@ -42,13 +42,10 @@ namespace BirdsiteLive.Domain.Tools
         public (string content, Tag[] tags) Extract(string messageContent, bool extractMentions = true)
         {
             var tags = new List<Tag>();
-            //messageContent = $" {messageContent} ";
 
             // Replace return lines
             messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p>");
             messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/>");
-            //messageContent = Regex.Replace(messageContent, @"\(@", "( @");
-            //messageContent = Regex.Replace(messageContent, @"\(#", "( #");
 
             //// Secure emojis
             //var emojiMatch = EmojiRegexes.Emoji.Matches(messageContent);
@@ -91,7 +88,6 @@ namespace BirdsiteLive.Domain.Tools
             foreach (Match m in hashtagMatch.OrderByDescending(x => x.Length))
             {
                 var tag = m.Groups[2].ToString();
-                //var tag = m.ToString().Replace("#", string.Empty).Replace("\n", string.Empty).Trim();
 
                 if (!HashtagRegexes.HashtagName.IsMatch(tag))
                 {
@@ -107,9 +103,6 @@ namespace BirdsiteLive.Domain.Tools
                     type = "Hashtag"
                 });
 
-                //messageContent = Regex.Replace(messageContent, m.ToString(), 
-                //    $@" <a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>");
-
                 messageContent = Regex.Replace(messageContent, Regex.Escape(m.Groups[0].ToString()),
                     $@"{m.Groups[1]}<a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>{m.Groups[3]}");
             }
@@ -121,7 +114,6 @@ namespace BirdsiteLive.Domain.Tools
                 foreach (Match m in mentionMatch.OrderByDescending(x => x.Length))
                 {
                     var mention = m.Groups[2].ToString();
-                    //var mention = m.ToString().Replace("@", string.Empty).Replace("\n", string.Empty).Trim();
 
                     if (!UserRegexes.TwitterAccount.IsMatch(mention))
                     {
@@ -138,20 +130,11 @@ namespace BirdsiteLive.Domain.Tools
                         href = url,
                         type = "Mention"
                     });
-
-                    //messageContent = Regex.Replace(messageContent, m.ToString(),
-                    //    $@" <span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>");
-
+                    
                     messageContent = Regex.Replace(messageContent, Regex.Escape(m.Groups[0].ToString()),
                         $@"{m.Groups[1]}<span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>{m.Groups[3]}");
                 }
             }
-
-            //// Clean up return lines
-            //messageContent = Regex.Replace(messageContent, @"<p> ", "<p>");
-            //messageContent = Regex.Replace(messageContent, @"<br/> ", "<br/>");
-            //messageContent = Regex.Replace(messageContent, @"   ", " ");
-            //messageContent = Regex.Replace(messageContent, @"  ", " ");
 
             return (messageContent.Trim(), tags.ToArray());
         }
