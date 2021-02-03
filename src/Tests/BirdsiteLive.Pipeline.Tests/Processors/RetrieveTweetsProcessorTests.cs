@@ -61,7 +61,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 ))
                 .Returns(Task.CompletedTask);
 
-            var twitterUserServiceMock = new Mock<ITwitterUserService>(MockBehavior.Strict);
+            var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
 
             var logger = new Mock<ILogger<RetrieveTweetsProcessor>>(MockBehavior.Strict);
             #endregion
@@ -125,7 +125,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
 
-            var twitterUserServiceMock = new Mock<ITwitterUserService>(MockBehavior.Strict);
+            var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
 
             var logger = new Mock<ILogger<RetrieveTweetsProcessor>>(MockBehavior.Strict);
             #endregion
@@ -192,7 +192,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
 
-            var twitterUserServiceMock = new Mock<ITwitterUserService>(MockBehavior.Strict);
+            var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
 
             var logger = new Mock<ILogger<RetrieveTweetsProcessor>>(MockBehavior.Strict);
             #endregion

@@ -4,7 +4,12 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace BirdsiteLive.Twitter
 {
-    public class CachedTwitterUserService : ITwitterUserService
+    public interface ICachedTwitterUserService : ITwitterUserService
+    {
+        void PurgeUser(string username);
+    }
+
+    public class CachedTwitterUserService : ICachedTwitterUserService
     {
         private readonly ITwitterUserService _twitterService;
 

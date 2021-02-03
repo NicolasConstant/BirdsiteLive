@@ -17,12 +17,12 @@ namespace BirdsiteLive.Pipeline.Processors
     public class RetrieveTweetsProcessor : IRetrieveTweetsProcessor
     {
         private readonly ITwitterTweetsService _twitterTweetsService;
-        private readonly ITwitterUserService _twitterUserService;
+        private readonly ICachedTwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly ILogger<RetrieveTweetsProcessor> _logger;
 
         #region Ctor
-        public RetrieveTweetsProcessor(ITwitterTweetsService twitterTweetsService, ITwitterUserDal twitterUserDal, ITwitterUserService twitterUserService, ILogger<RetrieveTweetsProcessor> logger)
+        public RetrieveTweetsProcessor(ITwitterTweetsService twitterTweetsService, ITwitterUserDal twitterUserDal, ICachedTwitterUserService twitterUserService, ILogger<RetrieveTweetsProcessor> logger)
         {
             _twitterTweetsService = twitterTweetsService;
             _twitterUserDal = twitterUserDal;
@@ -77,13 +77,8 @@ namespace BirdsiteLive.Pipeline.Processors
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error retrieving TL of {Username} from {LastTweetPostedId}", user.Acct, user.LastTweetPostedId);
-
-                if (_twitterUserService is CachedTwitterUserService service)
-                {
-                    _logger.LogInformation("Purge {Username} from cache", user.Acct);
-                    service.PurgeUser(user.Acct);
-                }
+                _logger.LogError(e, "Error retrieving TL of {Username} from {LastTweetPostedId}, purging user from cache", user.Acct, user.LastTweetPostedId);
+                _twitterUserService.PurgeUser(user.Acct);
             }
 
             return tweets;
