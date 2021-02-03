@@ -7,6 +7,7 @@ using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Pipeline.Processors;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -59,14 +60,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
+
+            var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
+
+            var logger = new Mock<ILogger<RetrieveTweetsProcessor>>(MockBehavior.Strict);
             #endregion
 
-            var processor = new RetrieveTweetsProcessor(twitterServiceMock.Object, twitterUserDalMock.Object);
+            var processor = new RetrieveTweetsProcessor(twitterServiceMock.Object, twitterUserDalMock.Object, twitterUserServiceMock.Object, logger.Object);
             var usersResult = await processor.ProcessAsync(users, CancellationToken.None);
 
             #region Validations
             twitterServiceMock.VerifyAll();
             twitterUserDalMock.VerifyAll();
+            twitterUserServiceMock.VerifyAll();
+            logger.VerifyAll();
 
             Assert.AreEqual(0, usersResult.Length);
             #endregion
@@ -117,14 +124,21 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(tweets);
 
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
+
+            var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
+
+            var logger = new Mock<ILogger<RetrieveTweetsProcessor>>(MockBehavior.Strict);
             #endregion
 
-            var processor = new RetrieveTweetsProcessor(twitterServiceMock.Object, twitterUserDalMock.Object);
+            var processor = new RetrieveTweetsProcessor(twitterServiceMock.Object, twitterUserDalMock.Object, twitterUserServiceMock.Object, logger.Object);
             var usersResult = await processor.ProcessAsync(users, CancellationToken.None);
 
             #region Validations
             twitterServiceMock.VerifyAll();
             twitterUserDalMock.VerifyAll();
+            twitterUserServiceMock.VerifyAll();
+            logger.VerifyAll();
+
 
             Assert.AreEqual(users.Length, usersResult.Length);
             Assert.AreEqual(users[0].Acct, usersResult[0].User.Acct);
@@ -177,14 +191,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(tweets);
 
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
+
+            var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
+
+            var logger = new Mock<ILogger<RetrieveTweetsProcessor>>(MockBehavior.Strict);
             #endregion
 
-            var processor = new RetrieveTweetsProcessor(twitterServiceMock.Object, twitterUserDalMock.Object);
+            var processor = new RetrieveTweetsProcessor(twitterServiceMock.Object, twitterUserDalMock.Object, twitterUserServiceMock.Object, logger.Object);
             var usersResult = await processor.ProcessAsync(users, CancellationToken.None);
 
             #region Validations
             twitterServiceMock.VerifyAll();
             twitterUserDalMock.VerifyAll();
+            twitterUserServiceMock.VerifyAll();
+            logger.VerifyAll();
 
             Assert.AreEqual(users.Length, usersResult.Length);
             Assert.AreEqual(users[0].Acct, usersResult[0].User.Acct);

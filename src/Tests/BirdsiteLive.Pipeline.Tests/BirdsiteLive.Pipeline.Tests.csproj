@@ -15,11 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BirdsiteLive.Pipeline\BirdsiteLive.Pipeline.csproj" />
+    <Folder Include="Tools\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Tools\" />
+    <ProjectReference Include="..\..\BirdsiteLive.Pipeline\BirdsiteLive.Pipeline.csproj" />
+    <ProjectReference Include="..\..\BirdsiteLive.Twitter\BirdsiteLive.Twitter.csproj" />
+    <ProjectReference Include="..\..\DataAccessLayers\BirdsiteLive.DAL\BirdsiteLive.DAL.csproj" />
   </ItemGroup>
 
 </Project>

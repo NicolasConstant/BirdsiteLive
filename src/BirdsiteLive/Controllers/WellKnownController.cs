@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub.Converters;
+using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Models;
@@ -20,7 +21,6 @@ namespace BirdsiteLive.Controllers
         private readonly ITwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly InstanceSettings _settings;
-        private readonly Regex _twitterAccountRegex = new Regex(@"^[a-zA-Z0-9_]+$");
 
         #region Ctor
         public WellKnownController(InstanceSettings settings, ITwitterUserService twitterUserService, ITwitterUserDal twitterUserDal)
@@ -164,7 +164,7 @@ namespace BirdsiteLive.Controllers
 
             // Ensure valid username 
             // https://help.twitter.com/en/managing-your-account/twitter-username-rules
-            if (string.IsNullOrWhiteSpace(name) || !_twitterAccountRegex.IsMatch(name) || name.Length > 15 )
+            if (string.IsNullOrWhiteSpace(name) || !UserRegexes.TwitterAccount.IsMatch(name) || name.Length > 15 )
                 return NotFound();
 
             if (!string.IsNullOrWhiteSpace(domain) && domain != _settings.Domain)

@@ -9,6 +9,7 @@ using BirdsiteLive.Pipeline.Contracts;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
+using Microsoft.Extensions.Logging;
 using Tweetinvi.Models;
 
 namespace BirdsiteLive.Pipeline.Processors
@@ -16,13 +17,17 @@ namespace BirdsiteLive.Pipeline.Processors
     public class RetrieveTweetsProcessor : IRetrieveTweetsProcessor
     {
         private readonly ITwitterTweetsService _twitterTweetsService;
+        private readonly ICachedTwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
+        private readonly ILogger<RetrieveTweetsProcessor> _logger;
 
         #region Ctor
-        public RetrieveTweetsProcessor(ITwitterTweetsService twitterTweetsService, ITwitterUserDal twitterUserDal)
+        public RetrieveTweetsProcessor(ITwitterTweetsService twitterTweetsService, ITwitterUserDal twitterUserDal, ICachedTwitterUserService twitterUserService, ILogger<RetrieveTweetsProcessor> logger)
         {
             _twitterTweetsService = twitterTweetsService;
             _twitterUserDal = twitterUserDal;
+            _twitterUserService = twitterUserService;
+            _logger = logger;
         }
         #endregion
 
@@ -61,11 +66,20 @@ namespace BirdsiteLive.Pipeline.Processors
 
         private ExtractedTweet[] RetrieveNewTweets(SyncTwitterUser user)
         {
-            ExtractedTweet[] tweets;
-            if (user.LastTweetPostedId == -1)
-                tweets = _twitterTweetsService.GetTimeline(user.Acct, 1);
-            else
-                tweets = _twitterTweetsService.GetTimeline(user.Acct, 200, user.LastTweetSynchronizedForAllFollowersId);
+            var tweets = new ExtractedTweet[0];
+
+            try
+            {
+                if (user.LastTweetPostedId == -1)
+                    tweets = _twitterTweetsService.GetTimeline(user.Acct, 1);
+                else
+                    tweets = _twitterTweetsService.GetTimeline(user.Acct, 200, user.LastTweetSynchronizedForAllFollowersId);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error retrieving TL of {Username} from {LastTweetPostedId}, purging user from cache", user.Acct, user.LastTweetPostedId);
+                _twitterUserService.PurgeUser(user.Acct);
+            }
 
             return tweets;
         }

@@ -23,7 +23,7 @@ namespace BirdsiteLive.Twitter.Extractors
                 InReplyToStatusId = tweet.InReplyToStatusId,
                 InReplyToAccount = tweet.InReplyToScreenName,
                 MessageContent = ExtractMessage(tweet),
-                Media = ExtractMedia(tweet.Media),
+                Media = ExtractMedia(tweet),
                 CreatedAt = tweet.CreatedAt.ToUniversalTime(),
                 IsReply = tweet.InReplyToUserId != null,
                 IsThread = tweet.InReplyToUserId != null && tweet.InReplyToUserId == tweet.CreatedBy.Id,
@@ -36,10 +36,17 @@ namespace BirdsiteLive.Twitter.Extractors
 
         private string ExtractRetweetUrl(ITweet tweet)
         {
-            if (tweet.IsRetweet && tweet.FullText.Contains("https://t.co/"))
+            if (tweet.IsRetweet)
             {
-                var retweetId = tweet.FullText.Split(new[] { "https://t.co/" }, StringSplitOptions.RemoveEmptyEntries).Last();
-                return $"https://t.co/{retweetId}";
+                if (tweet.RetweetedTweet != null)
+                {
+                    return tweet.RetweetedTweet.Url;
+                }
+                if (tweet.FullText.Contains("https://t.co/"))
+                {
+                    var retweetId = tweet.FullText.Split(new[] { "https://t.co/" }, StringSplitOptions.RemoveEmptyEntries).Last();
+                    return $"https://t.co/{retweetId}";
+                }
             }
 
             return null;
@@ -47,8 +54,15 @@ namespace BirdsiteLive.Twitter.Extractors
 
         public string ExtractMessage(ITweet tweet)
         {
-            var tweetUrls = tweet.Media.Select(x => x.URL).Distinct();
             var message = tweet.FullText;
+            var tweetUrls = tweet.Media.Select(x => x.URL).Distinct();
+            
+            if (tweet.IsRetweet && tweet.QuotedStatusId == null && message.StartsWith("RT") && tweet.RetweetedTweet != null)
+            {
+                message = tweet.RetweetedTweet.FullText;
+                tweetUrls = tweet.RetweetedTweet.Media.Select(x => x.URL).Distinct();
+            }
+
             foreach (var tweetUrl in tweetUrls)
             {
                 if(tweet.IsRetweet)
@@ -60,8 +74,10 @@ namespace BirdsiteLive.Twitter.Extractors
             if (tweet.QuotedTweet != null) message = $"[Quote {{RT}}]{Environment.NewLine}{message}";
             if (tweet.IsRetweet)
             {
-                if (tweet.RetweetedTweet != null)
+                if (tweet.RetweetedTweet != null && !message.StartsWith("RT"))
                     message = $"[{{RT}} @{tweet.RetweetedTweet.CreatedBy.ScreenName}]{Environment.NewLine}{message}";
+                else if (tweet.RetweetedTweet != null && message.StartsWith($"RT @{tweet.RetweetedTweet.CreatedBy.ScreenName}:"))
+                    message = message.Replace($"RT @{tweet.RetweetedTweet.CreatedBy.ScreenName}:", $"[{{RT}} @{tweet.RetweetedTweet.CreatedBy.ScreenName}]{Environment.NewLine}");
                 else
                     message = message.Replace("RT", "[{{RT}}]");
             }
@@ -73,10 +89,13 @@ namespace BirdsiteLive.Twitter.Extractors
             return message;
         }
 
-        public ExtractedMedia[] ExtractMedia(List<IMediaEntity> media)
+        public ExtractedMedia[] ExtractMedia(ITweet tweet)
         {
-            var result = new List<ExtractedMedia>();
+            var media = tweet.Media;
+            if (tweet.IsRetweet && tweet.RetweetedTweet != null)
+                media = tweet.RetweetedTweet.Media;
 
+            var result = new List<ExtractedMedia>();
             foreach (var m in media)
             {
                 var mediaUrl = GetMediaUrl(m);
