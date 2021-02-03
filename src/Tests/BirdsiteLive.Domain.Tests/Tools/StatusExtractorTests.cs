@@ -290,6 +290,32 @@ namespace BirdsiteLive.Domain.Tests.Tools
         }
 
         [TestMethod]
+        public void Extract_SingleMentionTag_RT_Test()
+        {
+            #region Stubs
+            var message = $"[RT @mynickname]{Environment.NewLine}Bla!";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            logger.VerifyAll();
+            Assert.AreEqual(1, result.tags.Length);
+            Assert.AreEqual("@mynickname@domain.name", result.tags.First().name);
+            Assert.AreEqual("Mention", result.tags.First().type);
+            Assert.AreEqual("https://domain.name/users/mynickname", result.tags.First().href);
+
+            Assert.IsTrue(result.content.Contains("Bla!"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+            #endregion
+        }
+
+        [TestMethod]
         public void Extract_SingleMentionTag_Dot_Test()
         {
             #region Stubs
