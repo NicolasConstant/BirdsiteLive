@@ -66,7 +66,10 @@ namespace BirdsiteLive
 
             var logsSettings = Configuration.GetSection("Logging").Get<LogsSettings>();
             services.For<LogsSettings>().Use(x => logsSettings);
-            
+
+            var moderationSettings = Configuration.GetSection("Moderation").Get<ModerationSettings>();
+            services.For<ModerationSettings>().Use(x => moderationSettings);
+
             if (string.Equals(dbSettings.Type, DbTypes.Postgres, StringComparison.OrdinalIgnoreCase))
             {
                 var connString = $"Host={dbSettings.Host};Username={dbSettings.User};Password={dbSettings.Password};Database={dbSettings.Name}";
