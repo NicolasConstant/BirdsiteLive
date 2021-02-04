@@ -8,7 +8,13 @@ using Newtonsoft.Json.Converters;
 
 namespace BirdsiteLive.Domain.Repository
 {
-    public class ModerationRepository
+    public interface IModerationRepository
+    {
+        ModerationTypeEnum GetModerationType(ModerationEntityTypeEnum type);
+        ModeratedTypeEnum CheckStatus(ModerationEntityTypeEnum type, string entity);
+    }
+
+    public class ModerationRepository : IModerationRepository
     {
         private readonly Regex[] _followersWhiteListing;
         private readonly Regex[] _followersBlackListing;
