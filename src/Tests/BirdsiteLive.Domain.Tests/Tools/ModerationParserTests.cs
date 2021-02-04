@@ -23,6 +23,34 @@ namespace BirdsiteLive.Domain.Tests.Tools
         }
 
         [TestMethod]
+        public void Parse_Null_Test()
+        {
+            #region Stubs
+            string entry = null;
+            #endregion
+
+            var result = ModerationParser.Parse(entry);
+
+            #region Validations
+            Assert.AreEqual(0, result.Length);
+            #endregion
+        }
+
+        [TestMethod]
+        public void Parse_WhiteSpace_Test()
+        {
+            #region Stubs
+            var entry = "  ";
+            #endregion
+
+            var result = ModerationParser.Parse(entry);
+
+            #region Validations
+            Assert.AreEqual(0, result.Length);
+            #endregion
+        }
+
+        [TestMethod]
         public void Parse_PipeSeparator_Test()
         {
             #region Stubs

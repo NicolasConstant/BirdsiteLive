@@ -7,6 +7,8 @@ namespace BirdsiteLive.Domain.Tools
     {
         public static string[] Parse(string entry)
         {
+            if (string.IsNullOrWhiteSpace(entry)) return new string[0];
+
             var separationChar = '|';
             if (entry.Contains(";")) separationChar = ';';
             else if (entry.Contains(",")) separationChar = ',';

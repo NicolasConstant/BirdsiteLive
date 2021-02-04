@@ -18,4 +18,8 @@
     <ProjectReference Include="..\..\BirdsiteLive.Domain\BirdsiteLive.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repository\" />
+  </ItemGroup>
+
 </Project>
