@@ -13,7 +13,8 @@ namespace BirdsiteLive.Domain.Tools
 
             var splitEntries = entry
                 .Split(new[] {separationChar}, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.ToLowerInvariant());
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.ToLowerInvariant().Trim());
             return splitEntries.ToArray();
         }
     }
