@@ -24,7 +24,7 @@ namespace BirdsiteLive.Twitter
             // Keep in cache for this time, reset time if accessed.
             .SetSlidingExpiration(TimeSpan.FromHours(24))
             // Remove from cache after this time, regardless of sliding expiration
-            .SetAbsoluteExpiration(TimeSpan.FromDays(30));
+            .SetAbsoluteExpiration(TimeSpan.FromDays(7));
 
         #region Ctor
         public CachedTwitterUserService(ITwitterUserService twitterService)

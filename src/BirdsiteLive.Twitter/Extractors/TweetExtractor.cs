@@ -57,7 +57,7 @@ namespace BirdsiteLive.Twitter.Extractors
             var message = tweet.FullText;
             var tweetUrls = tweet.Media.Select(x => x.URL).Distinct();
             
-            if (tweet.IsRetweet && tweet.QuotedStatusId == null && message.StartsWith("RT") && tweet.RetweetedTweet != null)
+            if (tweet.IsRetweet && message.StartsWith("RT") && tweet.RetweetedTweet != null)
             {
                 message = tweet.RetweetedTweet.FullText;
                 tweetUrls = tweet.RetweetedTweet.Media.Select(x => x.URL).Distinct();
