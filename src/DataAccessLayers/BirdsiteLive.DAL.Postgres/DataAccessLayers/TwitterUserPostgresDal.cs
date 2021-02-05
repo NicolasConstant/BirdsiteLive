@@ -49,6 +49,11 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task DeleteTwitterUserAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<int> GetTwitterUsersCountAsync()
         {
             var query = $"SELECT COUNT(*) FROM {_settings.TwitterUserTableName}";
@@ -73,6 +78,11 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 var result = await dbConnection.QueryAsync<SyncTwitterUser>(query, new { maxNumber });
                 return result.ToArray();
             }
+        }
+
+        public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync()
+        {
+            throw new NotImplementedException();
         }
 
         public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId, DateTime lastSync)

@@ -84,6 +84,11 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task<Follower[]> GetAllFollowersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task UpdateFollowerAsync(Follower follower)
         {
             if (follower == default) throw new ArgumentException("follower");
