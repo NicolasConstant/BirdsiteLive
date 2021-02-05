@@ -18,6 +18,7 @@
     <ProjectReference Include="..\BirdsiteLive.Common\BirdsiteLive.Common.csproj" />
     <ProjectReference Include="..\BirdsiteLive.Cryptography\BirdsiteLive.Cryptography.csproj" />
     <ProjectReference Include="..\BirdsiteLive.Domain\BirdsiteLive.Domain.csproj" />
+    <ProjectReference Include="..\BirdsiteLive.Moderation\BirdsiteLive.Moderation.csproj" />
     <ProjectReference Include="..\BirdsiteLive.Pipeline\BirdsiteLive.Pipeline.csproj" />
     <ProjectReference Include="..\BirdsiteLive.Twitter\BirdsiteLive.Twitter.csproj" />
     <ProjectReference Include="..\DataAccessLayers\BirdsiteLive.DAL.Postgres\BirdsiteLive.DAL.Postgres.csproj" />
