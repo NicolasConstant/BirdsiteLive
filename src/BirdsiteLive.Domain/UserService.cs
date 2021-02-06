@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
+using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
 using BirdsiteLive.Domain.BusinessUseCases;
@@ -239,33 +240,24 @@ namespace BirdsiteLive.Domain
             var signature_header = new Dictionary<string, string>();
             foreach (var signature in signatures)
             {
-                var splitSig = signature.Replace("\"", string.Empty).Split('=');
-                signature_header.Add(splitSig[0], splitSig[1]);
+                var m = HeaderRegexes.HeaderSignature.Match(signature);
+                signature_header.Add(m.Groups[1].ToString(), m.Groups[2].ToString());
             }
-
-            signature_header["signature"] = signature_header["signature"] + "==";
 
             var key_id = signature_header["keyId"];
             var headers = signature_header["headers"];
             var algorithm = signature_header["algorithm"];
             var sig = Convert.FromBase64String(signature_header["signature"]);
 
-
+            // Retrieve User
             var remoteUser = await _activityPubService.GetUser(actor);
 
+            // Prepare Key data
             var toDecode = remoteUser.publicKey.publicKeyPem.Trim().Remove(0, remoteUser.publicKey.publicKeyPem.IndexOf('\n'));
             toDecode = toDecode.Remove(toDecode.LastIndexOf('\n')).Replace("\n", "");
             var signKey = ASN1.ToRSA(Convert.FromBase64String(toDecode));
 
             var toSign = new StringBuilder();
-            //var comparisonString = headers.Split(' ').Select(signed_header_name =>
-            //{
-            //    if (signed_header_name == "(request-target)")
-            //        return "(request-target): post /inbox";
-            //    else
-            //        return $"{signed_header_name}: {r.Headers[signed_header_name.ToUpperInvariant()]}";
-            //});
-
             foreach (var headerKey in headers.Split(' '))
             {
                 if (headerKey == "(request-target)") toSign.Append($"(request-target): {method.ToLower()} {path}{queryString}\n");
@@ -273,21 +265,13 @@ namespace BirdsiteLive.Domain
             }
             toSign.Remove(toSign.Length - 1, 1);
 
-            //var signKey = ASN1.ToRSA(Convert.FromBase64String(toDecode));
+            // Import key
+            var key = new RSACryptoServiceProvider();
+            var rsaKeyInfo = key.ExportParameters(false);
+            rsaKeyInfo.Modulus = Convert.FromBase64String(toDecode);
+            key.ImportParameters(rsaKeyInfo);
 
-            //new RSACryptoServiceProvider(keyId.publicKey.publicKeyPem);
-
-            //Create a new instance of RSACryptoServiceProvider.
-            RSACryptoServiceProvider key = new RSACryptoServiceProvider();
-
-            //Get an instance of RSAParameters from ExportParameters function.
-            RSAParameters RSAKeyInfo = key.ExportParameters(false);
-
-            //Set RSAKeyInfo to the public key values.
-            RSAKeyInfo.Modulus = Convert.FromBase64String(toDecode);
-
-            key.ImportParameters(RSAKeyInfo);
-
+            // Trust and Verify
             var result = signKey.VerifyData(Encoding.UTF8.GetBytes(toSign.ToString()), sig, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 
             return new SignatureValidationResult()
