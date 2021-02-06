@@ -40,7 +40,7 @@ namespace BirdsiteLive.Domain
         public async Task<Actor> GetUser(string objectId)
         {
             var httpClient = _httpClientFactory.CreateClient();
-            httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+            httpClient.DefaultRequestHeaders.Add("Accept", "application/activity+json");
             var result = await httpClient.GetAsync(objectId);
             var content = await result.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<Actor>(content);

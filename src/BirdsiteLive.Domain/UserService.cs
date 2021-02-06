@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
+using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
 using BirdsiteLive.Domain.BusinessUseCases;
@@ -239,11 +240,11 @@ namespace BirdsiteLive.Domain
             var signature_header = new Dictionary<string, string>();
             foreach (var signature in signatures)
             {
-                var splitSig = signature.Replace("\"", string.Empty).Split('=');
-                signature_header.Add(splitSig[0], splitSig[1]);
+                var m = HeaderRegexes.HeaderSignature.Match(signature);
+                signature_header.Add(m.Groups[1].ToString(), m.Groups[2].ToString());
             }
 
-            signature_header["signature"] = signature_header["signature"] + "==";
+            //signature_header["signature"] = signature_header["signature"] + "==";
 
             var key_id = signature_header["keyId"];
             var headers = signature_header["headers"];
