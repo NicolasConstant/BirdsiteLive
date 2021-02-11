@@ -68,6 +68,10 @@ namespace BirdsiteLive.Pipeline.Processors
         {
             var tweets = new ExtractedTweet[0];
 
+            // Don't retrieve TL if protected
+            var userView = _twitterUserService.GetUser(user.Acct);
+            if (userView == null || userView.Protected) return tweets;
+
             try
             {
                 if (user.LastTweetPostedId == -1)
