@@ -64,7 +64,7 @@ namespace BirdsiteLive.Domain.Tools
                     secondPart = truncatedUrl.Substring(30);
                 }
 
-                messageContent = Regex.Replace(messageContent, m.ToString(),
+                messageContent = Regex.Replace(messageContent, Regex.Escape(m.ToString()),
                     $@"{m.Groups[1]}<a href=""{url}"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">{protocol}</span><span class=""ellipsis"">{firstPart}</span><span class=""invisible"">{secondPart}</span></a>");
             }
 

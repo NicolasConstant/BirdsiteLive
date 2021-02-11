@@ -218,6 +218,25 @@ namespace BirdsiteLive.Domain.Tests.Tools
         }
 
         [TestMethod]
+        public void Extract_UrlRegexChars_Test()
+        {
+            #region Stubs
+            var message = @"🐣 juniors & tech(http://tech.guru maker)";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            Assert.AreEqual(@"🐣 juniors & tech(<a href=""http://tech.guru"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">http://</span><span class=""ellipsis"">tech.guru</span><span class=""invisible""></span></a> maker)", result.content);
+            #endregion
+        }
+
+        [TestMethod]
         public void Extract_SingleHashTag_Test()
         {
             #region Stubs
@@ -345,7 +364,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
             #endregion
         }
-
+        
         [TestMethod]
         public void Extract_SingleMentionTag_RT_Test()
         {
