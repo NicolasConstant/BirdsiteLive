@@ -64,7 +64,7 @@ namespace BirdsiteLive.Twitter
                 Name = user.Name,
                 Description = description,
                 Url = $"https://twitter.com/{username}",
-                ProfileImageUrl = user.ProfileImageUrlFullSize,
+                ProfileImageUrl = user.ProfileImageUrlFullSize.Replace("http://", "https://"),
                 ProfileBackgroundImageUrl = user.ProfileBackgroundImageUrlHttps,
                 ProfileBannerURL = user.ProfileBannerURL,
                 Protected = user.Protected
