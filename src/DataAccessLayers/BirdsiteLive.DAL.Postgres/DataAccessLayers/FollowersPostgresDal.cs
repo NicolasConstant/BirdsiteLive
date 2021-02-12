@@ -20,7 +20,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         }
         #endregion
 
-        public async Task CreateFollowerAsync(string acct, string host, string inboxRoute, string sharedInboxRoute, int[] followings = null, Dictionary<int, long> followingSyncStatus = null)
+        public async Task CreateFollowerAsync(string acct, string host, string inboxRoute, string sharedInboxRoute, string actorId, int[] followings = null, Dictionary<int, long> followingSyncStatus = null)
         {
             if(followings == null) followings = new int[0];
             if(followingSyncStatus == null) followingSyncStatus = new Dictionary<int, long>();
@@ -35,8 +35,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 dbConnection.Open();
 
                 await dbConnection.ExecuteAsync(
-                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxRoute,sharedInboxRoute,followings,followingsSyncStatus) VALUES(@acct,@host,@inboxRoute,@sharedInboxRoute,@followings,CAST(@followingsSyncStatus as json))",
-                    new { acct, host, inboxRoute, sharedInboxRoute, followings, followingsSyncStatus = serializedDic });
+                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxRoute,sharedInboxRoute,followings,followingsSyncStatus,actorId) VALUES(@acct,@host,@inboxRoute,@sharedInboxRoute,@followings,CAST(@followingsSyncStatus as json),@actorId)",
+                    new { acct, host, inboxRoute, sharedInboxRoute, followings, followingsSyncStatus = serializedDic, actorId });
             }
         }
 

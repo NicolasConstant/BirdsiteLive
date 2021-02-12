@@ -21,6 +21,7 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
             var twitterName = "handle";
             var followerInbox = "/user/testest";
             var inbox = "/inbox";
+            var actorId = "actorUrl";
 
             var follower = new Follower
             {
@@ -55,6 +56,7 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                     It.Is<string>(y => y == domain),
                     It.Is<string>(y => y == followerInbox),
                     It.Is<string>(y => y == inbox),
+                    It.Is<string>(y => y == actorId),
                     null,
                     null))
                 .Returns(Task.CompletedTask);
@@ -80,7 +82,7 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
             #endregion
 
             var action = new ProcessFollowUser(followersDalMock.Object, twitterUserDalMock.Object);
-            await action.ExecuteAsync(username, domain, twitterName, followerInbox, inbox);
+            await action.ExecuteAsync(username, domain, twitterName, followerInbox, inbox, actorId);
 
             #region Validations
             followersDalMock.VerifyAll();
@@ -97,7 +99,8 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
             var twitterName = "handle";
             var followerInbox = "/user/testest";
             var inbox = "/inbox";
-
+            var actorId = "actorUrl";
+            
             var follower = new Follower
             {
                 Id = 1,
@@ -138,7 +141,7 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
             #endregion
 
             var action = new ProcessFollowUser(followersDalMock.Object, twitterUserDalMock.Object);
-            await action.ExecuteAsync(username, domain, twitterName, followerInbox, inbox);
+            await action.ExecuteAsync(username, domain, twitterName, followerInbox, inbox, actorId);
 
             #region Validations
             followersDalMock.VerifyAll();

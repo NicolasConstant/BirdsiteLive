@@ -49,6 +49,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task<SyncTwitterUser> GetTwitterUserAsync(int id)
+        {
+            var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE id = @id";
+            
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = (await dbConnection.QueryAsync<SyncTwitterUser>(query, new { id })).FirstOrDefault();
+                return result;
+            }
+        }
+
         public async Task DeleteTwitterUserAsync(int id)
         {
             throw new NotImplementedException();

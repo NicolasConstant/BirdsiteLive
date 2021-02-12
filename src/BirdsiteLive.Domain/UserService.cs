@@ -161,7 +161,7 @@ namespace BirdsiteLive.Domain
             if (!user.Protected)
             {
                 // Execute
-                await _processFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser, followerInbox, followerSharedInbox);
+                await _processFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser, followerInbox, followerSharedInbox, activity.actor);
 
                 return await SendAcceptFollowAsync(activity, followerHost);
             }
