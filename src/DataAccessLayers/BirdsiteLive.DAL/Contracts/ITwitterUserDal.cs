@@ -13,7 +13,6 @@ namespace BirdsiteLive.DAL.Contracts
         Task<SyncTwitterUser[]> GetAllTwitterUsersAsync();
         Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId, DateTime lastSync);
         Task DeleteTwitterUserAsync(string acct);
-        Task DeleteTwitterUserAsync(int id);
         Task<int> GetTwitterUsersCountAsync();
     }
 }

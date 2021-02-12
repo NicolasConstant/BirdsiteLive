@@ -61,12 +61,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 return result;
             }
         }
-
-        public async Task DeleteTwitterUserAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public async Task<int> GetTwitterUsersCountAsync()
         {
             var query = $"SELECT COUNT(*) FROM {_settings.TwitterUserTableName}";
