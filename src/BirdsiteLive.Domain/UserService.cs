@@ -25,6 +25,8 @@ namespace BirdsiteLive.Domain
         Actor GetUser(TwitterUser twitterUser);
         Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity, string body);
         Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity, string body);
+
+        Task<bool> SendRejectFollowAsync(ActivityFollow activity, string followerHost);
     }
 
     public class UserService : IUserService
@@ -190,7 +192,7 @@ namespace BirdsiteLive.Domain
                    result == HttpStatusCode.OK; //TODO: revamp this for better error handling
         }
 
-        private async Task<bool> SendRejectFollowAsync(ActivityFollow activity, string followerHost)
+        public async Task<bool> SendRejectFollowAsync(ActivityFollow activity, string followerHost)
         {
             var acceptFollow = new ActivityRejectFollow()
             {

@@ -19,13 +19,15 @@ namespace BirdsiteLive.Controllers
         private readonly InstanceSettings _instanceSettings;
         private readonly ICryptoService _cryptoService;
         private readonly IActivityPubService _activityPubService;
+        private readonly IUserService _userService;
 
         #region Ctor
-        public DebugingController(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService)
+        public DebugingController(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IUserService userService)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
             _activityPubService = activityPubService;
+            _userService = userService;
         }
         #endregion
 
@@ -100,6 +102,20 @@ namespace BirdsiteLive.Controllers
 
             await _activityPubService.PostDataAsync(noteActivity, targetHost, actor, inbox);
 
+            return View("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostRejectFollow()
+        {
+            var activityFollow = new ActivityFollow
+            {
+                type = "Follow",
+                actor = "https://mastodon.technology/users/testtest",
+                apObject = $"https://{_instanceSettings.Domain}/users/afp"
+            };
+
+            await _userService.SendRejectFollowAsync(activityFollow, "mastodon.technology");
             return View("Index");
         }
     }
