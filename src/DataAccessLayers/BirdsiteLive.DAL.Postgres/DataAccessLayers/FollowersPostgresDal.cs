@@ -86,7 +86,15 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task<Follower[]> GetAllFollowersAsync()
         {
-            throw new NotImplementedException();
+            var query = $"SELECT * FROM {_settings.FollowersTableName}";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = await dbConnection.QueryAsync<SerializedFollower>(query);
+                return result.Select(Convert).ToArray();
+            }
         }
 
         public async Task UpdateFollowerAsync(Follower follower)
@@ -121,8 +129,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task DeleteFollowerAsync(string acct, string host)
         {
-            if (acct == default) throw new ArgumentException("acct");
-            if (host == default) throw new ArgumentException("host");
+            if (string.IsNullOrWhiteSpace(acct)) throw new ArgumentException("acct");
+            if (string.IsNullOrWhiteSpace(host)) throw new ArgumentException("host");
 
             acct = acct.ToLowerInvariant();
             host = host.ToLowerInvariant();
@@ -147,6 +155,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 Acct = follower.Acct,
                 Host = follower.Host,
                 InboxRoute = follower.InboxRoute,
+                ActorId = follower.ActorId,
                 SharedInboxRoute = follower.SharedInboxRoute,
                 Followings = follower.Followings.ToList(),
                 FollowingsSyncStatus = JsonConvert.DeserializeObject<Dictionary<int,long>>(follower.FollowingsSyncStatus)
@@ -164,5 +173,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         public string Host { get; set; }
         public string InboxRoute { get; set; }
         public string SharedInboxRoute { get; set; }
+        public string ActorId { get; set; }
     }
 }
