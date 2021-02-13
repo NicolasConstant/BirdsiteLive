@@ -138,11 +138,11 @@ sudo ufw status
 
 You should now have an up and running BirdsiteLIVE instance!
 
-## Upgrading 
+## Updating 
 
 Make sure your data belong outside the containers before migrating (set by default). 
 
-To upgrade your installation to the latest release:
+To update your installation to the latest release:
 
 ```
 # Edit `docker-compose.yml` to update the version, if you have one specified
@@ -150,6 +150,37 @@ To upgrade your installation to the latest release:
 docker-compose pull
 # Start a new container, automatically removes old one
 docker-compose up -d
+```
+
+## Auto-Updating
+
+To set auto-updates on your deployment, add to the `docker-compose.yml` file this section:
+
+```diff
+version: "3"
+
+networks:
+    birdsitelivenetwork:
+        external: false
+
+services:
+    server:
+        image: nicolasconstant/birdsitelive:latest
+        [...]
+
+    db:
+        image: postgres:9.6
+        [...]
+        
++   watchtower:
++       image: containrrr/watchtower
++       restart: always
++       container_name: watchtower
++       environment:
++           - WATCHTOWER_CLEANUP=true
++       volumes:
++           - /var/run/docker.sock:/var/run/docker.sock
++       command: --interval 300
 ```
 
 ## More options 
