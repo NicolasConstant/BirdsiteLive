@@ -5,9 +5,7 @@ using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.DAL.Postgres.DataAccessLayers.Base;
 using BirdsiteLive.DAL.Postgres.Settings;
-using BirdsiteLive.DAL.Postgres.Tools;
 using Dapper;
-using Npgsql;
 
 namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 {
@@ -44,7 +42,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             {
                 dbConnection.Open();
 
-                var result = (await dbConnection.QueryAsync<SyncTwitterUser>(query, new { acct = acct })).FirstOrDefault();
+                var result = (await dbConnection.QueryAsync<SyncTwitterUser>(query, new { acct })).FirstOrDefault();
                 return result;
             }
         }
@@ -90,7 +88,15 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync()
         {
-            throw new NotImplementedException();
+            var query = $"SELECT * FROM {_settings.TwitterUserTableName}";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = await dbConnection.QueryAsync<SyncTwitterUser>(query);
+                return result.ToArray();
+            }
         }
 
         public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId, DateTime lastSync)
@@ -112,7 +118,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task DeleteTwitterUserAsync(string acct)
         {
-            if (acct == default) throw new ArgumentException("acct");
+            if (string.IsNullOrWhiteSpace(acct)) throw new ArgumentException("acct");
 
             acct = acct.ToLowerInvariant();
 

@@ -51,6 +51,24 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         }
 
         [TestMethod]
+        public async Task CreateAndGetUser_byId()
+        {
+            var acct = "myid";
+            var lastTweetId = 1548L;
+
+            var dal = new TwitterUserPostgresDal(_settings);
+
+            await dal.CreateTwitterUserAsync(acct, lastTweetId);
+            var result = await dal.GetTwitterUserAsync(acct);
+            var resultById = await dal.GetTwitterUserAsync(result.Id);
+
+            Assert.AreEqual(acct, resultById.Acct);
+            Assert.AreEqual(lastTweetId, resultById.LastTweetPostedId);
+            Assert.AreEqual(lastTweetId, resultById.LastTweetSynchronizedForAllFollowersId);
+            Assert.AreEqual(result.Id, resultById.Id);
+        }
+
+        [TestMethod]
         public async Task CreateUpdateAndGetUser()
         {
             var acct = "myid";
@@ -76,6 +94,38 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task Update_NoId()
+        {
+            var dal = new TwitterUserPostgresDal(_settings);
+            await dal.UpdateTwitterUserAsync(default, default, default, DateTime.UtcNow);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task Update_NoLastTweetPostedId()
+        {
+            var dal = new TwitterUserPostgresDal(_settings);
+            await dal.UpdateTwitterUserAsync(12, default, default, DateTime.UtcNow);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task Update_NoLastTweetSynchronizedForAllFollowersId()
+        {
+            var dal = new TwitterUserPostgresDal(_settings);
+            await dal.UpdateTwitterUserAsync(12, 9556, default, DateTime.UtcNow);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task Update_NoLastSync()
+        {
+            var dal = new TwitterUserPostgresDal(_settings);
+            await dal.UpdateTwitterUserAsync(12, 9556, 65, default);
+        }
+
+        [TestMethod]
         public async Task CreateAndDeleteUser()
         {
             var acct = "myid";
@@ -93,7 +143,15 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         }
 
         [TestMethod]
-        public async Task GetAllTwitterUsers()
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task DeleteUser_NotAcct()
+        {
+            var dal = new TwitterUserPostgresDal(_settings);
+            await dal.DeleteTwitterUserAsync(string.Empty);
+        }
+
+        [TestMethod]
+        public async Task GetAllTwitterUsers_Top()
         {
             var dal = new TwitterUserPostgresDal(_settings);
             for (var i = 0; i < 1000; i++)
@@ -145,6 +203,26 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
 
             foreach (var acc in result)
                 Assert.IsTrue(Math.Abs((acc.LastSync - oldest.ToUniversalTime()).TotalMilliseconds) < 1000);
+        }
+
+        [TestMethod]
+        public async Task GetAllTwitterUsers()
+        {
+            var dal = new TwitterUserPostgresDal(_settings);
+            for (var i = 0; i < 1000; i++)
+            {
+                var acct = $"myid{i}";
+                var lastTweetId = 1548L;
+
+                await dal.CreateTwitterUserAsync(acct, lastTweetId);
+            }
+
+            var result = await dal.GetAllTwitterUsersAsync();
+            Assert.AreEqual(1000, result.Length);
+            Assert.IsFalse(result[0].Id == default);
+            Assert.IsFalse(result[0].Acct == default);
+            Assert.IsFalse(result[0].LastTweetPostedId == default);
+            Assert.IsFalse(result[0].LastTweetSynchronizedForAllFollowersId == default);
         }
 
         [TestMethod]
