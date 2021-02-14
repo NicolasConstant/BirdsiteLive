@@ -19,23 +19,21 @@ namespace BirdsiteLive.Moderation.Actions
     {
         private readonly IFollowersDal _followersDal;
         private readonly ITwitterUserDal _twitterUserDal;
-        private readonly IUserService _userService;
-        private readonly InstanceSettings _instanceSettings;
+        private readonly IRejectAllFollowingsAction _rejectAllFollowingsAction;
 
         #region Ctor
-        public RemoveFollowerAction(IFollowersDal followersDal, ITwitterUserDal twitterUserDal, IUserService userService, InstanceSettings instanceSettings)
+        public RemoveFollowerAction(IFollowersDal followersDal, ITwitterUserDal twitterUserDal, IRejectAllFollowingsAction rejectAllFollowingsAction)
         {
             _followersDal = followersDal;
             _twitterUserDal = twitterUserDal;
-            _userService = userService;
-            _instanceSettings = instanceSettings;
+            _rejectAllFollowingsAction = rejectAllFollowingsAction;
         }
         #endregion
 
         public async Task ProcessAsync(Follower follower)
         {
             // Perform undo following to user instance
-            await RejectAllFollowingsAsync(follower);
+            await _rejectAllFollowingsAction.ProcessAsync(follower);
 
             // Remove twitter users if no more followers
             var followings = follower.Followings;
@@ -48,26 +46,6 @@ namespace BirdsiteLive.Moderation.Actions
 
             // Remove follower from DB
             await _followersDal.DeleteFollowerAsync(follower.Id);
-        }
-
-        private async Task RejectAllFollowingsAsync(Follower follower)
-        {
-            foreach (var following in follower.Followings)
-            {
-                try
-                {
-                    var f = await _twitterUserDal.GetTwitterUserAsync(following);
-                    var activityFollowing = new ActivityFollow
-                    {
-                        type = "Follow",
-                        actor = follower.ActorId,
-                        apObject = UrlFactory.GetActorUrl(_instanceSettings.Domain, f.Acct)
-                    };
-
-                    await _userService.SendRejectFollowAsync(activityFollowing, follower.Host);
-                }
-                catch (Exception) { }
-            }
         }
     }
 }
