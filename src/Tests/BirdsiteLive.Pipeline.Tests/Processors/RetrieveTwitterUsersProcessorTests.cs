@@ -144,7 +144,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             processor.WaitFactor = 2;
             var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
-            await Task.WhenAny(t, Task.Delay(200));
+            await Task.WhenAny(t, Task.Delay(400));
 
             #region Validations
             maxUsersNumberProviderMock.VerifyAll();
