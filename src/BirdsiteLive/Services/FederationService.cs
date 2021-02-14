@@ -13,19 +13,28 @@ namespace BirdsiteLive.Services
     {
         private readonly IDatabaseInitializer _databaseInitializer;
         private readonly IStatusPublicationPipeline _statusPublicationPipeline;
+        private readonly IHostApplicationLifetime _applicationLifetime;
 
         #region Ctor
-        public FederationService(IDatabaseInitializer databaseInitializer, IStatusPublicationPipeline statusPublicationPipeline)
+        public FederationService(IDatabaseInitializer databaseInitializer, IStatusPublicationPipeline statusPublicationPipeline, IHostApplicationLifetime applicationLifetime)
         {
             _databaseInitializer = databaseInitializer;
             _statusPublicationPipeline = statusPublicationPipeline;
+            _applicationLifetime = applicationLifetime;
         }
         #endregion
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await _databaseInitializer.InitAndMigrateDbAsync();
-            await _statusPublicationPipeline.ExecuteAsync(stoppingToken);
+            try
+            {
+                await _databaseInitializer.InitAndMigrateDbAsync();
+                await _statusPublicationPipeline.ExecuteAsync(stoppingToken);
+            }
+            finally
+            {
+                _applicationLifetime.StopApplication();
+            }
         }
     }
 }
