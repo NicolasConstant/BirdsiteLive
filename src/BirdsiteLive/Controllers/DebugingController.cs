@@ -69,7 +69,6 @@ namespace BirdsiteLive.Controllers
             var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{noteGuid}";
             
             var to = $"{actor}/followers";
-            var apPublic = "https://www.w3.org/ns/activitystreams#Public";
 
             var now = DateTime.UtcNow;
             var nowString = now.ToString("s") + "Z";
@@ -82,7 +81,7 @@ namespace BirdsiteLive.Controllers
                 actor = actor,
                 published = nowString,
                 to = new []{ to },
-                //cc = new [] { apPublic },
+                //cc = new [] { "https://www.w3.org/ns/activitystreams#Public" },
                 apObject = new Note()
                 {
                     id = noteId,
@@ -92,7 +91,7 @@ namespace BirdsiteLive.Controllers
                     url = noteUrl,
                     attributedTo = actor,
                     to = new[] { to },
-                    //cc = new [] { apPublic },
+                    //cc = new [] { "https://www.w3.org/ns/activitystreams#Public" },
                     sensitive = false,
                     content = "<p>Woooot</p>",
                     attachment = new Attachment[0],

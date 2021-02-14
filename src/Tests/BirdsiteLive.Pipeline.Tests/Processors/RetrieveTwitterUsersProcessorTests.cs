@@ -48,9 +48,9 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, maxUsersNumberProviderMock.Object, loggerMock.Object);
             processor.WaitFactor = 10;
-            processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
+            var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
-            await Task.Delay(50);
+            await Task.WhenAny(t, Task.Delay(50));
 
             #region Validations
             maxUsersNumberProviderMock.VerifyAll();
@@ -95,10 +95,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, maxUsersNumberProviderMock.Object, loggerMock.Object);
             processor.WaitFactor = 2;
-            processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
+            var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
-            await Task.Delay(300);
-
+            await Task.WhenAny(t, Task.Delay(300));
+            
             #region Validations
             maxUsersNumberProviderMock.VerifyAll();
             twitterUserDalMock.VerifyAll();
@@ -142,9 +142,9 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, maxUsersNumberProviderMock.Object, loggerMock.Object);
             processor.WaitFactor = 2;
-            processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
+            var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
-            await Task.Delay(200);
+            await Task.WhenAny(t, Task.Delay(200));
 
             #region Validations
             maxUsersNumberProviderMock.VerifyAll();
@@ -181,9 +181,9 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, maxUsersNumberProviderMock.Object, loggerMock.Object);
             processor.WaitFactor = 1;
-            processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
+            var t =processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
-            await Task.Delay(50);
+            await Task.WhenAny(t, Task.Delay(50));
 
             #region Validations
             maxUsersNumberProviderMock.VerifyAll();

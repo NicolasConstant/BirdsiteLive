@@ -159,13 +159,11 @@ namespace BirdsiteLive.Controllers
                         return Accepted();
                 }
             }
-
-            return Accepted();
         }
 
         [Route("/users/{id}/followers")]
         [HttpGet]
-        public async Task<IActionResult> Followers(string id)
+        public IActionResult Followers(string id)
         {
             var r = Request.Headers["Accept"].First();
             if (!r.Contains("application/activity+json")) return NotFound();
