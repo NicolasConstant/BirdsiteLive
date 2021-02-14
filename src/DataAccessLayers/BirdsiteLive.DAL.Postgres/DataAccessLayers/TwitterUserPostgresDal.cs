@@ -59,7 +59,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 return result;
             }
         }
-        
+
         public async Task<int> GetTwitterUsersCountAsync()
         {
             var query = $"SELECT COUNT(*) FROM {_settings.TwitterUserTableName}";
@@ -129,6 +129,20 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 dbConnection.Open();
 
                 await dbConnection.QueryAsync(query, new { acct });
+            }
+        }
+
+        public async Task DeleteTwitterUserAsync(int id)
+        {
+            if (id == default) throw new ArgumentException("id");
+            
+            var query = $"DELETE FROM {_settings.TwitterUserTableName} WHERE id = @id";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                await dbConnection.QueryAsync(query, new { id });
             }
         }
     }

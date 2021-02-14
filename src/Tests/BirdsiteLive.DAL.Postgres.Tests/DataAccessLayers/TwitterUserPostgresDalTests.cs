@@ -128,7 +128,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         [TestMethod]
         public async Task CreateAndDeleteUser()
         {
-            var acct = "myid";
+            var acct = "myacct";
             var lastTweetId = 1548L;
 
             var dal = new TwitterUserPostgresDal(_settings);
@@ -148,6 +148,31 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         {
             var dal = new TwitterUserPostgresDal(_settings);
             await dal.DeleteTwitterUserAsync(string.Empty);
+        }
+
+        [TestMethod]
+        public async Task CreateAndDeleteUser_byId()
+        {
+            var acct = "myacct";
+            var lastTweetId = 1548L;
+
+            var dal = new TwitterUserPostgresDal(_settings);
+
+            await dal.CreateTwitterUserAsync(acct, lastTweetId);
+            var result = await dal.GetTwitterUserAsync(acct);
+            Assert.IsNotNull(result);
+
+            await dal.DeleteTwitterUserAsync(result.Id);
+            result = await dal.GetTwitterUserAsync(acct);
+            Assert.IsNull(result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task DeleteUser_NotAcct_byId()
+        {
+            var dal = new TwitterUserPostgresDal(_settings);
+            await dal.DeleteTwitterUserAsync(default(int));
         }
 
         [TestMethod]
