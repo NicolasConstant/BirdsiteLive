@@ -87,7 +87,7 @@ namespace BirdsiteLive.Statistics.Domain
                 UserCallsCountMin = userCalls.Any() ? userCalls.Min() : 0,
                 UserCallsCountAvg = userCalls.Any() ? (int)userCalls.Average() : 0,
                 UserCallsCountMax = userCalls.Any() ? userCalls.Max() : 0,
-                UserCallsMax = 900,
+                UserCallsMax = 300,
                 TweetCallsCountMin = tweetCalls.Any() ? tweetCalls.Min() : 0,
                 TweetCallsCountAvg = tweetCalls.Any() ? (int)tweetCalls.Average() : 0,
                 TweetCallsCountMax = tweetCalls.Any() ? tweetCalls.Max() : 0,
