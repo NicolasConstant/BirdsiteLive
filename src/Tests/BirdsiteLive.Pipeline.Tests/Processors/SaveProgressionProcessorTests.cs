@@ -8,6 +8,7 @@ using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Pipeline.Processors;
 using BirdsiteLive.Twitter.Models;
 using Castle.DynamicProxy.Contributors;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -53,6 +54,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 },
                 User = user
             };
+
+            var loggerMock = new Mock<ILogger<SaveProgressionProcessor>>();
             #endregion
 
             #region Mocks
@@ -67,11 +70,12 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
             #endregion
 
-            var processor = new SaveProgressionProcessor(twitterUserDalMock.Object);
+            var processor = new SaveProgressionProcessor(twitterUserDalMock.Object, loggerMock.Object);
             await processor.ProcessAsync(usersWithTweets, CancellationToken.None);
 
             #region Validations
             twitterUserDalMock.VerifyAll();
+            loggerMock.VerifyAll();
             #endregion
         }
 
@@ -129,13 +133,16 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
+
+            var loggerMock = new Mock<ILogger<SaveProgressionProcessor>>();
             #endregion
 
-            var processor = new SaveProgressionProcessor(twitterUserDalMock.Object);
+            var processor = new SaveProgressionProcessor(twitterUserDalMock.Object, loggerMock.Object);
             await processor.ProcessAsync(usersWithTweets, CancellationToken.None);
 
             #region Validations
             twitterUserDalMock.VerifyAll();
+            loggerMock.VerifyAll();
             #endregion
         }
 
@@ -201,13 +208,16 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
+
+            var loggerMock = new Mock<ILogger<SaveProgressionProcessor>>();
             #endregion
 
-            var processor = new SaveProgressionProcessor(twitterUserDalMock.Object);
+            var processor = new SaveProgressionProcessor(twitterUserDalMock.Object, loggerMock.Object);
             await processor.ProcessAsync(usersWithTweets, CancellationToken.None);
 
             #region Validations
             twitterUserDalMock.VerifyAll();
+            loggerMock.VerifyAll();
             #endregion
         }
     }
