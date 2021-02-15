@@ -143,8 +143,13 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, maxUsersNumberProviderMock.Object, loggerMock.Object);
             processor.WaitFactor = 2;
             var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
+            var t2 = Task.Run(async () =>
+            {
+                while (buffer.Count < 11)
+                    await Task.Delay(50);
+            });
 
-            await Task.WhenAny(t, Task.Delay(400));
+            await Task.WhenAny(t, t2, Task.Delay(2000));
 
             #region Validations
             maxUsersNumberProviderMock.VerifyAll();
