@@ -149,7 +149,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     await Task.Delay(50);
             });
 
-            await Task.WhenAny(t, t2, Task.Delay(2000));
+            await Task.WhenAny(t, t2, Task.Delay(5000));
 
             #region Validations
             maxUsersNumberProviderMock.VerifyAll();
