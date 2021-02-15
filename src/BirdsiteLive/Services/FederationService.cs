@@ -33,6 +33,7 @@ namespace BirdsiteLive.Services
             }
             finally
             {
+                await Task.Delay(1000 * 30);
                 _applicationLifetime.StopApplication();
             }
         }
