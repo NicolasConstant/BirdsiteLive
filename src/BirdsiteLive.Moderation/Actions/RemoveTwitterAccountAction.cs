@@ -1,12 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using BirdsiteLive.ActivityPub;
-using BirdsiteLive.ActivityPub.Converters;
-using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
-using BirdsiteLive.Domain;
 
 namespace BirdsiteLive.Moderation.Actions
 {
@@ -56,7 +51,7 @@ namespace BirdsiteLive.Moderation.Actions
             }
 
             // Remove twitter user
-            await _twitterUserDal.DeleteTwitterUserAsync(twitterUser.Acct);
+            await _twitterUserDal.DeleteTwitterUserAsync(twitterUserId);
         }
     }
 }
