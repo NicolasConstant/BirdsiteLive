@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
-using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain.Repository;
 using BirdsiteLive.Moderation.Actions;
 
@@ -28,6 +27,8 @@ namespace BirdsiteLive.Moderation.Processors
 
         public async Task ProcessAsync(ModerationTypeEnum type)
         {
+            if (type == ModerationTypeEnum.None) return;
+
             var followers = await _followersDal.GetAllFollowersAsync();
 
             foreach (var follower in followers)

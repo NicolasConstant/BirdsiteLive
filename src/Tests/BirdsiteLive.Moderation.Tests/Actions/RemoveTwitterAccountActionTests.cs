@@ -33,7 +33,7 @@ namespace BirdsiteLive.Moderation.Tests.Actions
             #endregion
 
             #region Mocks
-            var followersDalMock = new Mock<IFollowersDal>();
+            var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
             followersDalMock
                 .Setup(x => x.GetFollowersAsync(
                     It.Is<int>(y => y == 24)))
@@ -44,13 +44,13 @@ namespace BirdsiteLive.Moderation.Tests.Actions
                     It.Is<int>(y => y == 48)))
                 .Returns(Task.CompletedTask);
 
-            var twitterUserDalMock = new Mock<ITwitterUserDal>();
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.DeleteTwitterUserAsync(
                     It.Is<int>(y => y == 24)))
                 .Returns(Task.CompletedTask);
 
-            var rejectFollowingActionMock = new Mock<IRejectFollowingAction>();
+            var rejectFollowingActionMock = new Mock<IRejectFollowingAction>(MockBehavior.Strict);
             rejectFollowingActionMock
                 .Setup(x => x.ProcessAsync(
                     It.Is<Follower>(y => y.Id == 48),
@@ -90,7 +90,7 @@ namespace BirdsiteLive.Moderation.Tests.Actions
             #endregion
 
             #region Mocks
-            var followersDalMock = new Mock<IFollowersDal>();
+            var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
             followersDalMock
                 .Setup(x => x.GetFollowersAsync(
                     It.Is<int>(y => y == 24)))
@@ -104,13 +104,13 @@ namespace BirdsiteLive.Moderation.Tests.Actions
                     )))
                 .Returns(Task.CompletedTask);
 
-            var twitterUserDalMock = new Mock<ITwitterUserDal>();
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.DeleteTwitterUserAsync(
                     It.Is<int>(y => y == 24)))
                 .Returns(Task.CompletedTask);
 
-            var rejectFollowingActionMock = new Mock<IRejectFollowingAction>();
+            var rejectFollowingActionMock = new Mock<IRejectFollowingAction>(MockBehavior.Strict);
             rejectFollowingActionMock
                 .Setup(x => x.ProcessAsync(
                     It.Is<Follower>(y => y.Id == 48),

@@ -23,13 +23,13 @@ namespace BirdsiteLive.Moderation.Tests.Actions
             #endregion
 
             #region Mocks
-            var rejectAllFollowingsActionMock = new Mock<IRejectAllFollowingsAction>();
+            var rejectAllFollowingsActionMock = new Mock<IRejectAllFollowingsAction>(MockBehavior.Strict);
             rejectAllFollowingsActionMock
                 .Setup(x => x.ProcessAsync(
                     It.Is<Follower>(y => y.Id == follower.Id)))
                 .Returns(Task.CompletedTask);
 
-            var followersDalMock = new Mock<IFollowersDal>();
+            var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
             followersDalMock
                 .Setup(x => x.GetFollowersAsync(
                     It.Is<int>(y => y == 1)))
@@ -40,7 +40,7 @@ namespace BirdsiteLive.Moderation.Tests.Actions
                     It.Is<int>(y => y == 12)))
                 .Returns(Task.CompletedTask);
 
-            var twitterUserDalMock = new Mock<ITwitterUserDal>();
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.DeleteTwitterUserAsync(
                     It.Is<int>(y => y == 1)))
@@ -78,13 +78,13 @@ namespace BirdsiteLive.Moderation.Tests.Actions
             #endregion
 
             #region Mocks
-            var rejectAllFollowingsActionMock = new Mock<IRejectAllFollowingsAction>();
+            var rejectAllFollowingsActionMock = new Mock<IRejectAllFollowingsAction>(MockBehavior.Strict);
             rejectAllFollowingsActionMock
                 .Setup(x => x.ProcessAsync(
                     It.Is<Follower>(y => y.Id == follower.Id)))
                 .Returns(Task.CompletedTask);
 
-            var followersDalMock = new Mock<IFollowersDal>();
+            var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
             followersDalMock
                 .Setup(x => x.GetFollowersAsync(
                     It.Is<int>(y => y == 1)))
@@ -95,7 +95,7 @@ namespace BirdsiteLive.Moderation.Tests.Actions
                     It.Is<int>(y => y == 12)))
                 .Returns(Task.CompletedTask);
 
-            var twitterUserDalMock = new Mock<ITwitterUserDal>();
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             #endregion
 
             var action = new RemoveFollowerAction(followersDalMock.Object, twitterUserDalMock.Object, rejectAllFollowingsActionMock.Object);

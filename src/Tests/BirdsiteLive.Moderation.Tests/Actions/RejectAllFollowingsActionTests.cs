@@ -35,7 +35,7 @@ namespace BirdsiteLive.Moderation.Tests.Actions
             #endregion
 
             #region Mocks
-            var twitterUserDalMock = new Mock<ITwitterUserDal>();
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetTwitterUserAsync(
                     It.Is<int>(y => y == 24)))
@@ -45,7 +45,7 @@ namespace BirdsiteLive.Moderation.Tests.Actions
                     Acct = "acct"
                 });
 
-            var userServiceMock = new Mock<IUserService>();
+            var userServiceMock = new Mock<IUserService>(MockBehavior.Strict);
             userServiceMock
                 .Setup(x => x.SendRejectFollowAsync(
                     It.Is<ActivityFollow>(y => y.type == "Follow"),
@@ -83,7 +83,7 @@ namespace BirdsiteLive.Moderation.Tests.Actions
             #endregion
 
             #region Mocks
-            var twitterUserDalMock = new Mock<ITwitterUserDal>();
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetTwitterUserAsync(
                     It.Is<int>(y => y == 24)))
@@ -93,7 +93,7 @@ namespace BirdsiteLive.Moderation.Tests.Actions
                     Acct = "acct"
                 });
 
-            var userServiceMock = new Mock<IUserService>();
+            var userServiceMock = new Mock<IUserService>(MockBehavior.Strict);
             userServiceMock
                 .Setup(x => x.SendRejectFollowAsync(
                     It.Is<ActivityFollow>(y => y.type == "Follow"),

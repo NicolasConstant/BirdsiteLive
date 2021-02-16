@@ -27,6 +27,8 @@ namespace BirdsiteLive.Moderation.Processors
 
         public async Task ProcessAsync(ModerationTypeEnum type)
         {
+            if (type == ModerationTypeEnum.None) return;
+            
             var twitterUsers = await _twitterUserDal.GetAllTwitterUsersAsync();
 
             foreach (var user in twitterUsers)

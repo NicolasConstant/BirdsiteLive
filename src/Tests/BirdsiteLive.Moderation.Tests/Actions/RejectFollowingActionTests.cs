@@ -40,7 +40,7 @@ namespace BirdsiteLive.Moderation.Tests.Actions
             #endregion
 
             #region Mocks
-            var userServiceMock = new Mock<IUserService>();
+            var userServiceMock = new Mock<IUserService>(MockBehavior.Strict);
             userServiceMock
                 .Setup(x => x.SendRejectFollowAsync(
                     It.Is<ActivityFollow>(y => y.type == "Follow"),
@@ -83,7 +83,7 @@ namespace BirdsiteLive.Moderation.Tests.Actions
             #endregion
 
             #region Mocks
-            var userServiceMock = new Mock<IUserService>();
+            var userServiceMock = new Mock<IUserService>(MockBehavior.Strict);
             userServiceMock
                 .Setup(x => x.SendRejectFollowAsync(
                     It.Is<ActivityFollow>(y => y.type == "Follow"),
