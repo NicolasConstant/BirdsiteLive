@@ -1,8 +1,57 @@
 ﻿.container-nodeinfo {
     line-height: 30px;
-    
+    text-align: center;   
 }
 
 .wrapper-nodeinfo {
     border-bottom: 1px solid #dee2e6;
 }
+
+
+
+@media (max-width: 767px) {
+    .node-progress-bar {
+        display: block;
+        width: 100%;
+        margin-bottom: 7px;
+    }
+
+    .node-progress-bar__label {
+        display: block;
+        font-size: 12px;
+        /*float: left;*/
+        padding: 0 5px 0 0;
+        /*height: 15px;*/
+        line-height: 15px;
+    }
+
+    .node-progress-bar__bar {
+        width: 80%;
+        margin: auto;
+        margin-top: 5px;
+    }
+}
+
+
+@media (min-width: 768px) {
+    .node-progress-bar {
+        display: inline-block;
+        width: 400px;
+    }
+
+    .node-progress-bar__label {
+        display: inline-block;
+        font-size: 12px;
+        float: left;
+        padding: 0 5px 0 0;
+        /*height: 15px;*/
+        line-height: 15px;
+    }
+
+    .node-progress-bar__bar {
+        width: 200px;
+        position: relative;
+        top: -1px;
+    }
+}
+
