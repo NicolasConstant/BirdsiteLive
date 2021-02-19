@@ -6,6 +6,7 @@ using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Domain.Repository;
 using BirdsiteLive.Statistics.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Razor.Language.Intermediate;
 
 namespace BirdsiteLive.Component
 {
@@ -29,9 +30,7 @@ namespace BirdsiteLive.Component
             var followerPolicy = _moderationRepository.GetModerationType(ModerationEntityTypeEnum.Follower);
             var twitterAccountPolicy = _moderationRepository.GetModerationType(ModerationEntityTypeEnum.TwitterAccount);
 
-            var twitterUserMax = _twitterStatisticsHandler.GetStatistics().UserCallsMax;
-            var twitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync();
-            var saturation = (int)((double)twitterUserCount / twitterUserMax * 100);
+            var statistics = await GetStatisticsAsync();
 
             var viewModel = new NodeInfoViewModel
             {
@@ -39,7 +38,7 @@ namespace BirdsiteLive.Component
                                       twitterAccountPolicy == ModerationTypeEnum.BlackListing,
                 WhitelistingEnabled = followerPolicy == ModerationTypeEnum.WhiteListing ||
                                       twitterAccountPolicy == ModerationTypeEnum.WhiteListing,
-                InstanceSaturation = saturation,
+                InstanceSaturation = statistics.Saturation
             };
             
             //viewModel = new NodeInfoViewModel
@@ -50,6 +49,32 @@ namespace BirdsiteLive.Component
             //};
             return View(viewModel);
         }
+
+        private static CachedStatistics _cachedStatistics;
+        private async Task<CachedStatistics> GetStatisticsAsync() {
+            if (_cachedStatistics == null ||
+                (DateTime.UtcNow - _cachedStatistics.RefreshedTime).TotalMinutes > 15)
+            {
+                var twitterUserMax = _twitterStatisticsHandler.GetStatistics().UserCallsMax;
+                var twitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync();
+                var saturation = (int)((double)twitterUserCount / twitterUserMax * 100);
+
+                _cachedStatistics = new CachedStatistics
+                {
+                    RefreshedTime = DateTime.UtcNow,
+                    Saturation = saturation
+                };
+            }
+
+            return _cachedStatistics;
+        }
+
+        class CachedStatistics
+        {
+            public DateTime RefreshedTime { get; set; }
+            public int Saturation { get; set; }
+        }
+
     }
 
     public class NodeInfoViewModel
