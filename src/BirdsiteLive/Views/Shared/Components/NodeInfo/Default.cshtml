@@ -1,15 +1,22 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model BirdsiteLive.Component.NodeInfoViewModel
 
 <div>
-    <a href="#" class="badge badge-light" title="What does this mean?">Whitelisting Enabled</a>
-    <a href="#" class="badge badge-light" title="What does this mean?">Blacklisting Enabled</a>
+    @if (ViewData.Model.WhitelistingEnabled)
+    {
+        <a href="#" class="badge badge-light" title="What does this mean?">Whitelisting Enabled</a>
+    }
+    @if (ViewData.Model.BlacklistingEnabled)
+    {
+        <a href="#" class="badge badge-light" title="What does this mean?">Blacklisting Enabled</a>
+    }
 
     <div class="node-progress-bar">
         <div class="node-progress-bar__label">Instance saturation: </div>
-        <div class="progress node-progress-bar__bar"> 
-            <div class="progress-bar" style="width: 15%">15%</div>
+        <div class="progress node-progress-bar__bar">
+            <div class="progress-bar 
+                 @((ViewData.Model.InstanceSaturation > 50 && ViewData.Model.InstanceSaturation < 75) ? "bg-warning ":"")
+                 @((ViewData.Model.InstanceSaturation > 75 && ViewData.Model.InstanceSaturation < 100) ? "bg-danger ":"")
+                 @((ViewData.Model.InstanceSaturation > 100) ? "bg-saturation-danger ":"")" style="width: @ViewData.Model.InstanceSaturation%">@ViewData.Model.InstanceSaturation%</div>
         </div>
     </div>
 </div>
