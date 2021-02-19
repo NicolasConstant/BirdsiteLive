@@ -44,11 +44,8 @@ namespace BirdsiteLive.Domain.Tools
             var urlMatch = UrlRegexes.Url.Matches(messageContent);
             foreach (Match m in urlMatch)
             {
-                var url = m.ToString().Replace("\n", string.Empty).Trim();
-
-                var protocol = "https://";
-                if (url.StartsWith("http://")) protocol = "http://";
-                else if (url.StartsWith("ftp://")) protocol = "ftp://";
+                var url = m.Groups[2].ToString();
+                var protocol = m.Groups[3].ToString();
 
                 var truncatedUrl = url.Replace(protocol, string.Empty);
 
@@ -67,8 +64,8 @@ namespace BirdsiteLive.Domain.Tools
                     secondPart = truncatedUrl.Substring(30);
                 }
 
-                messageContent = Regex.Replace(messageContent, m.ToString(),
-                    $@" <a href=""{url}"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">{protocol}</span><span class=""ellipsis"">{firstPart}</span><span class=""invisible"">{secondPart}</span></a>");
+                messageContent = Regex.Replace(messageContent, Regex.Escape(m.ToString()),
+                    $@"{m.Groups[1]}<a href=""{url}"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">{protocol}</span><span class=""ellipsis"">{firstPart}</span><span class=""invisible"">{secondPart}</span></a>");
             }
 
             // Extract Hashtags

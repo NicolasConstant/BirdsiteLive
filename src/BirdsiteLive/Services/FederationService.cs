@@ -15,21 +15,31 @@ namespace BirdsiteLive.Services
         private readonly IDatabaseInitializer _databaseInitializer;
         private readonly IModerationPipeline _moderationPipeline;
         private readonly IStatusPublicationPipeline _statusPublicationPipeline;
+        private readonly IHostApplicationLifetime _applicationLifetime;
 
         #region Ctor
-        public FederationService(IDatabaseInitializer databaseInitializer, IModerationPipeline moderationPipeline, IStatusPublicationPipeline statusPublicationPipeline)
+        public FederationService(IDatabaseInitializer databaseInitializer, IModerationPipeline moderationPipeline, IStatusPublicationPipeline statusPublicationPipeline, IHostApplicationLifetime applicationLifetime)
         {
             _databaseInitializer = databaseInitializer;
             _moderationPipeline = moderationPipeline;
             _statusPublicationPipeline = statusPublicationPipeline;
+            _applicationLifetime = applicationLifetime;
         }
         #endregion
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await _databaseInitializer.InitAndMigrateDbAsync();
-            await _moderationPipeline.ApplyModerationSettingsAsync();
-            await _statusPublicationPipeline.ExecuteAsync(stoppingToken);
+            try
+            {
+                await _databaseInitializer.InitAndMigrateDbAsync();
+                await _moderationPipeline.ApplyModerationSettingsAsync();
+                await _statusPublicationPipeline.ExecuteAsync(stoppingToken);
+            }
+            finally
+            {
+                await Task.Delay(1000 * 30);
+                _applicationLifetime.StopApplication();
+            }
         }
     }
 }

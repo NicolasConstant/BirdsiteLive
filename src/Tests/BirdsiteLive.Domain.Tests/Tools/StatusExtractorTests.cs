@@ -136,7 +136,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
         }
 
         [TestMethod]
-        public void Extract_MultiUrls__Test()
+        public void Extract_MultiUrls_Test()
         {
             #region Stubs
             var message = $"https://t.co/L8BpyHgg25 Bla!{Environment.NewLine}https://www.eff.org/deeplinks/2020/07/pact-act-not-solution-problem-harmful-online-content";
@@ -157,6 +157,82 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.IsTrue(result.content.Contains(@"<a href=""https://t.co/L8BpyHgg25"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">https://</span><span class=""ellipsis"">t.co/L8BpyHgg25</span><span class=""invisible""></span></a>"));
 
             Assert.IsTrue(result.content.Contains(@"<a href=""https://www.eff.org/deeplinks/2020/07/pact-act-not-solution-problem-harmful-online-content"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">https://www.</span><span class=""ellipsis"">eff.org/deeplinks/2020/07/pact</span><span class=""invisible"">-act-not-solution-problem-harmful-online-content</span></a>"));
+            #endregion
+        }
+
+        [TestMethod]
+        public void Extract_SmallUrl_Test()
+        {
+            #region Stubs
+            var message = @"🚀 test http://GOV.UK date 🎉 data http://GOV.UK woopsi.";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            Assert.AreEqual(@"🚀 test <a href=""http://GOV.UK"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">http://</span><span class=""ellipsis"">GOV.UK</span><span class=""invisible""></span></a> date 🎉 data <a href=""http://GOV.UK"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">http://</span><span class=""ellipsis"">GOV.UK</span><span class=""invisible""></span></a> woopsi.", result.content);
+            #endregion
+        }
+
+        [TestMethod]
+        public void Extract_SmallUrl_2_Test()
+        {
+            #region Stubs
+            var message = @"🚀http://GOV.UK";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            Assert.AreEqual(@"🚀<a href=""http://GOV.UK"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">http://</span><span class=""ellipsis"">GOV.UK</span><span class=""invisible""></span></a>", result.content);
+            #endregion
+        }
+
+        [TestMethod]
+        public void Extract_SmallUrl_3_Test()
+        {
+            #region Stubs
+            var message = @"🚀http://GOV.UK.";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            Assert.AreEqual(@"🚀<a href=""http://GOV.UK"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">http://</span><span class=""ellipsis"">GOV.UK</span><span class=""invisible""></span></a>.", result.content);
+            #endregion
+        }
+
+        [TestMethod]
+        public void Extract_UrlRegexChars_Test()
+        {
+            #region Stubs
+            var message = @"🐣 juniors & tech(http://tech.guru maker)";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            Assert.AreEqual(@"🐣 juniors & tech(<a href=""http://tech.guru"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">http://</span><span class=""ellipsis"">tech.guru</span><span class=""invisible""></span></a> maker)", result.content);
             #endregion
         }
 
@@ -288,7 +364,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
             #endregion
         }
-
+        
         [TestMethod]
         public void Extract_SingleMentionTag_RT_Test()
         {
