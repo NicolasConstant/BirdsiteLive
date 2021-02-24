@@ -1,11 +1,26 @@
-﻿<div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto">
-    <h2>Blacklisting</h2>
+﻿@using BirdsiteLive.Domain.Repository
+@model BirdsiteLive.Controllers.ModerationStatus
+@{
+    ViewData["Title"] = "Whitelisting";
+}
 
-    <p>
-        This node is using whitelisting.<br />
-        <br />
-        <br />
-    </p>
+<div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto">
+    <h2>Whitelisting</h2>
+
+    @if (Model.Followers == ModerationTypeEnum.WhiteListing)
+    {
+        <p><br />This node is whitelisting some instances and/or Fediverse users.<br /><br /></p>
+    }
+
+    @if (Model.TwitterAccounts == ModerationTypeEnum.WhiteListing)
+    {
+        <p><br />This node is whitelisting some twitter users.<br /><br /></p>
+    }
+
+    @if (Model.Followers != ModerationTypeEnum.WhiteListing && Model.TwitterAccounts != ModerationTypeEnum.WhiteListing)
+    {
+        <p><br />This node is not using whitelisting.<br /><br /></p>
+    }
 
     <h2>FAQ</h2>
     <p>TODO</p>

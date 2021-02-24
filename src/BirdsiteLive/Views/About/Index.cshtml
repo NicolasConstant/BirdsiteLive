@@ -1,11 +1,15 @@
-﻿
-<div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto">
+﻿@model BirdsiteLive.Services.CachedStatistics
+@{
+    ViewData["Title"] = "About";
+}
+
+<div class="col-12 col-sm-12 col-md-10 col-lg-8 mx-auto">
     <h2>Node Saturation</h2>
 
     <p>
-        This node usage is at XX%<br />
-        <br />
-        <br />
+        <br/>
+        This node usage is at @Model.Saturation%<br/>
+        <br/>
     </p>
 
     <h2>FAQ</h2>
@@ -15,10 +19,12 @@
 
     <h4>What happen when the node is saturated?</h4>
 
-    <p>When the saturation rate goes above 100% the node will no longer update all accounts every 15 minutes and instead will reduce the pooling rate to stay under the API limits, the more saturated a node is the less efficient it will be.<br />
-        The software doesn't scale, and it's by design.</p>
+    <p>
+        When the saturation rate goes above 100% the node will no longer update all accounts every 15 minutes and instead will reduce the pooling rate to stay under the API limits, the more saturated a node is the less efficient it will be.<br />
+        The software doesn't scale, and it's by design.
+    </p>
 
     <h4>How can I reduce the node's saturation?</h4>
 
-    <p>If you're not on your own node, be reasonable and don't follow too much accounts. And if you can, host your own node. BirdsiteLIVE doesn't require a lot of resources to work and therefore is really cheap to self-host.</p> 
+    <p>If you're not on your own node, be reasonable and don't follow too much accounts. And if you can, host your own node. BirdsiteLIVE doesn't require a lot of resources to work and therefore is really cheap to self-host.</p>
 </div>

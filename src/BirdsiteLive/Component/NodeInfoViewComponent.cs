@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Domain.Repository;
+using BirdsiteLive.Services;
 using BirdsiteLive.Statistics.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.Language.Intermediate;
@@ -13,15 +14,13 @@ namespace BirdsiteLive.Component
     public class NodeInfoViewComponent : ViewComponent
     {
         private readonly IModerationRepository _moderationRepository;
-        private readonly ITwitterStatisticsHandler _twitterStatisticsHandler;
-        private readonly ITwitterUserDal _twitterUserDal;
-
+        private readonly ICachedStatisticsService _cachedStatisticsService;
+        
         #region Ctor
-        public NodeInfoViewComponent(IModerationRepository moderationRepository, ITwitterStatisticsHandler twitterStatisticsHandler, ITwitterUserDal twitterUserDal)
+        public NodeInfoViewComponent(IModerationRepository moderationRepository, ICachedStatisticsService cachedStatisticsService)
         {
             _moderationRepository = moderationRepository;
-            _twitterStatisticsHandler = twitterStatisticsHandler;
-            _twitterUserDal = twitterUserDal;
+            _cachedStatisticsService = cachedStatisticsService;
         }
         #endregion
 
@@ -30,7 +29,7 @@ namespace BirdsiteLive.Component
             var followerPolicy = _moderationRepository.GetModerationType(ModerationEntityTypeEnum.Follower);
             var twitterAccountPolicy = _moderationRepository.GetModerationType(ModerationEntityTypeEnum.TwitterAccount);
 
-            var statistics = await GetStatisticsAsync();
+            var statistics = await _cachedStatisticsService.GetStatisticsAsync();
 
             var viewModel = new NodeInfoViewModel
             {
@@ -49,32 +48,6 @@ namespace BirdsiteLive.Component
             //};
             return View(viewModel);
         }
-
-        private static CachedStatistics _cachedStatistics;
-        private async Task<CachedStatistics> GetStatisticsAsync() {
-            if (_cachedStatistics == null ||
-                (DateTime.UtcNow - _cachedStatistics.RefreshedTime).TotalMinutes > 15)
-            {
-                var twitterUserMax = _twitterStatisticsHandler.GetStatistics().UserCallsMax;
-                var twitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync();
-                var saturation = (int)((double)twitterUserCount / twitterUserMax * 100);
-
-                _cachedStatistics = new CachedStatistics
-                {
-                    RefreshedTime = DateTime.UtcNow,
-                    Saturation = saturation
-                };
-            }
-
-            return _cachedStatistics;
-        }
-
-        class CachedStatistics
-        {
-            public DateTime RefreshedTime { get; set; }
-            public int Saturation { get; set; }
-        }
-
     }
 
     public class NodeInfoViewModel
