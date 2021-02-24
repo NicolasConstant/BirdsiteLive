@@ -7,6 +7,7 @@ using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.Domain.Repository;
 using BirdsiteLive.Models;
 using BirdsiteLive.Models.WellKnownModels;
 using BirdsiteLive.Twitter;
@@ -18,15 +19,17 @@ namespace BirdsiteLive.Controllers
     [ApiController]
     public class WellKnownController : ControllerBase
     {
+        private readonly IModerationRepository _moderationRepository;
         private readonly ITwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly InstanceSettings _settings;
 
         #region Ctor
-        public WellKnownController(InstanceSettings settings, ITwitterUserService twitterUserService, ITwitterUserDal twitterUserDal)
+        public WellKnownController(InstanceSettings settings, ITwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, IModerationRepository moderationRepository)
         {
             _twitterUserService = twitterUserService;
             _twitterUserDal = twitterUserDal;
+            _moderationRepository = moderationRepository;
             _settings = settings;
         }
         #endregion
@@ -58,6 +61,7 @@ namespace BirdsiteLive.Controllers
         {
             var version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(3);
             var twitterUsersCount = await _twitterUserDal.GetTwitterUsersCountAsync();
+            var isOpenRegistration = _moderationRepository.GetModerationType(ModerationEntityTypeEnum.Follower) != ModerationTypeEnum.WhiteListing;
 
             if (id == "2.0")
             {
@@ -81,7 +85,7 @@ namespace BirdsiteLive.Controllers
                     {
                         "activitypub"
                     },
-                    openRegistrations = false,
+                    openRegistrations = isOpenRegistration,
                     services = new Models.WellKnownModels.Services()
                     {
                         inbound = new object[0],
@@ -117,7 +121,7 @@ namespace BirdsiteLive.Controllers
                     {
                         "activitypub"
                     },
-                    openRegistrations = false,
+                    openRegistrations = isOpenRegistration,
                     services = new Models.WellKnownModels.Services()
                     {
                         inbound = new object[0],
