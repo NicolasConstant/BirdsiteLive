@@ -41,7 +41,6 @@ namespace BirdsiteLive.ActivityPub
                                     }
                                 };
                                 return acceptFollow;
-                                break;
                         }
                         break;
                 }

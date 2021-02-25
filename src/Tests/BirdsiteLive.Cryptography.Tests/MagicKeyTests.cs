@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NuGet.Frameworks;
 
 namespace BirdsiteLive.Cryptography.Tests
 {
@@ -7,13 +8,12 @@ namespace BirdsiteLive.Cryptography.Tests
     public class MagicKeyTests
     {
         [TestMethod]
-        public async Task Test()
+        public void Test()
         {
             var g = MagicKey.Generate();
-
             var magicKey = new MagicKey(g.PrivateKey);
 
-
+            Assert.IsNotNull(magicKey);
         }
     }
 }
