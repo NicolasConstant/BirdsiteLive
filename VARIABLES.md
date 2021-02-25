@@ -83,3 +83,7 @@ services:
         image: postgres:9.6
         [...]
 ```
+
+## Apply the modifications
+
+After the modification of the `docker-compose.yml` file, you will need to run `docker-compose up -d` to apply the changes.
