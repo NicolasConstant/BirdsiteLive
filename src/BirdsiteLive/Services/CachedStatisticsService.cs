@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
-using BirdsiteLive.Statistics.Domain;
 
 namespace BirdsiteLive.Services
 {
@@ -12,16 +12,16 @@ namespace BirdsiteLive.Services
 
     public class CachedStatisticsService : ICachedStatisticsService
     {
-        private readonly ITwitterStatisticsHandler _twitterStatisticsHandler;
         private readonly ITwitterUserDal _twitterUserDal;
 
         private static CachedStatistics _cachedStatistics;
+        private readonly InstanceSettings _instanceSettings;
 
         #region Ctor
-        public CachedStatisticsService(ITwitterStatisticsHandler twitterStatisticsHandler, ITwitterUserDal twitterUserDal)
+        public CachedStatisticsService(ITwitterUserDal twitterUserDal, InstanceSettings instanceSettings)
         {
-            _twitterStatisticsHandler = twitterStatisticsHandler;
             _twitterUserDal = twitterUserDal;
+            _instanceSettings = instanceSettings;
         }
         #endregion
 
@@ -30,7 +30,7 @@ namespace BirdsiteLive.Services
             if (_cachedStatistics == null ||
                 (DateTime.UtcNow - _cachedStatistics.RefreshedTime).TotalMinutes > 15)
             {
-                var twitterUserMax = _twitterStatisticsHandler.GetStatistics().UserCallsMax;
+                var twitterUserMax = _instanceSettings.MaxUsersCapacity;
                 var twitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync();
                 var saturation = (int)((double)twitterUserCount / twitterUserMax * 100);
 
