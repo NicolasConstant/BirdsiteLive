@@ -11,6 +11,7 @@ using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
 using BirdsiteLive.Domain.BusinessUseCases;
+using BirdsiteLive.Domain.Repository;
 using BirdsiteLive.Domain.Statistics;
 using BirdsiteLive.Domain.Tools;
 using BirdsiteLive.Twitter;
@@ -25,6 +26,8 @@ namespace BirdsiteLive.Domain
         Actor GetUser(TwitterUser twitterUser);
         Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity, string body);
         Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity, string body);
+
+        Task<bool> SendRejectFollowAsync(ActivityFollow activity, string followerHost);
     }
 
     public class UserService : IUserService
@@ -40,8 +43,10 @@ namespace BirdsiteLive.Domain
 
         private readonly ITwitterUserService _twitterUserService;
 
+        private readonly IModerationRepository _moderationRepository;
+
         #region Ctor
-        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService)
+        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, IModerationRepository moderationRepository)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
@@ -51,6 +56,7 @@ namespace BirdsiteLive.Domain
             _statusExtractor = statusExtractor;
             _statisticsHandler = statisticsHandler;
             _twitterUserService = twitterUserService;
+            _moderationRepository = moderationRepository;
         }
         #endregion
 
@@ -119,61 +125,93 @@ namespace BirdsiteLive.Domain
             var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders, body);
             if (!sigValidation.SignatureIsValidated) return false;
 
-            // Save Follow in DB
-            var followerUserName = sigValidation.User.preferredUsername.ToLowerInvariant();
+            // Prepare data
+            var followerUserName = sigValidation.User.preferredUsername.ToLowerInvariant().Trim();
             var followerHost = sigValidation.User.url.Replace("https://", string.Empty).Split('/').First();
             var followerInbox = sigValidation.User.inbox;
             var followerSharedInbox = sigValidation.User?.endpoints?.sharedInbox;
-            var twitterUser = activity.apObject.Split('/').Last().Replace("@", string.Empty);
+            var twitterUser = activity.apObject.Split('/').Last().Replace("@", string.Empty).ToLowerInvariant().Trim();
 
             // Make sure to only keep routes
             followerInbox = OnlyKeepRoute(followerInbox, followerHost);
             followerSharedInbox = OnlyKeepRoute(followerSharedInbox, followerHost);
             
+            // Validate Moderation status
+            var followerModPolicy = _moderationRepository.GetModerationType(ModerationEntityTypeEnum.Follower);
+            if (followerModPolicy != ModerationTypeEnum.None)
+            {
+                var followerStatus = _moderationRepository.CheckStatus(ModerationEntityTypeEnum.Follower, $"@{followerUserName}@{followerHost}");
+                
+                if(followerModPolicy == ModerationTypeEnum.WhiteListing && followerStatus != ModeratedTypeEnum.WhiteListed || 
+                   followerModPolicy == ModerationTypeEnum.BlackListing && followerStatus == ModeratedTypeEnum.BlackListed)
+                    return await SendRejectFollowAsync(activity, followerHost);
+            }
+
+            // Validate TwitterAccount status
+            var twitterAccountModPolicy = _moderationRepository.GetModerationType(ModerationEntityTypeEnum.TwitterAccount);
+            if (twitterAccountModPolicy != ModerationTypeEnum.None)
+            {
+                var twitterUserStatus = _moderationRepository.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, twitterUser);
+                if (twitterAccountModPolicy == ModerationTypeEnum.WhiteListing && twitterUserStatus != ModeratedTypeEnum.WhiteListed ||
+                    twitterAccountModPolicy == ModerationTypeEnum.BlackListing && twitterUserStatus == ModeratedTypeEnum.BlackListed)
+                    return await SendRejectFollowAsync(activity, followerHost);
+            }
+
+            // Validate User Protected
             var user = _twitterUserService.GetUser(twitterUser);
             if (!user.Protected)
             {
                 // Execute
-                await _processFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser, followerInbox, followerSharedInbox);
+                await _processFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser, followerInbox, followerSharedInbox, activity.actor);
 
-                // Send Accept Activity
-                var acceptFollow = new ActivityAcceptFollow()
-                {
-                    context = "https://www.w3.org/ns/activitystreams",
-                    id = $"{activity.apObject}#accepts/follows/{Guid.NewGuid()}",
-                    type = "Accept",
-                    actor = activity.apObject,
-                    apObject = new ActivityFollow()
-                    {
-                        id = activity.id,
-                        type = activity.type,
-                        actor = activity.actor,
-                        apObject = activity.apObject
-                    }
-                };
-                var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
-                return result == HttpStatusCode.Accepted || result == HttpStatusCode.OK; //TODO: revamp this for better error handling
+                return await SendAcceptFollowAsync(activity, followerHost);
             }
             else
             {
-                // Send Reject Activity
-                var acceptFollow = new ActivityRejectFollow()
-                {
-                    context = "https://www.w3.org/ns/activitystreams",
-                    id = $"{activity.apObject}#rejects/follows/{Guid.NewGuid()}",
-                    type = "Reject",
-                    actor = activity.apObject,
-                    apObject = new ActivityFollow()
-                    {
-                        id = activity.id,
-                        type = activity.type,
-                        actor = activity.actor,
-                        apObject = activity.apObject
-                    }
-                };
-                var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
-                return result == HttpStatusCode.Accepted || result == HttpStatusCode.OK; //TODO: revamp this for better error handling
+                return await SendRejectFollowAsync(activity, followerHost);
             }
+        }
+        
+        private async Task<bool> SendAcceptFollowAsync(ActivityFollow activity, string followerHost)
+        {
+            var acceptFollow = new ActivityAcceptFollow()
+            {
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{activity.apObject}#accepts/follows/{Guid.NewGuid()}",
+                type = "Accept",
+                actor = activity.apObject,
+                apObject = new ActivityFollow()
+                {
+                    id = activity.id,
+                    type = activity.type,
+                    actor = activity.actor,
+                    apObject = activity.apObject
+                }
+            };
+            var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
+            return result == HttpStatusCode.Accepted ||
+                   result == HttpStatusCode.OK; //TODO: revamp this for better error handling
+        }
+
+        public async Task<bool> SendRejectFollowAsync(ActivityFollow activity, string followerHost)
+        {
+            var acceptFollow = new ActivityRejectFollow()
+            {
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{activity.apObject}#rejects/follows/{Guid.NewGuid()}",
+                type = "Reject",
+                actor = activity.apObject,
+                apObject = new ActivityFollow()
+                {
+                    id = activity.id,
+                    type = activity.type,
+                    actor = activity.actor,
+                    apObject = activity.apObject
+                }
+            };
+            var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
+            return result == HttpStatusCode.Accepted ||
+                   result == HttpStatusCode.OK; //TODO: revamp this for better error handling
         }
 
         private string OnlyKeepRoute(string inbox, string host)

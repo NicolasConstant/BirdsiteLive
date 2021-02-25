@@ -20,7 +20,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         }
         #endregion
 
-        public async Task CreateFollowerAsync(string acct, string host, string inboxRoute, string sharedInboxRoute, int[] followings = null, Dictionary<int, long> followingSyncStatus = null)
+        public async Task CreateFollowerAsync(string acct, string host, string inboxRoute, string sharedInboxRoute, string actorId, int[] followings = null, Dictionary<int, long> followingSyncStatus = null)
         {
             if(followings == null) followings = new int[0];
             if(followingSyncStatus == null) followingSyncStatus = new Dictionary<int, long>();
@@ -35,8 +35,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 dbConnection.Open();
 
                 await dbConnection.ExecuteAsync(
-                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxRoute,sharedInboxRoute,followings,followingsSyncStatus) VALUES(@acct,@host,@inboxRoute,@sharedInboxRoute,@followings,CAST(@followingsSyncStatus as json))",
-                    new { acct, host, inboxRoute, sharedInboxRoute, followings, followingsSyncStatus = serializedDic });
+                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxRoute,sharedInboxRoute,followings,followingsSyncStatus,actorId) VALUES(@acct,@host,@inboxRoute,@sharedInboxRoute,@followings,CAST(@followingsSyncStatus as json),@actorId)",
+                    new { acct, host, inboxRoute, sharedInboxRoute, followings, followingsSyncStatus = serializedDic, actorId });
             }
         }
 
@@ -84,6 +84,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task<Follower[]> GetAllFollowersAsync()
+        {
+            var query = $"SELECT * FROM {_settings.FollowersTableName}";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = await dbConnection.QueryAsync<SerializedFollower>(query);
+                return result.Select(Convert).ToArray();
+            }
+        }
+
         public async Task UpdateFollowerAsync(Follower follower)
         {
             if (follower == default) throw new ArgumentException("follower");
@@ -116,8 +129,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task DeleteFollowerAsync(string acct, string host)
         {
-            if (acct == default) throw new ArgumentException("acct");
-            if (host == default) throw new ArgumentException("host");
+            if (string.IsNullOrWhiteSpace(acct)) throw new ArgumentException("acct");
+            if (string.IsNullOrWhiteSpace(host)) throw new ArgumentException("host");
 
             acct = acct.ToLowerInvariant();
             host = host.ToLowerInvariant();
@@ -142,6 +155,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 Acct = follower.Acct,
                 Host = follower.Host,
                 InboxRoute = follower.InboxRoute,
+                ActorId = follower.ActorId,
                 SharedInboxRoute = follower.SharedInboxRoute,
                 Followings = follower.Followings.ToList(),
                 FollowingsSyncStatus = JsonConvert.DeserializeObject<Dictionary<int,long>>(follower.FollowingsSyncStatus)
@@ -159,5 +173,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         public string Host { get; set; }
         public string InboxRoute { get; set; }
         public string SharedInboxRoute { get; set; }
+        public string ActorId { get; set; }
     }
 }

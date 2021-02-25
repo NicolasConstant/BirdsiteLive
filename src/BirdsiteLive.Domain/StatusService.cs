@@ -41,7 +41,6 @@ namespace BirdsiteLive.Domain
             var noteUrl = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, tweet.Id.ToString());
 
             var to = $"{actorUrl}/followers";
-            var apPublic = "https://www.w3.org/ns/activitystreams#Public";
 
             var extractedTags = _statusExtractor.Extract(tweet.MessageContent);
             _statisticsHandler.ExtractedStatus(extractedTags.tags.Count(x => x.type == "Mention"));
@@ -70,11 +69,9 @@ namespace BirdsiteLive.Domain
                 attributedTo = actorUrl,
 
                 inReplyTo = inReplyTo,
-                //to = new [] {to},
-                //cc = new [] { apPublic },
 
                 to = new[] { to },
-                //cc = new[] { apPublic },
+                //cc = new[] { "https://www.w3.org/ns/activitystreams#Public" },
                 cc = new string[0],
 
                 sensitive = false,

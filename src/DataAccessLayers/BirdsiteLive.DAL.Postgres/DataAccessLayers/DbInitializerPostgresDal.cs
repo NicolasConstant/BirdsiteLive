@@ -23,7 +23,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
     public class DbInitializerPostgresDal : PostgresBase, IDbInitializerDal
     {
         private readonly PostgresTools _tools;
-        private readonly Version _currentVersion = new Version(2, 0);
+        private readonly Version _currentVersion = new Version(2, 1);
         private const string DbVersionType = "db-version";
 
         #region Ctor
@@ -131,7 +131,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         {
             return new[]
             {
-                new Tuple<Version, Version>(new Version(1,0), new Version(2,0))
+                new Tuple<Version, Version>(new Version(1,0), new Version(2,0)),
+                new Tuple<Version, Version>(new Version(2,0), new Version(2,1))
             };
         }
 
@@ -144,12 +145,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
                 var addIndex = $@"CREATE INDEX IF NOT EXISTS lastsync_twitteruser ON {_settings.TwitterUserTableName}(lastSync)";
                 await _tools.ExecuteRequestAsync(addIndex);
-
-                await UpdateDbVersionAsync(to);
-                return to;
+            }
+            else if (from == new Version(2, 0) && to == new Version(2, 1))
+            {
+                var addActorId = $@"ALTER TABLE {_settings.FollowersTableName} ADD actorId VARCHAR(2048)";
+                await _tools.ExecuteRequestAsync(addActorId);
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
 
-            throw new NotImplementedException();
+            await UpdateDbVersionAsync(to);
+            return to;
         }
 
         private async Task UpdateDbVersionAsync(Version newVersion)

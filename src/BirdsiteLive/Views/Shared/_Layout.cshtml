@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/css/birdsite.css" />
+    <link rel="stylesheet" href="~/css/pattern.css" />
 </head>
 <body>
     <header>
@@ -39,6 +40,11 @@
     </div>
 
     <footer class="border-top footer text-muted">
+        <div class="wrapper-nodeinfo">
+            <div class="container container-nodeinfo">
+                @await Component.InvokeAsync("NodeInfo")
+            </div>
+        </div>
         <div class="container">
 
             <a href="https://github.com/NicolasConstant/BirdsiteLive">Github</a> @*<a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>*@

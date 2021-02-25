@@ -19,13 +19,15 @@ namespace BirdsiteLive.Controllers
         private readonly InstanceSettings _instanceSettings;
         private readonly ICryptoService _cryptoService;
         private readonly IActivityPubService _activityPubService;
+        private readonly IUserService _userService;
 
         #region Ctor
-        public DebugingController(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService)
+        public DebugingController(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IUserService userService)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
             _activityPubService = activityPubService;
+            _userService = userService;
         }
         #endregion
 
@@ -67,7 +69,6 @@ namespace BirdsiteLive.Controllers
             var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{noteGuid}";
             
             var to = $"{actor}/followers";
-            var apPublic = "https://www.w3.org/ns/activitystreams#Public";
 
             var now = DateTime.UtcNow;
             var nowString = now.ToString("s") + "Z";
@@ -80,7 +81,7 @@ namespace BirdsiteLive.Controllers
                 actor = actor,
                 published = nowString,
                 to = new []{ to },
-                //cc = new [] { apPublic },
+                //cc = new [] { "https://www.w3.org/ns/activitystreams#Public" },
                 apObject = new Note()
                 {
                     id = noteId,
@@ -90,7 +91,7 @@ namespace BirdsiteLive.Controllers
                     url = noteUrl,
                     attributedTo = actor,
                     to = new[] { to },
-                    //cc = new [] { apPublic },
+                    //cc = new [] { "https://www.w3.org/ns/activitystreams#Public" },
                     sensitive = false,
                     content = "<p>Woooot</p>",
                     attachment = new Attachment[0],
@@ -100,6 +101,20 @@ namespace BirdsiteLive.Controllers
 
             await _activityPubService.PostDataAsync(noteActivity, targetHost, actor, inbox);
 
+            return View("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostRejectFollow()
+        {
+            var activityFollow = new ActivityFollow
+            {
+                type = "Follow",
+                actor = "https://mastodon.technology/users/testtest",
+                apObject = $"https://{_instanceSettings.Domain}/users/afp"
+            };
+
+            await _userService.SendRejectFollowAsync(activityFollow, "mastodon.technology");
             return View("Index");
         }
     }

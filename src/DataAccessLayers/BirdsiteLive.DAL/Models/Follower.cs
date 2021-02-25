@@ -9,6 +9,7 @@ namespace BirdsiteLive.DAL.Models
         public List<int> Followings { get; set; }
         public Dictionary<int, long> FollowingsSyncStatus { get; set; }
 
+        public string ActorId { get; set; }
         public string Acct { get; set; }
         public string Host { get; set; }
         public string InboxRoute { get; set; }
