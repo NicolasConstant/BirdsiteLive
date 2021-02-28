@@ -26,10 +26,10 @@ namespace BirdsiteLive.Domain.Repository
         #region Ctor
         public ModerationRepository(ModerationSettings settings)
         {
-            var parsedFollowersWhiteListing = ModerationParser.Parse(settings.FollowersWhiteListing);
-            var parsedFollowersBlackListing = ModerationParser.Parse(settings.FollowersBlackListing);
-            var parsedTwitterAccountsWhiteListing = ModerationParser.Parse(settings.TwitterAccountsWhiteListing);
-            var parsedTwitterAccountsBlackListing = ModerationParser.Parse(settings.TwitterAccountsBlackListing);
+            var parsedFollowersWhiteListing = PatternsParser.Parse(settings.FollowersWhiteListing);
+            var parsedFollowersBlackListing = PatternsParser.Parse(settings.FollowersBlackListing);
+            var parsedTwitterAccountsWhiteListing = PatternsParser.Parse(settings.TwitterAccountsWhiteListing);
+            var parsedTwitterAccountsBlackListing = PatternsParser.Parse(settings.TwitterAccountsBlackListing);
 
             _followersWhiteListing = parsedFollowersWhiteListing
                 .Select(x => ModerationRegexParser.Parse(ModerationEntityTypeEnum.Follower, x))
