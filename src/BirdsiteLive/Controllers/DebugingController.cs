@@ -90,10 +90,17 @@ namespace BirdsiteLive.Controllers
                     published = nowString,
                     url = noteUrl,
                     attributedTo = actor,
+
+                    // Unlisted
                     to = new[] { to },
-                    //cc = new [] { "https://www.w3.org/ns/activitystreams#Public" },
+                    cc = new [] { "https://www.w3.org/ns/activitystreams#Public" },
+
+                    //// Public
+                    //to = new[] { "https://www.w3.org/ns/activitystreams#Public" },
+                    //cc = new[] { to },
+
                     sensitive = false,
-                    content = "<p>Woooot</p>",
+                    content = "<p>TEST PUBLIC</p>",
                     attachment = new Attachment[0],
                     tag = new Tag[0]
                 }
