@@ -46,6 +46,7 @@ If both whitelisting and blacklisting are set, only the whitelisting will be act
 * `Instance:Name` (default: BirdsiteLIVE) the name of the instance
 * `Instance:ResolveMentionsInProfiles` (default: true) to enable or disable mentions parsing in profile's description. Resolving it will consume more User's API calls since newly discovered account can also contain references to others accounts as well. On a big instance it is recommended to disable it.
 * `Instance:PublishReplies` (default: false) to enable or disable replies publishing.
+* `Instance:UnlistedTwitterAccounts` (default: null) to enable unlisted publication for selected twitter accounts, separated by `;` (please limit this to brands and other public profiles). 
 
 # Docker Compose full example
 
@@ -76,6 +77,7 @@ services:
 +           - Instance:Name=MyTwitterRelay
 +           - Instance:ResolveMentionsInProfiles=false
 +           - Instance:PublishReplies=true
++           - Instance:UnlistedTwitterAccounts=cocacola;twitter
         networks:
         [...]
 

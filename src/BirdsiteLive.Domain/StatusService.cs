@@ -7,6 +7,7 @@ using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.Domain.Repository;
 using BirdsiteLive.Domain.Statistics;
 using BirdsiteLive.Domain.Tools;
 using BirdsiteLive.Twitter.Models;
@@ -25,13 +26,15 @@ namespace BirdsiteLive.Domain
         private readonly InstanceSettings _instanceSettings;
         private readonly IStatusExtractor _statusExtractor;
         private readonly IExtractionStatisticsHandler _statisticsHandler;
-        
+        private readonly IPublicationRepository _publicationRepository;
+
         #region Ctor
-        public StatusService(InstanceSettings instanceSettings, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler)
+        public StatusService(InstanceSettings instanceSettings, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, IPublicationRepository publicationRepository)
         {
             _instanceSettings = instanceSettings;
             _statusExtractor = statusExtractor;
             _statisticsHandler = statisticsHandler;
+            _publicationRepository = publicationRepository;
         }
         #endregion
 
@@ -42,6 +45,11 @@ namespace BirdsiteLive.Domain
 
             var to = $"{actorUrl}/followers";
 
+            var isUnlisted = _publicationRepository.IsUnlisted(username);
+            var cc = new string[0];
+            if (isUnlisted)
+                cc = new[] {"https://www.w3.org/ns/activitystreams#Public"};
+            
             var extractedTags = _statusExtractor.Extract(tweet.MessageContent);
             _statisticsHandler.ExtractedStatus(extractedTags.tags.Count(x => x.type == "Mention"));
 
@@ -71,8 +79,7 @@ namespace BirdsiteLive.Domain
                 inReplyTo = inReplyTo,
 
                 to = new[] { to },
-                //cc = new[] { "https://www.w3.org/ns/activitystreams#Public" },
-                cc = new string[0],
+                cc = cc,
 
                 sensitive = false,
                 content = $"<p>{content}</p>",

@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace BirdsiteLive.Domain.Tests.Tools
 {
     [TestClass]
-    public class ModerationParserTests
+    public class PatternsParserTests
     {
         [TestMethod]
         public void Parse_Simple_Test()
@@ -14,7 +14,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             var entry = "test";
             #endregion
 
-            var result = ModerationParser.Parse(entry);
+            var result = PatternsParser.Parse(entry);
 
             #region Validations
             Assert.AreEqual(1, result.Length);
@@ -29,7 +29,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             string entry = null;
             #endregion
 
-            var result = ModerationParser.Parse(entry);
+            var result = PatternsParser.Parse(entry);
 
             #region Validations
             Assert.AreEqual(0, result.Length);
@@ -43,7 +43,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             var entry = "  ";
             #endregion
 
-            var result = ModerationParser.Parse(entry);
+            var result = PatternsParser.Parse(entry);
 
             #region Validations
             Assert.AreEqual(0, result.Length);
@@ -57,7 +57,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             var entry = "test|test2";
             #endregion
 
-            var result = ModerationParser.Parse(entry);
+            var result = PatternsParser.Parse(entry);
 
             #region Validations
             Assert.AreEqual(2, result.Length);
@@ -73,7 +73,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             var entry = "test;test2";
             #endregion
 
-            var result = ModerationParser.Parse(entry);
+            var result = PatternsParser.Parse(entry);
 
             #region Validations
             Assert.AreEqual(2, result.Length);
@@ -89,7 +89,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             var entry = "test,test2";
             #endregion
 
-            var result = ModerationParser.Parse(entry);
+            var result = PatternsParser.Parse(entry);
 
             #region Validations
             Assert.AreEqual(2, result.Length);
@@ -105,7 +105,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             var entry = "test;test2;";
             #endregion
 
-            var result = ModerationParser.Parse(entry);
+            var result = PatternsParser.Parse(entry);
 
             #region Validations
             Assert.AreEqual(2, result.Length);
@@ -121,7 +121,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             var entry = "test; test2";
             #endregion
 
-            var result = ModerationParser.Parse(entry);
+            var result = PatternsParser.Parse(entry);
 
             #region Validations
             Assert.AreEqual(2, result.Length);
@@ -137,7 +137,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             var entry = "test; test2; ";
             #endregion
 
-            var result = ModerationParser.Parse(entry);
+            var result = PatternsParser.Parse(entry);
 
             #region Validations
             Assert.AreEqual(2, result.Length);

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace BirdsiteLive.Domain.Tools
 {
-    public class ModerationParser
+    public class PatternsParser
     {
         public static string[] Parse(string entry)
         {
