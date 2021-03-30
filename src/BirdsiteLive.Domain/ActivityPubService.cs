@@ -9,6 +9,7 @@ using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Bcpg;
 
@@ -27,13 +28,15 @@ namespace BirdsiteLive.Domain
         private readonly InstanceSettings _instanceSettings;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ICryptoService _cryptoService;
+        private readonly ILogger<ActivityPubService> _logger;
 
         #region Ctor
-        public ActivityPubService(ICryptoService cryptoService, InstanceSettings instanceSettings, IHttpClientFactory httpClientFactory)
+        public ActivityPubService(ICryptoService cryptoService, InstanceSettings instanceSettings, IHttpClientFactory httpClientFactory, ILogger<ActivityPubService> logger)
         {
             _cryptoService = cryptoService;
             _instanceSettings = instanceSettings;
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
         #endregion
 
@@ -48,26 +51,34 @@ namespace BirdsiteLive.Domain
 
         public async Task PostNewNoteActivity(Note note, string username, string noteId, string targetHost, string targetInbox)
         {
-            var actor = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
-            var noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, noteId);
-
-            var now = DateTime.UtcNow;
-            var nowString = now.ToString("s") + "Z";
-
-            var noteActivity = new ActivityCreateNote()
+            try
             {
-                context = "https://www.w3.org/ns/activitystreams",
-                id = $"{noteUri}/activity",
-                type = "Create",
-                actor = actor,
-                published = nowString,
+                var actor = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
+                var noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, noteId);
 
-                to = note.to,
-                cc = note.cc,
-                apObject = note
-            };
+                var now = DateTime.UtcNow;
+                var nowString = now.ToString("s") + "Z";
 
-            await PostDataAsync(noteActivity, targetHost, actor, targetInbox);
+                var noteActivity = new ActivityCreateNote()
+                {
+                    context = "https://www.w3.org/ns/activitystreams",
+                    id = $"{noteUri}/activity",
+                    type = "Create",
+                    actor = actor,
+                    published = nowString,
+
+                    to = note.to,
+                    cc = note.cc,
+                    apObject = note
+                };
+
+                await PostDataAsync(noteActivity, targetHost, actor, targetInbox);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error sending {Username} post ({NoteId}) to {Host}{Inbox}", username, noteId, targetHost, targetInbox);
+                throw;
+            }
         }
 
         public async Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null)
