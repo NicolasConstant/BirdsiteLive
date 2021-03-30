@@ -364,7 +364,32 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
             #endregion
         }
-        
+
+        [TestMethod]
+        public void Extract_MultiMentionTag_MultiOccurrence_Test()
+        {
+            #region Stubs
+            var message = $"[RT @yamenbousrih]{Environment.NewLine}@KiwixOffline @photos_floues Bla. Cc @Pyb75 @photos_floues @KiwixOffline";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            logger.VerifyAll();
+            Assert.AreEqual(4, result.tags.Length);
+            Assert.AreEqual("Mention", result.tags.First().type);
+
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@photos_floues"" class=""u-url mention"">@<span>photos_floues</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@KiwixOffline"" class=""u-url mention"">@<span>KiwixOffline</span></a></span> <span class=""h-card""><a href=""https://domain.name/@photos_floues"" class=""u-url mention"">@<span>photos_floues</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"Cc <span class=""h-card""><a href=""https://domain.name/@Pyb75"" class=""u-url mention"">@<span>Pyb75</span></a></span> <span class=""h-card""><a href=""https://domain.name/@photos_floues"" class=""u-url mention"">@<span>photos_floues</span></a></span> <span class=""h-card""><a href=""https://domain.name/@KiwixOffline"" class=""u-url mention"">@<span>KiwixOffline</span></a></span>"));
+            #endregion
+        }
+
         [TestMethod]
         public void Extract_SingleMentionTag_RT_Test()
         {

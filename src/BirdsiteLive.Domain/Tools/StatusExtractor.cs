@@ -81,12 +81,16 @@ namespace BirdsiteLive.Domain.Tools
                 }
 
                 var url = $"https://{_instanceSettings.Domain}/tags/{tag}";
-                tags.Add(new Tag
+
+                if (tags.All(x => x.href != url))
                 {
-                    name = $"#{tag}",
-                    href = url,
-                    type = "Hashtag"
-                });
+                    tags.Add(new Tag
+                    {
+                        name = $"#{tag}",
+                        href = url,
+                        type = "Hashtag"
+                    });
+                }
 
                 messageContent = Regex.Replace(messageContent, Regex.Escape(m.Groups[0].ToString()),
                     $@"{m.Groups[1]}<a href=""{url}"" class=""mention hashtag"" rel=""tag"">#<span>{tag}</span></a>{m.Groups[3]}");
@@ -96,7 +100,7 @@ namespace BirdsiteLive.Domain.Tools
             if (extractMentions)
             {
                 var mentionMatch = OrderByLength(UserRegexes.Mention.Matches(messageContent));
-                foreach (Match m in mentionMatch.OrderByDescending(x => x.Length))
+                foreach (Match m in mentionMatch)
                 {
                     var mention = m.Groups[2].ToString();
 
@@ -109,13 +113,16 @@ namespace BirdsiteLive.Domain.Tools
                     var url = $"https://{_instanceSettings.Domain}/users/{mention}";
                     var name = $"@{mention}@{_instanceSettings.Domain}";
 
-                    tags.Add(new Tag
+                    if (tags.All(x => x.href != url))
                     {
-                        name = name,
-                        href = url,
-                        type = "Mention"
-                    });
-                    
+                        tags.Add(new Tag
+                        {
+                            name = name,
+                            href = url,
+                            type = "Mention"
+                        });
+                    }
+
                     messageContent = Regex.Replace(messageContent, Regex.Escape(m.Groups[0].ToString()),
                         $@"{m.Groups[1]}<span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>{m.Groups[3]}");
                 }
@@ -123,13 +130,17 @@ namespace BirdsiteLive.Domain.Tools
 
             return (messageContent.Trim(), tags.ToArray());
         }
-
+        
         private IEnumerable<Match> OrderByLength(MatchCollection matches)
         {
             var result = new List<Match>();
-
             foreach (Match m in matches) result.Add(m);
-            result = result.OrderByDescending(x => x.Length).ToList();
+
+            result = result
+                .OrderBy(x => x.Length)
+                .GroupBy(p => p.Value)
+                .Select(g => g.First())
+                .ToList();
 
             return result;
         }
