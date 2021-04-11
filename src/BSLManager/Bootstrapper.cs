@@ -14,12 +14,14 @@ namespace BSLManager
 {
     public class Bootstrapper
     {
-        private readonly DbSettings _settings;
+        private readonly DbSettings _dbSettings;
+        private readonly InstanceSettings _instanceSettings;
 
         #region Ctor
-        public Bootstrapper(DbSettings settings)
+        public Bootstrapper(DbSettings dbSettings, InstanceSettings instanceSettings)
         {
-            _settings = settings;
+            _dbSettings = dbSettings;
+            _instanceSettings = instanceSettings;
         }
         #endregion
 
@@ -27,9 +29,13 @@ namespace BSLManager
         {
             var container = new Container(x =>
             {
-                if (string.Equals(_settings.Type, DbTypes.Postgres, StringComparison.OrdinalIgnoreCase))
+                x.For<DbSettings>().Use(x => _dbSettings);
+
+                x.For<InstanceSettings>().Use(x => _instanceSettings);
+
+                if (string.Equals(_dbSettings.Type, DbTypes.Postgres, StringComparison.OrdinalIgnoreCase))
                 {
-                    var connString = $"Host={_settings.Host};Username={_settings.User};Password={_settings.Password};Database={_settings.Name}";
+                    var connString = $"Host={_dbSettings.Host};Username={_dbSettings.User};Password={_dbSettings.Password};Database={_dbSettings.Name}";
                     var postgresSettings = new PostgresSettings
                     {
                         ConnString = connString
@@ -42,7 +48,7 @@ namespace BSLManager
                 }
                 else
                 {
-                    throw new NotImplementedException($"{_settings.Type} is not supported");
+                    throw new NotImplementedException($"{_dbSettings.Type} is not supported");
                 }
 
                 var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();

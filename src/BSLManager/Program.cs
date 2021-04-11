@@ -18,23 +18,18 @@ namespace BSLManager
         {
             Console.OutputEncoding = Encoding.Default;
 
-            var settings = GetSettings();
-
-            var bootstrapper = new Bootstrapper(settings);
-            var container = bootstrapper.Init();
-
-            var app = container.GetInstance<App>();
-            app.Run();
-        }
-
-        private static DbSettings GetSettings()
-        {
             var builder = new ConfigurationBuilder()
                 .AddEnvironmentVariables();
             var configuration = builder.Build();
 
             var dbSettings = configuration.GetSection("Db").Get<DbSettings>();
-            return dbSettings;
+            var instanceSettings = configuration.GetSection("Instance").Get<InstanceSettings>();
+
+            var bootstrapper = new Bootstrapper(dbSettings, instanceSettings);
+            var container = bootstrapper.Init();
+
+            var app = container.GetInstance<App>();
+            app.Run();
         }
     }
 }

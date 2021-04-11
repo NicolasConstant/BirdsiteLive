@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Moderation.Actions;
 using Terminal.Gui;
 
@@ -12,6 +13,9 @@ namespace BSLManager
     {
         private readonly IFollowersDal _followersDal;
         private readonly IRemoveFollowerAction _removeFollowerAction;
+
+        private List<string> _displayableUserList = new List<string>();
+        private List<Follower> _sourceUserList = new List<Follower>();
 
         #region Ctor
         public App(IFollowersDal followersDal, IRemoveFollowerAction removeFollowerAction)
@@ -62,22 +66,10 @@ namespace BSLManager
                 var n = MessageBox.Query(50, 7, "Quit BSL Manager", "Are you sure you want to quit?", "Yes", "No");
                 return n == 0;
             }
+            
+            RetrieveUserList();
 
-            var listData = new List<string>();
-
-            Application.MainLoop.Invoke(async () => {
-                var followers = await _followersDal.GetAllFollowersAsync();
-                var orderedFollowers = followers.OrderByDescending(x => x.Followings.Count).ToList();
-
-                foreach (var follower in orderedFollowers)
-                {
-                    listData.Add($"@{follower.Acct}@{follower.Host}     {follower.Followings.Count}");
-                }
-
-                RefreshUI();
-            });
-
-            var list = new ListView(listData)
+            var list = new ListView(_displayableUserList)
             {
                 X = 1,
                 Y = 2,
@@ -104,7 +96,7 @@ namespace BSLManager
 
                     var dialog = new Dialog("Delete", 60, 18, cancel, ok);
 
-                    var name = new Label($"User: {listData[el]}")
+                    var name = new Label($"User: {_displayableUserList[el]}")
                     {
                         X = 1,
                         Y = 1,
@@ -124,8 +116,7 @@ namespace BSLManager
 
                     if (okpressed)
                     {
-                        listData.RemoveAt(el);
-                        RefreshUI();
+                        DeleteAndRemoveUser(el);
                     }
                 }
             };
@@ -137,6 +128,37 @@ namespace BSLManager
             );
 
             Application.Run();
+        }
+
+        private void DeleteAndRemoveUser(int el)
+        {
+            Application.MainLoop.Invoke(async () =>
+            {
+                var userToDelete = _sourceUserList[el];
+
+                await _removeFollowerAction.ProcessAsync(userToDelete);
+
+                _sourceUserList.RemoveAt(el);
+                _displayableUserList.RemoveAt(el);
+                RefreshUI();
+            });
+        }
+
+        private void RetrieveUserList()
+        {
+            Application.MainLoop.Invoke(async () =>
+            {
+                var followers = await _followersDal.GetAllFollowersAsync();
+                _sourceUserList = followers.OrderByDescending(x => x.Followings.Count).ToList();
+
+                _displayableUserList.Clear();
+                foreach (var follower in _sourceUserList)
+                {
+                    _displayableUserList.Add($"@{follower.Acct}@{follower.Host}     {follower.Followings.Count}");
+                }
+
+                RefreshUI();
+            });
         }
 
         private void RefreshUI()
