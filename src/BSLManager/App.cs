@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Moderation.Actions;
+using BSLManager.Domain;
+using BSLManager.Tools;
 using Terminal.Gui;
 
 namespace BSLManager
@@ -14,8 +16,7 @@ namespace BSLManager
         private readonly IFollowersDal _followersDal;
         private readonly IRemoveFollowerAction _removeFollowerAction;
 
-        private List<string> _displayableUserList = new List<string>();
-        private List<Follower> _sourceUserList = new List<Follower>();
+        private readonly FollowersListState _state = new FollowersListState();
 
         #region Ctor
         public App(IFollowersDal followersDal, IRemoveFollowerAction removeFollowerAction)
@@ -69,10 +70,10 @@ namespace BSLManager
             
             RetrieveUserList();
 
-            var list = new ListView(_displayableUserList)
+            var list = new ListView(_state.GetDisplayableList())
             {
                 X = 1,
-                Y = 2,
+                Y = 3,
                 Width = Dim.Fill(),
                 Height = Dim.Fill()
             };
@@ -96,7 +97,8 @@ namespace BSLManager
 
                     var dialog = new Dialog("Delete", 60, 18, cancel, ok);
 
-                    var name = new Label($"User: {_displayableUserList[el]}")
+                    var follower = _state.GetElementAt(el);
+                    var name = new Label($"User: @{follower.Acct}@{follower.Host}")
                     {
                         X = 1,
                         Y = 1,
@@ -121,9 +123,29 @@ namespace BSLManager
                 }
             };
 
-            // Add some controls, 
+            var listingFollowersLabel = new Label(1, 0, "Listing followers");
+            var filterLabel = new Label("Filter: ") { X = 1, Y = 1 };
+            var filterText = new TextField("")
+            {
+                X = Pos.Right(filterLabel),
+                Y = 1,
+                Width = 40
+            };
+
+            filterText.KeyDown += _ =>
+            {
+                var text = filterText.Text.ToString();
+                if (_.KeyEvent.Key == Key.Enter && !string.IsNullOrWhiteSpace(text))
+                {
+                    _state.FilterBy(text);
+                    ConsoleGui.RefreshUI();
+                }
+            };
+
             win.Add(
-                new Label(1, 0, "Listing followers"),
+                listingFollowersLabel,
+                filterLabel,
+                filterText,
                 list
             );
 
@@ -134,13 +156,11 @@ namespace BSLManager
         {
             Application.MainLoop.Invoke(async () =>
             {
-                var userToDelete = _sourceUserList[el];
-
+                var userToDelete = _state.GetElementAt(el);
                 await _removeFollowerAction.ProcessAsync(userToDelete);
+                _state.RemoveAt(el);
 
-                _sourceUserList.RemoveAt(el);
-                _displayableUserList.RemoveAt(el);
-                RefreshUI();
+                ConsoleGui.RefreshUI();
             });
         }
 
@@ -149,22 +169,9 @@ namespace BSLManager
             Application.MainLoop.Invoke(async () =>
             {
                 var followers = await _followersDal.GetAllFollowersAsync();
-                _sourceUserList = followers.OrderByDescending(x => x.Followings.Count).ToList();
-
-                _displayableUserList.Clear();
-                foreach (var follower in _sourceUserList)
-                {
-                    _displayableUserList.Add($"@{follower.Acct}@{follower.Host}     {follower.Followings.Count}");
-                }
-
-                RefreshUI();
+                _state.Load(followers.ToList());
+                ConsoleGui.RefreshUI();
             });
-        }
-
-        private void RefreshUI()
-        {
-            typeof(Application).GetMethod("TerminalResized", BindingFlags.Static | BindingFlags.NonPublic)
-                .Invoke(null, null);
         }
     }
 }
