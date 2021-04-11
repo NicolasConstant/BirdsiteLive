@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
+using BirdsiteLive.Common.Settings;
+using BirdsiteLive.DAL.Contracts;
+using Microsoft.Extensions.Configuration;
 using NStack;
 using Terminal.Gui;
 
@@ -9,9 +14,34 @@ namespace BSLManager
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.OutputEncoding = Encoding.Default;
+
+            var settings = GetSettings();
+
+            var bootstrapper = new Bootstrapper(settings);
+            var container = bootstrapper.Init();
+
+            var followersDal = container.GetInstance<IFollowersDal>();
+
+            await LaunchAppAsync(followersDal);
+        }
+
+        private static DbSettings GetSettings()
+        {
+            var builder = new ConfigurationBuilder()
+                .AddEnvironmentVariables();
+            var configuration = builder.Build();
+
+            var dbSettings = configuration.GetSection("Db").Get<DbSettings>();
+            return dbSettings;
+        }
+
+        private static async Task LaunchAppAsync(IFollowersDal followersDal)
+        {
+            var followers = await followersDal.GetAllFollowersAsync();
+            var orderedFollowers = followers.OrderByDescending(x => x.Followings.Count).ToList();
 
             Application.Init();
             var top = Application.Top;
@@ -30,9 +60,14 @@ namespace BSLManager
             top.Add(win);
 
             // Creates a menubar, the item "New" has a help menu.
-            var menu = new MenuBar(new MenuBarItem[] {
-                new MenuBarItem ("_File", new MenuItem [] {
-                    new MenuItem ("_Quit", "", () => { if (Quit ()) top.Running = false; })
+            var menu = new MenuBar(new MenuBarItem[]
+            {
+                new MenuBarItem("_File", new MenuItem[]
+                {
+                    new MenuItem("_Quit", "", () =>
+                    {
+                        if (Quit()) top.Running = false;
+                    })
                 }),
                 //new MenuBarItem ("_Edit", new MenuItem [] {
                 //    new MenuItem ("_Copy", "", null),
@@ -47,11 +82,11 @@ namespace BSLManager
                 var n = MessageBox.Query(50, 7, "Quit BSL Manager", "Are you sure you want to quit?", "Yes", "No");
                 return n == 0;
             }
-            
+
             var listData = new List<string>();
-            for (var i = 0; i < 100; i++)
+            foreach (var follower in orderedFollowers)
             {
-                listData.Add($"@User{i}@Instance.tld        {i*3}");
+                listData.Add($"@{follower.Acct}@{follower.Host}     {follower.Followings.Count}");
             }
 
             var list = new ListView(listData)
@@ -102,7 +137,8 @@ namespace BSLManager
                     if (okpressed)
                     {
                         listData.RemoveAt(el);
-                        typeof(Application).GetMethod("TerminalResized", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, null);
+                        typeof(Application).GetMethod("TerminalResized", BindingFlags.Static | BindingFlags.NonPublic)
+                            .Invoke(null, null);
                     }
                 }
             };
@@ -114,6 +150,6 @@ namespace BSLManager
             );
 
             Application.Run();
-		}
+        }
     }
 }
