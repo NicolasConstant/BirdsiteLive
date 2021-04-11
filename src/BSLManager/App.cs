@@ -82,44 +82,14 @@ namespace BSLManager
             {
                 if (_.KeyEvent.Key == Key.Enter)
                 {
-                    var el = list.SelectedItem;
-
-                    bool okpressed = false;
-                    var ok = new Button(10, 14, "Yes");
-                    ok.Clicked += () =>
-                    {
-                        Application.RequestStop();
-                        okpressed = true;
-                    };
-
-                    var cancel = new Button(3, 14, "No");
-                    cancel.Clicked += () => Application.RequestStop();
-
-                    var dialog = new Dialog("Delete", 60, 18, cancel, ok);
-
-                    var follower = _state.GetElementAt(el);
-                    var name = new Label($"User: @{follower.Acct}@{follower.Host}")
-                    {
-                        X = 1,
-                        Y = 1,
-                        Width = Dim.Fill(),
-                        Height = 1
-                    };
-                    var entry = new Label("Delete user and remove all their followings?")
-                    {
-                        X = 1,
-                        Y = 3,
-                        Width = Dim.Fill(),
-                        Height = 1
-                    };
-                    dialog.Add(name);
-                    dialog.Add(entry);
-                    Application.Run(dialog);
-
-                    if (okpressed)
-                    {
-                        DeleteAndRemoveUser(el);
-                    }
+                    OpenFollowerDialog(list.SelectedItem);
+                } 
+                else if (_.KeyEvent.Key == Key.Delete
+                           || _.KeyEvent.Key == Key.DeleteChar
+                           || _.KeyEvent.Key == Key.Backspace
+                           || _.KeyEvent.Key == Key.D)
+                {
+                    OpenDeleteDialog(list.SelectedItem);
                 }
             };
 
@@ -150,6 +120,92 @@ namespace BSLManager
             );
 
             Application.Run();
+        }
+
+        private void OpenFollowerDialog(int selectedIndex)
+        {
+            var close = new Button(3, 14, "Close");
+            close.Clicked += () => Application.RequestStop();
+
+            var dialog = new Dialog("Info", 60, 18, close);
+
+            var follower = _state.GetElementAt(selectedIndex);
+
+            var name = new Label($"User: @{follower.Acct}@{follower.Host}")
+            {
+                X = 1,
+                Y = 1,
+                Width = Dim.Fill(),
+                Height = 1
+            };
+            var following = new Label($"Following Count: {follower.Followings.Count}")
+            {
+                X = 1,
+                Y = 3,
+                Width = Dim.Fill(),
+                Height = 1
+            };
+            var inbox = new Label($"Inbox: {follower.InboxRoute}")
+            {
+                X = 1,
+                Y = 4,
+                Width = Dim.Fill(),
+                Height = 1
+            };
+            var sharedInbox = new Label($"Shared Inbox: {follower.SharedInboxRoute}")
+            {
+                X = 1,
+                Y = 5,
+                Width = Dim.Fill(),
+                Height = 1
+            };
+
+            dialog.Add(name);
+            dialog.Add(following);
+            dialog.Add(inbox);
+            dialog.Add(sharedInbox);
+            dialog.Add(close);
+            Application.Run(dialog);
+        }
+
+        private void OpenDeleteDialog(int selectedIndex)
+        {
+            bool okpressed = false;
+            var ok = new Button(10, 14, "Yes");
+            ok.Clicked += () =>
+            {
+                Application.RequestStop();
+                okpressed = true;
+            };
+
+            var cancel = new Button(3, 14, "No");
+            cancel.Clicked += () => Application.RequestStop();
+
+            var dialog = new Dialog("Delete", 60, 18, cancel, ok);
+
+            var follower = _state.GetElementAt(selectedIndex);
+            var name = new Label($"User: @{follower.Acct}@{follower.Host}")
+            {
+                X = 1,
+                Y = 1,
+                Width = Dim.Fill(),
+                Height = 1
+            };
+            var entry = new Label("Delete user and remove all their followings?")
+            {
+                X = 1,
+                Y = 3,
+                Width = Dim.Fill(),
+                Height = 1
+            };
+            dialog.Add(name);
+            dialog.Add(entry);
+            Application.Run(dialog);
+
+            if (okpressed)
+            {
+                DeleteAndRemoveUser(selectedIndex);
+            }
         }
 
         private void DeleteAndRemoveUser(int el)
