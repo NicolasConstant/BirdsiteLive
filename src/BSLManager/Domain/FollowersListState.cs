@@ -70,7 +70,10 @@ namespace BSLManager.Domain
             var displayableUser = _filteredDisplayableUserList[index];
             var sourceUser = _filteredSourceUserList[index];
 
+            _filteredDisplayableUserList.Remove(displayableUser);
             _displayableUserList.Remove(displayableUser);
+
+            _filteredSourceUserList.Remove(sourceUser);
             _sourceUserList.Remove(sourceUser);
         }
 
