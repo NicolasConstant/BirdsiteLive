@@ -6,10 +6,9 @@ namespace BSLManager.Domain
 {
     public class FollowersListState
     {
-        private List<string> _displayableUserList = new List<string>();
-        private List<Follower> _sourceUserList = new List<Follower>();
+        private readonly List<string> _filteredDisplayableUserList = new List<string>();
 
-        private List<string> _filteredDisplayableUserList = new List<string>();
+        private List<Follower> _sourceUserList = new List<Follower>();
         private List<Follower> _filteredSourceUserList = new List<Follower>();
         
         public void Load(List<Follower> followers)
@@ -23,13 +22,11 @@ namespace BSLManager.Domain
         {
             _filteredSourceUserList = _sourceUserList.ToList();
 
-            _displayableUserList.Clear();
             _filteredDisplayableUserList.Clear();
 
             foreach (var follower in _sourceUserList)
             {
                 var displayedUser = $"{GetFullHandle(follower)}     ({follower.Followings.Count})";
-                _displayableUserList.Add(displayedUser);
                 _filteredDisplayableUserList.Add(displayedUser);
             }
         }
@@ -71,7 +68,6 @@ namespace BSLManager.Domain
             var sourceUser = _filteredSourceUserList[index];
 
             _filteredDisplayableUserList.Remove(displayableUser);
-            _displayableUserList.Remove(displayableUser);
 
             _filteredSourceUserList.Remove(sourceUser);
             _sourceUserList.Remove(sourceUser);
