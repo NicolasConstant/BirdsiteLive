@@ -46,7 +46,10 @@ namespace BirdsiteLive.Domain
             httpClient.DefaultRequestHeaders.Add("Accept", "application/activity+json");
             var result = await httpClient.GetAsync(objectId);
             var content = await result.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<Actor>(content);
+
+            var actor = JsonConvert.DeserializeObject<Actor>(content);
+            if (string.IsNullOrWhiteSpace(actor.url)) actor.url = objectId;
+            return actor;
         }
 
         public async Task PostNewNoteActivity(Note note, string username, string noteId, string targetHost, string targetInbox)
