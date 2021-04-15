@@ -30,17 +30,20 @@ namespace BirdsiteLive.Pipeline.Tests.Tools
             var provider = new MaxUsersNumberProvider(settings, twitterUserDalMock.Object);
             
             var result = await provider.GetMaxUsersNumberAsync();
-            Assert.AreEqual(250, result);
+            Assert.AreEqual(200, result);
 
             result = await provider.GetMaxUsersNumberAsync();
-            Assert.AreEqual(250, result);
+            Assert.AreEqual(200, result);
 
             result = await provider.GetMaxUsersNumberAsync();
-            Assert.AreEqual(250, result);
+            Assert.AreEqual(200, result);
 
             result = await provider.GetMaxUsersNumberAsync();
-            Assert.AreEqual(250, result);
-
+            Assert.AreEqual(200, result);
+            
+            result = await provider.GetMaxUsersNumberAsync();
+            Assert.AreEqual(200, result);
+            
             result = await provider.GetMaxUsersNumberAsync();
             Assert.AreEqual(1000, result);
             
@@ -63,7 +66,7 @@ namespace BirdsiteLive.Pipeline.Tests.Tools
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetTwitterUsersCountAsync())
-                .ReturnsAsync(249);
+                .ReturnsAsync(199);
             #endregion
 
             var provider = new MaxUsersNumberProvider(settings, twitterUserDalMock.Object);

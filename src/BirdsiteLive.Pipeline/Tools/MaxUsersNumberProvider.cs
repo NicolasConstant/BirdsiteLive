@@ -16,6 +16,7 @@ namespace BirdsiteLive.Pipeline.Tools
         
         private int _totalUsersCount = -1;
         private int _warmUpIterations;
+        private const int WarmUpMaxCapacity = 200;
 
         #region Ctor
         public MaxUsersNumberProvider(InstanceSettings instanceSettings, ITwitterUserDal twitterUserDal)
@@ -31,8 +32,7 @@ namespace BirdsiteLive.Pipeline.Tools
             if (_totalUsersCount == -1) 
             {
                 _totalUsersCount = await _twitterUserDal.GetTwitterUsersCountAsync();
-                var warmUpMaxCapacity = _instanceSettings.MaxUsersCapacity / 4;
-                _warmUpIterations = warmUpMaxCapacity == 0 ? 0 : (int)(_totalUsersCount / (float)warmUpMaxCapacity);
+                _warmUpIterations = (int)(_totalUsersCount / (float)WarmUpMaxCapacity);
             }
 
             // Return if warm up ended
@@ -40,7 +40,7 @@ namespace BirdsiteLive.Pipeline.Tools
 
             // Calculate warm up value
             var maxUsers = _warmUpIterations > 0
-                ? _instanceSettings.MaxUsersCapacity / 4
+                ? WarmUpMaxCapacity
                 : _instanceSettings.MaxUsersCapacity;
             _warmUpIterations--;
             return maxUsers;
