@@ -17,6 +17,7 @@ using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 
@@ -29,15 +30,17 @@ namespace BirdsiteLive.Controllers
         private readonly IUserService _userService;
         private readonly IStatusService _statusService;
         private readonly InstanceSettings _instanceSettings;
+        private readonly ILogger<UsersController> _logger;
 
         #region Ctor
-        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService)
+        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService, ILogger<UsersController> logger)
         {
             _twitterUserService = twitterUserService;
             _userService = userService;
             _statusService = statusService;
             _instanceSettings = instanceSettings;
             _twitterTweetService = twitterTweetService;
+            _logger = logger;
         }
         #endregion
 
@@ -57,6 +60,8 @@ namespace BirdsiteLive.Controllers
         [Route("/users/{id}")]
         public IActionResult Index(string id)
         {
+            _logger.LogTrace("User Index: {Id}", id);
+
             id = id.Trim(new[] { ' ', '@' }).ToLowerInvariant();
 
             // Ensure valid username 
@@ -131,6 +136,8 @@ namespace BirdsiteLive.Controllers
             using (var reader = new StreamReader(Request.Body))
             {
                 var body = await reader.ReadToEndAsync();
+
+                _logger.LogTrace("User Inbox: {Body}", body);
                 //System.IO.File.WriteAllText($@"C:\apdebug\{Guid.NewGuid()}.json", body);
 
                 var activity = ApDeserializer.ProcessActivity(body);
