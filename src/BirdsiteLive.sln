@@ -43,9 +43,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.DAL.Tests", "T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.Moderation", "BirdsiteLive.Moderation\BirdsiteLive.Moderation.csproj", "{4BE541AC-8A93-4FA3-98AC-956CC2D5B748}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.Moderation.Tests", "Tests\BirdsiteLive.Moderation.Tests\BirdsiteLive.Moderation.Tests.csproj", "{0A311BF3-4FD9-4303-940A-A3778890561C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.Moderation.Tests", "Tests\BirdsiteLive.Moderation.Tests\BirdsiteLive.Moderation.Tests.csproj", "{0A311BF3-4FD9-4303-940A-A3778890561C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BirdsiteLive.Common.Tests", "Tests\BirdsiteLive.Common.Tests\BirdsiteLive.Common.Tests.csproj", "{C69F7582-6050-44DC-BAAB-7C8F0BDA525C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BSLManager", "BSLManager\BSLManager.csproj", "{4A84D351-E91B-4E58-8E20-211F0F4991D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -125,6 +127,10 @@ Global
 		{C69F7582-6050-44DC-BAAB-7C8F0BDA525C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C69F7582-6050-44DC-BAAB-7C8F0BDA525C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C69F7582-6050-44DC-BAAB-7C8F0BDA525C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A84D351-E91B-4E58-8E20-211F0F4991D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A84D351-E91B-4E58-8E20-211F0F4991D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A84D351-E91B-4E58-8E20-211F0F4991D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A84D351-E91B-4E58-8E20-211F0F4991D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
