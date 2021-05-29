@@ -90,11 +90,18 @@ namespace BSLManager.Tools
 
         private LocalSettingsData GetLocalSettingsFile()
         {
-            if (!File.Exists(LocalFileName)) return null;
+            try
+            {
+                if (!File.Exists(LocalFileName)) return null;
 
-            var jsonContent = File.ReadAllText(LocalFileName);
-            var content = JsonConvert.DeserializeObject<LocalSettingsData>(jsonContent);
-            return content;
+                var jsonContent = File.ReadAllText(LocalFileName);
+                var content = JsonConvert.DeserializeObject<LocalSettingsData>(jsonContent);
+                return content;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private void SaveLocalSettings(LocalSettingsData data)
