@@ -47,3 +47,5 @@ The **filter** permits to filter the list of users with a pattern.
 All users have their followings count provided next to them. 
 You can select any user by using the up/down arrow keys and hitting the `Enter` key, this will display more information about the user.
 You can also remove a user and all their followings by hitting the `Del` key. You will be prompted by a confirmation message, and you'll be able to remove this user.
+
+Deleting users having a lots of followings can take some time: after the prompt has closed the process is still running and will update the list after that. Let the software do its thing and it will go through. 
