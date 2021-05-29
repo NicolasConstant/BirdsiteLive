@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Domain.Repository;
 using BirdsiteLive.Moderation.Actions;
@@ -38,7 +39,10 @@ namespace BirdsiteLive.Moderation.Processors
 
                 if (type == ModerationTypeEnum.WhiteListing && status != ModeratedTypeEnum.WhiteListed ||
                     type == ModerationTypeEnum.BlackListing && status == ModeratedTypeEnum.BlackListed)
+                {
+                    Console.WriteLine($"Remove {followerHandle}");
                     await _removeFollowerAction.ProcessAsync(follower);
+                }
             }
         }
     }

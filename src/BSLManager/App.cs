@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -212,9 +213,19 @@ namespace BSLManager
         {
             Application.MainLoop.Invoke(async () =>
             {
-                var userToDelete = _state.GetElementAt(el);
-                await _removeFollowerAction.ProcessAsync(userToDelete);
-                _state.RemoveAt(el);
+                try
+                {
+                    var userToDelete = _state.GetElementAt(el);
+                    
+                    BasicLogger.Log($"Delete {userToDelete.Acct}@{userToDelete.Host}");
+                    await _removeFollowerAction.ProcessAsync(userToDelete);
+                    BasicLogger.Log($"Remove user from list");
+                    _state.RemoveAt(el);
+                }
+                catch (Exception e)
+                {
+                    BasicLogger.Log(e.Message);
+                }
 
                 ConsoleGui.RefreshUI();
             });
