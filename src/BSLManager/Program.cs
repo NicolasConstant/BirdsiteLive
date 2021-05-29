@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
+using BSLManager.Tools;
 using Microsoft.Extensions.Configuration;
 using NStack;
 using Terminal.Gui;
@@ -18,14 +19,17 @@ namespace BSLManager
         {
             Console.OutputEncoding = Encoding.Default;
 
-            var builder = new ConfigurationBuilder()
-                .AddEnvironmentVariables();
-            var configuration = builder.Build();
+            var settingsManager = new SettingsManager();
+            var settings = settingsManager.GetSettings();
 
-            var dbSettings = configuration.GetSection("Db").Get<DbSettings>();
-            var instanceSettings = configuration.GetSection("Instance").Get<InstanceSettings>();
+            //var builder = new ConfigurationBuilder()
+            //    .AddEnvironmentVariables();
+            //var configuration = builder.Build();
 
-            var bootstrapper = new Bootstrapper(dbSettings, instanceSettings);
+            //var dbSettings = configuration.GetSection("Db").Get<DbSettings>();
+            //var instanceSettings = configuration.GetSection("Instance").Get<InstanceSettings>();
+
+            var bootstrapper = new Bootstrapper(settings.dbSettings, settings.instanceSettings);
             var container = bootstrapper.Init();
 
             var app = container.GetInstance<App>();
