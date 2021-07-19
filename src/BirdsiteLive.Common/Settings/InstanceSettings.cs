@@ -10,5 +10,6 @@
         public int MaxUsersCapacity { get; set; }
 
         public string UnlistedTwitterAccounts { get; set; }
+        public string SensitiveTwitterAccounts { get; set; }
     }
 }

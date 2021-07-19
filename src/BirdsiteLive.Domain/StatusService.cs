@@ -50,6 +50,11 @@ namespace BirdsiteLive.Domain
             if (isUnlisted)
                 cc = new[] {"https://www.w3.org/ns/activitystreams#Public"};
             
+            string summary = null;
+            var sensitive = _publicationRepository.IsSensitive(username);
+            if (sensitive)
+                summary = "Potential Content Warning";
+
             var extractedTags = _statusExtractor.Extract(tweet.MessageContent);
             _statisticsHandler.ExtractedStatus(extractedTags.tags.Count(x => x.type == "Mention"));
 
@@ -81,7 +86,8 @@ namespace BirdsiteLive.Domain
                 to = new[] { to },
                 cc = cc,
 
-                sensitive = false,
+                sensitive = sensitive,
+                summary = summary,
                 content = $"<p>{content}</p>",
                 attachment = Convert(tweet.Media),
                 tag = extractedTags.tags
