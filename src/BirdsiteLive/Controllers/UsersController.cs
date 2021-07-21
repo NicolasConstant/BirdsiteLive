@@ -58,6 +58,7 @@ namespace BirdsiteLive.Controllers
 
         [Route("/@{id}")]
         [Route("/users/{id}")]
+        [Route("/users/{id}/remote_follow")]
         public IActionResult Index(string id)
         {
             _logger.LogTrace("User Index: {Id}", id);
