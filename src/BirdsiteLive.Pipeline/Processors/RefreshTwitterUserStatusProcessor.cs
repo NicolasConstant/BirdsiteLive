@@ -12,15 +12,17 @@ namespace BirdsiteLive.Pipeline.Processors
 {
     public class RefreshTwitterUserStatusProcessor : IRefreshTwitterUserStatusProcessor
     {
-        private const int FetchingErrorCountThreshold = 10;
+        private const int FetchingErrorCountThreshold = 300;
         private readonly ICachedTwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly IRemoveTwitterAccountAction _removeTwitterAccountAction;
 
         #region Ctor
-        public RefreshTwitterUserStatusProcessor(ICachedTwitterUserService twitterUserService)
+        public RefreshTwitterUserStatusProcessor(ICachedTwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, IRemoveTwitterAccountAction removeTwitterAccountAction)
         {
             _twitterUserService = twitterUserService;
+            _twitterUserDal = twitterUserDal;
+            _removeTwitterAccountAction = removeTwitterAccountAction;
         }
         #endregion
 
