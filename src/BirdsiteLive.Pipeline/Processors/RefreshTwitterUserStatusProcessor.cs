@@ -39,6 +39,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 }
                 else if (!userView.Protected)
                 {
+                    user.FetchingErrorCount = 0;
                     var userWtData = new UserWithDataToSync
                     {
                         User = user

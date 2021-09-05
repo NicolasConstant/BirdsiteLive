@@ -65,6 +65,49 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
         }
 
         [TestMethod]
+        public async Task ProcessAsync_ResetErrorCount_Test()
+        {
+            #region Stubs
+            var userId1 = 1;
+
+            var users = new List<SyncTwitterUser>
+            {
+                new SyncTwitterUser
+                {
+                    Id = userId1,
+                    FetchingErrorCount = 100
+                }
+            };
+            #endregion
+
+            #region Mocks
+            var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
+            twitterUserServiceMock
+                .Setup(x => x.GetUser(It.IsAny<string>()))
+                .Returns(new TwitterUser
+                {
+                    Protected = false
+                });
+
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
+            var removeTwitterAccountActionMock = new Mock<IRemoveTwitterAccountAction>(MockBehavior.Strict);
+            #endregion
+
+            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object);
+            var result = await processor.ProcessAsync(users.ToArray(), CancellationToken.None);
+
+            #region Validations
+            Assert.AreEqual(1, result.Length);
+            Assert.IsTrue(result.Any(x => x.User.Id == userId1));
+            Assert.AreEqual(0, result.First().User.FetchingErrorCount);
+
+            twitterUserServiceMock.VerifyAll();
+            twitterUserDalMock.VerifyAll();
+            removeTwitterAccountActionMock.VerifyAll();
+            #endregion
+        }
+
+        [TestMethod]
         public async Task ProcessAsync_Unfound_Test()
         {
             #region Stubs
