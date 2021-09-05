@@ -31,33 +31,30 @@ namespace BirdsiteLive.Pipeline.Processors
         }
         #endregion
 
-        public async Task<UserWithTweetsToSync[]> ProcessAsync(SyncTwitterUser[] syncTwitterUsers, CancellationToken ct)
+        public async Task<UserWithDataToSync[]> ProcessAsync(UserWithDataToSync[] syncTwitterUsers, CancellationToken ct)
         {
-            var usersWtTweets = new List<UserWithTweetsToSync>();
+            var usersWtTweets = new List<UserWithDataToSync>();
 
             //TODO multithread this
-            foreach (var user in syncTwitterUsers)
+            foreach (var userWtData in syncTwitterUsers)
             {
+                var user = userWtData.User;
                 var tweets = RetrieveNewTweets(user);
                 if (tweets.Length > 0 && user.LastTweetPostedId != -1)
                 {
-                    var userWtTweets = new UserWithTweetsToSync
-                    {
-                        User = user,
-                        Tweets = tweets
-                    };
-                    usersWtTweets.Add(userWtTweets);
+                    userWtData.Tweets = tweets;
+                    usersWtTweets.Add(userWtData);
                 }
                 else if (tweets.Length > 0 && user.LastTweetPostedId == -1)
                 {
                     var tweetId = tweets.Last().Id;
                     var now = DateTime.UtcNow;
-                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, now);
+                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, user.FetchingErrorCount, now);
                 }
                 else
                 {
                     var now = DateTime.UtcNow;
-                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, now);
+                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now);
                 }
             }
 

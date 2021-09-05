@@ -4,10 +4,13 @@ using Tweetinvi.Models;
 
 namespace BirdsiteLive.Pipeline.Models
 {
-    public class UserWithTweetsToSync
+    public class UserWithDataToSync
     {
         public SyncTwitterUser User { get; set; }
         public ExtractedTweet[] Tweets { get; set; }
         public Follower[] Followers { get; set; }
+
+        public bool IsUserProtected { get; set; }
+        public bool IsUserNotRetrieved { get; set; }
     }
 }

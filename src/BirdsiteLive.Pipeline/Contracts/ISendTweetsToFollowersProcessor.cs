@@ -6,6 +6,6 @@ namespace BirdsiteLive.Pipeline.Contracts
 {
     public interface ISendTweetsToFollowersProcessor
     {
-        Task<UserWithTweetsToSync> ProcessAsync(UserWithTweetsToSync userWithTweetsToSync, CancellationToken ct);
+        Task<UserWithDataToSync> ProcessAsync(UserWithDataToSync userWithTweetsToSync, CancellationToken ct);
     }
 }

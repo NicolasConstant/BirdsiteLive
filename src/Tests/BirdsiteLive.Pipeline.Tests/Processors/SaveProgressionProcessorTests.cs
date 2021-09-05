@@ -41,7 +41,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 }
             };
 
-            var usersWithTweets = new UserWithTweetsToSync
+            var usersWithTweets = new UserWithDataToSync
             {
                 Tweets = new []
                 {
@@ -65,6 +65,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.Is<int>(y => y == user.Id),
                     It.Is<long>(y => y == tweet2.Id),
                     It.Is<long>(y => y == tweet2.Id),
+                    It.Is<int>(y => y == 0),
                     It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
@@ -107,7 +108,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 }
             };
 
-            var usersWithTweets = new UserWithTweetsToSync
+            var usersWithTweets = new UserWithDataToSync
             {
                 Tweets = new[]
                 {
@@ -130,6 +131,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.Is<int>(y => y == user.Id),
                     It.Is<long>(y => y == tweet3.Id),
                     It.Is<long>(y => y == tweet2.Id),
+                    It.Is<int>(y => y == 0),
                     It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
@@ -181,7 +183,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 }
             };
 
-            var usersWithTweets = new UserWithTweetsToSync
+            var usersWithTweets = new UserWithDataToSync
             {
                 Tweets = new[]
                 {
@@ -205,6 +207,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.Is<int>(y => y == user.Id),
                     It.Is<long>(y => y == tweet3.Id),
                     It.Is<long>(y => y == tweet2.Id),
+                    It.Is<int>(y => y == 0),
                     It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
