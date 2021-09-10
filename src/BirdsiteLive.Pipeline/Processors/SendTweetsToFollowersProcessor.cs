@@ -33,7 +33,7 @@ namespace BirdsiteLive.Pipeline.Processors
         }
         #endregion
 
-        public async Task<UserWithTweetsToSync> ProcessAsync(UserWithTweetsToSync userWithTweetsToSync, CancellationToken ct)
+        public async Task<UserWithDataToSync> ProcessAsync(UserWithDataToSync userWithTweetsToSync, CancellationToken ct)
         {
             var user = userWithTweetsToSync.User;
 

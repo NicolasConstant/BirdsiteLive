@@ -22,7 +22,7 @@ namespace BirdsiteLive.Pipeline.Processors
         }
         #endregion
 
-        public async Task ProcessAsync(UserWithTweetsToSync userWithTweetsToSync, CancellationToken ct)
+        public async Task ProcessAsync(UserWithDataToSync userWithTweetsToSync, CancellationToken ct)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 var lastPostedTweet = userWithTweetsToSync.Tweets.Select(x => x.Id).Max();
                 var minimumSync = followingSyncStatuses.Min();
                 var now = DateTime.UtcNow;
-                await _twitterUserDal.UpdateTwitterUserAsync(userId, lastPostedTweet, minimumSync, now);
+                await _twitterUserDal.UpdateTwitterUserAsync(userId, lastPostedTweet, minimumSync, userWithTweetsToSync.User.FetchingErrorCount, now);
             }
             catch (Exception e)
             {

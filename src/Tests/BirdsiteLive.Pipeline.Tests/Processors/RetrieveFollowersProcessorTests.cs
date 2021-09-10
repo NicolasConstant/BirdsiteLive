@@ -21,16 +21,16 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var userId1 = 1;
             var userId2 = 2;
 
-            var users = new List<UserWithTweetsToSync>
+            var users = new List<UserWithDataToSync>
             {
-                new UserWithTweetsToSync
+                new UserWithDataToSync
                 {
                     User = new SyncTwitterUser
                     {
                         Id = userId1
                     }
                 },
-                new UserWithTweetsToSync
+                new UserWithDataToSync
                 {
                     User = new SyncTwitterUser
                     {

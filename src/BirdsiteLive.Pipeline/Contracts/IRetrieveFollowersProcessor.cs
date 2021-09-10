@@ -7,7 +7,7 @@ namespace BirdsiteLive.Pipeline.Contracts
 {
     public interface IRetrieveFollowersProcessor
     {
-        Task<IEnumerable<UserWithTweetsToSync>> ProcessAsync(UserWithTweetsToSync[] userWithTweetsToSyncs, CancellationToken ct);
+        Task<IEnumerable<UserWithDataToSync>> ProcessAsync(UserWithDataToSync[] userWithTweetsToSyncs, CancellationToken ct);
         //IAsyncEnumerable<UserWithTweetsToSync> ProcessAsync(UserWithTweetsToSync[] userWithTweetsToSyncs, CancellationToken ct);
     }
 }

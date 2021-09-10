@@ -26,7 +26,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var userId2 = 3;
             var userAcct = "user";
 
-            var userWithTweets = new UserWithTweetsToSync()
+            var userWithTweets = new UserWithDataToSync()
             {
                 Tweets = new []
                 {
@@ -93,7 +93,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var userId2 = 3;
             var userAcct = "user";
 
-            var userWithTweets = new UserWithTweetsToSync()
+            var userWithTweets = new UserWithDataToSync()
             {
                 Tweets = new[]
                 {
@@ -163,7 +163,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var userId2 = 3;
             var userAcct = "user";
 
-            var userWithTweets = new UserWithTweetsToSync()
+            var userWithTweets = new UserWithDataToSync()
             {
                 Tweets = new[]
                 {
@@ -237,7 +237,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var userId2 = 3;
             var userAcct = "user";
 
-            var userWithTweets = new UserWithTweetsToSync()
+            var userWithTweets = new UserWithDataToSync()
             {
                 Tweets = new[]
                 {
@@ -306,7 +306,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var userId2 = 3;
             var userAcct = "user";
 
-            var userWithTweets = new UserWithTweetsToSync()
+            var userWithTweets = new UserWithDataToSync()
             {
                 Tweets = new[]
                 {
@@ -375,7 +375,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var userId2 = 3;
             var userAcct = "user";
 
-            var userWithTweets = new UserWithTweetsToSync()
+            var userWithTweets = new UserWithDataToSync()
             {
                 Tweets = new[]
                 {
