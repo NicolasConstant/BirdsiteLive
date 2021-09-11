@@ -32,6 +32,7 @@ namespace BirdsiteLive.Controllers
             var stats = new Models.StatisticsModels.Statistics
             {
                 FollowersCount = await _followersDal.GetFollowersCountAsync(),
+                FailingFollowersCount = await _followersDal.GetFailingFollowersCountAsync(),
                 TwitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync(),
                 TwitterStatistics = _twitterStatistics.GetStatistics(),
                 ExtractionStatistics = _extractionStatistics.GetStatistics(),

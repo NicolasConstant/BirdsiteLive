@@ -53,6 +53,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task<int> GetFailingFollowersCountAsync()
+        {
+            var query = $"SELECT COUNT(*) FROM {_settings.FollowersTableName} WHERE postingErrorCount > 0";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = (await dbConnection.QueryAsync<int>(query)).FirstOrDefault();
+                return result;
+            }
+        }
+
         public async Task<Follower> GetFollowerAsync(string acct, string host)
         {
             var query = $"SELECT * FROM {_settings.FollowersTableName} WHERE acct = @acct AND host = @host";
