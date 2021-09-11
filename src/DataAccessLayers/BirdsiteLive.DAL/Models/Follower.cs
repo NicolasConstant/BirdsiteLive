@@ -14,5 +14,7 @@ namespace BirdsiteLive.DAL.Models
         public string Host { get; set; }
         public string InboxRoute { get; set; }
         public string SharedInboxRoute { get; set; }
+
+        public int PostingErrorCount { get; set; }
     }
 }

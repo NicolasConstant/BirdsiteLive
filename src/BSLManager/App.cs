@@ -146,23 +146,31 @@ namespace BSLManager
                 Width = Dim.Fill(),
                 Height = 1
             };
-            var inbox = new Label($"Inbox: {follower.InboxRoute}")
+            var errors = new Label($"Posting Errors: {follower.PostingErrorCount}")
             {
                 X = 1,
                 Y = 4,
                 Width = Dim.Fill(),
                 Height = 1
             };
-            var sharedInbox = new Label($"Shared Inbox: {follower.SharedInboxRoute}")
+            var inbox = new Label($"Inbox: {follower.InboxRoute}")
             {
                 X = 1,
                 Y = 5,
                 Width = Dim.Fill(),
                 Height = 1
             };
+            var sharedInbox = new Label($"Shared Inbox: {follower.SharedInboxRoute}")
+            {
+                X = 1,
+                Y = 6,
+                Width = Dim.Fill(),
+                Height = 1
+            };
 
             dialog.Add(name);
             dialog.Add(following);
+            dialog.Add(errors);
             dialog.Add(inbox);
             dialog.Add(sharedInbox);
             dialog.Add(close);
