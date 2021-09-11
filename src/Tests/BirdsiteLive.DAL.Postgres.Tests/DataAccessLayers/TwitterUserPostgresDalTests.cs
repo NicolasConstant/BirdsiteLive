@@ -301,5 +301,27 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var result = await dal.GetTwitterUsersCountAsync();
             Assert.AreEqual(10, result);
         }
+
+        [TestMethod]
+        public async Task CountFailingTwitterUsers()
+        {
+            var dal = new TwitterUserPostgresDal(_settings);
+            for (var i = 0; i < 10; i++)
+            {
+                var acct = $"myid{i}";
+                var lastTweetId = 1548L;
+
+                await dal.CreateTwitterUserAsync(acct, lastTweetId);
+
+                if (i == 0 || i == 2 || i == 3)
+                {
+                    var t = await dal.GetTwitterUserAsync(acct);
+                    await dal.UpdateTwitterUserAsync(t.Id ,1L,2L, 50+i*2, DateTime.Now);
+                }
+            }
+
+            var result = await dal.GetFailingTwitterUsersCountAsync();
+            Assert.AreEqual(3, result);
+        }
     }
 }

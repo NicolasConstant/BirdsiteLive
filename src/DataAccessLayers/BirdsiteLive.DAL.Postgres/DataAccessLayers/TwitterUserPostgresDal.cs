@@ -73,6 +73,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task<int> GetFailingTwitterUsersCountAsync()
+        {
+            var query = $"SELECT COUNT(*) FROM {_settings.TwitterUserTableName} WHERE fetchingErrorCount > 0";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = (await dbConnection.QueryAsync<int>(query)).FirstOrDefault();
+                return result;
+            }
+        }
+
         public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync(int maxNumber)
         {
             var query = $"SELECT * FROM {_settings.TwitterUserTableName} ORDER BY lastSync ASC LIMIT @maxNumber";
