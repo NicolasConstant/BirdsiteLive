@@ -15,5 +15,6 @@ namespace BirdsiteLive.DAL.Contracts
         Task DeleteFollowerAsync(int id);
         Task DeleteFollowerAsync(string acct, string host);
         Task<int> GetFollowersCountAsync();
+        Task<int> GetFailingFollowersCountAsync();
     }
 }
