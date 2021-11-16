@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Moderation.Actions;
@@ -12,17 +13,18 @@ namespace BirdsiteLive.Pipeline.Processors
 {
     public class RefreshTwitterUserStatusProcessor : IRefreshTwitterUserStatusProcessor
     {
-        private const int FetchingErrorCountThreshold = 300;
         private readonly ICachedTwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly IRemoveTwitterAccountAction _removeTwitterAccountAction;
+        private readonly InstanceSettings _instanceSettings;
 
         #region Ctor
-        public RefreshTwitterUserStatusProcessor(ICachedTwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, IRemoveTwitterAccountAction removeTwitterAccountAction)
+        public RefreshTwitterUserStatusProcessor(ICachedTwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, IRemoveTwitterAccountAction removeTwitterAccountAction, InstanceSettings instanceSettings)
         {
             _twitterUserService = twitterUserService;
             _twitterUserDal = twitterUserDal;
             _removeTwitterAccountAction = removeTwitterAccountAction;
+            _instanceSettings = instanceSettings;
         }
         #endregion
 
@@ -56,7 +58,7 @@ namespace BirdsiteLive.Pipeline.Processors
             var dbUser = await _twitterUserDal.GetTwitterUserAsync(user.Acct);
             dbUser.FetchingErrorCount++;
 
-            if (dbUser.FetchingErrorCount > FetchingErrorCountThreshold)
+            if (dbUser.FetchingErrorCount > _instanceSettings.FailingTwitterUserCleanUpThreshold)
             {
                 await _removeTwitterAccountAction.ProcessAsync(user);
             }
