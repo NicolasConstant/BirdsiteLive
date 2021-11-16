@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Moderation.Actions;
@@ -35,6 +36,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     Id = userId2
                 }
             };
+
+            var settings = new InstanceSettings
+            {
+                FailingTwitterUserCleanUpThreshold = 300
+            };
             #endregion
 
             #region Mocks
@@ -50,7 +56,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var removeTwitterAccountActionMock = new Mock<IRemoveTwitterAccountAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object);
+            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object, settings);
             var result = await processor.ProcessAsync(users.ToArray(), CancellationToken.None);
 
             #region Validations
@@ -78,6 +84,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     FetchingErrorCount = 100
                 }
             };
+
+            var settings = new InstanceSettings
+            {
+                FailingTwitterUserCleanUpThreshold = 300
+            };
             #endregion
 
             #region Mocks
@@ -93,7 +104,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var removeTwitterAccountActionMock = new Mock<IRemoveTwitterAccountAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object);
+            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object, settings);
             var result = await processor.ProcessAsync(users.ToArray(), CancellationToken.None);
 
             #region Validations
@@ -130,6 +141,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     Acct = acct2
                 }
             };
+
+            var settings = new InstanceSettings
+            {
+                FailingTwitterUserCleanUpThreshold = 300
+            };
             #endregion
 
             #region Mocks
@@ -164,7 +180,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var removeTwitterAccountActionMock = new Mock<IRemoveTwitterAccountAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object);
+            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object, settings);
             var result = await processor.ProcessAsync(users.ToArray(), CancellationToken.None);
 
             #region Validations
@@ -200,6 +216,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     Acct = acct2
                 }
             };
+
+            var settings = new InstanceSettings
+            {
+                FailingTwitterUserCleanUpThreshold = 300
+            };
             #endregion
 
             #region Mocks
@@ -233,7 +254,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
             #endregion
 
-            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object);
+            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object, settings);
             var result = await processor.ProcessAsync(users.ToArray(), CancellationToken.None);
 
             #region Validations
@@ -269,6 +290,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     Acct = acct2
                 }
             };
+
+            var settings = new InstanceSettings
+            {
+                FailingTwitterUserCleanUpThreshold = 300
+            };
             #endregion
 
             #region Mocks
@@ -291,7 +317,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var removeTwitterAccountActionMock = new Mock<IRemoveTwitterAccountAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object);
+            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object, settings);
             var result = await processor.ProcessAsync(users.ToArray(), CancellationToken.None);
 
             #region Validations
