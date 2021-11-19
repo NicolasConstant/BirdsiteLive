@@ -11,5 +11,7 @@ namespace BirdsiteLive.DAL.Models
         public long LastTweetSynchronizedForAllFollowersId { get; set; }
 
         public DateTime LastSync { get; set; }
+
+        public int FetchingErrorCount { get; set; } //TODO: update DAL
     }
 }

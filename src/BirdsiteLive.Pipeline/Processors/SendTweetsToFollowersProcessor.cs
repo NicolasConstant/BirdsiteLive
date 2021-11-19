@@ -22,18 +22,20 @@ namespace BirdsiteLive.Pipeline.Processors
     {
         private readonly ISendTweetsToInboxTask _sendTweetsToInboxTask;
         private readonly ISendTweetsToSharedInboxTask _sendTweetsToSharedInbox;
+        private readonly IFollowersDal _followersDal;
         private readonly ILogger<SendTweetsToFollowersProcessor> _logger;
 
         #region Ctor
-        public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox, ILogger<SendTweetsToFollowersProcessor> logger)
+        public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox, IFollowersDal followersDal, ILogger<SendTweetsToFollowersProcessor> logger)
         {
             _sendTweetsToInboxTask = sendTweetsToInboxTask;
             _sendTweetsToSharedInbox = sendTweetsToSharedInbox;
             _logger = logger;
+            _followersDal = followersDal;
         }
         #endregion
 
-        public async Task<UserWithTweetsToSync> ProcessAsync(UserWithTweetsToSync userWithTweetsToSync, CancellationToken ct)
+        public async Task<UserWithDataToSync> ProcessAsync(UserWithDataToSync userWithTweetsToSync, CancellationToken ct)
         {
             var user = userWithTweetsToSync.User;
 
@@ -41,18 +43,18 @@ namespace BirdsiteLive.Pipeline.Processors
             var followersWtSharedInbox = userWithTweetsToSync.Followers
                 .Where(x => !string.IsNullOrWhiteSpace(x.SharedInboxRoute))
                 .ToList();
-            await ProcessFollowersWithSharedInbox(userWithTweetsToSync.Tweets, followersWtSharedInbox, user);
+            await ProcessFollowersWithSharedInboxAsync(userWithTweetsToSync.Tweets, followersWtSharedInbox, user);
 
             // Process Inbox
             var followerWtInbox = userWithTweetsToSync.Followers
                 .Where(x => string.IsNullOrWhiteSpace(x.SharedInboxRoute))
                 .ToList();
-            await ProcessFollowersWithInbox(userWithTweetsToSync.Tweets, followerWtInbox, user);
+            await ProcessFollowersWithInboxAsync(userWithTweetsToSync.Tweets, followerWtInbox, user);
 
             return userWithTweetsToSync;
         }
 
-        private async Task ProcessFollowersWithSharedInbox(ExtractedTweet[] tweets, List<Follower> followers, SyncTwitterUser user)
+        private async Task ProcessFollowersWithSharedInboxAsync(ExtractedTweet[] tweets, List<Follower> followers, SyncTwitterUser user)
         {
             var followersPerInstances = followers.GroupBy(x => x.Host);
 
@@ -61,28 +63,51 @@ namespace BirdsiteLive.Pipeline.Processors
                 try
                 {
                     await _sendTweetsToSharedInbox.ExecuteAsync(tweets, user, followersPerInstance.Key, followersPerInstance.ToArray());
+
+                    foreach (var f in followersPerInstance)
+                        await ProcessWorkingUserAsync(f);
                 }
                 catch (Exception e)
                 {
                     var follower = followersPerInstance.First();
                     _logger.LogError(e, "Posting to {Host}{Route} failed", follower.Host, follower.SharedInboxRoute);
+
+                    foreach (var f in followersPerInstance)
+                        await ProcessFailingUserAsync(f);
                 }
             }
         }
         
-        private async Task ProcessFollowersWithInbox(ExtractedTweet[] tweets, List<Follower> followerWtInbox, SyncTwitterUser user)
+        private async Task ProcessFollowersWithInboxAsync(ExtractedTweet[] tweets, List<Follower> followerWtInbox, SyncTwitterUser user)
         {
             foreach (var follower in followerWtInbox)
             {
                 try
                 {
                     await _sendTweetsToInboxTask.ExecuteAsync(tweets, follower, user);
+                    await ProcessWorkingUserAsync(follower);
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Posting to {Host}{Route} failed", follower.Host, follower.InboxRoute);
+                    await ProcessFailingUserAsync(follower);
                 }
             }
+        }
+
+        private async Task ProcessWorkingUserAsync(Follower follower)
+        {
+            if (follower.PostingErrorCount > 0)
+            {
+                follower.PostingErrorCount = 0;
+                await _followersDal.UpdateFollowerAsync(follower);
+            }
+        }
+
+        private async Task ProcessFailingUserAsync(Follower follower)
+        {
+            follower.PostingErrorCount++;
+            await _followersDal.UpdateFollowerAsync(follower);
         }
     }
 }

@@ -6,6 +6,6 @@ namespace BirdsiteLive.Pipeline.Contracts
 {
     public interface ISaveProgressionProcessor
     {
-        Task ProcessAsync(UserWithTweetsToSync userWithTweetsToSync, CancellationToken ct);
+        Task ProcessAsync(UserWithDataToSync userWithTweetsToSync, CancellationToken ct);
     }
 }

@@ -53,6 +53,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task<int> GetFailingFollowersCountAsync()
+        {
+            var query = $"SELECT COUNT(*) FROM {_settings.FollowersTableName} WHERE postingErrorCount > 0";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = (await dbConnection.QueryAsync<int>(query)).FirstOrDefault();
+                return result;
+            }
+        }
+
         public async Task<Follower> GetFollowerAsync(string acct, string host)
         {
             var query = $"SELECT * FROM {_settings.FollowersTableName} WHERE acct = @acct AND host = @host";
@@ -103,13 +116,13 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             if (follower.Id == default) throw new ArgumentException("id");
 
             var serializedDic = JsonConvert.SerializeObject(follower.FollowingsSyncStatus);
-            var query = $"UPDATE {_settings.FollowersTableName} SET followings = @followings, followingsSyncStatus =  CAST(@followingsSyncStatus as json) WHERE id = @id";
+            var query = $"UPDATE {_settings.FollowersTableName} SET followings = @followings, followingsSyncStatus = CAST(@followingsSyncStatus as json), postingErrorCount = @postingErrorCount WHERE id = @id";
 
             using (var dbConnection = Connection)
             {
                 dbConnection.Open();
 
-                await dbConnection.QueryAsync(query, new { follower.Id, follower.Followings, followingsSyncStatus = serializedDic });
+                await dbConnection.QueryAsync(query, new { follower.Id, follower.Followings, followingsSyncStatus = serializedDic, postingErrorCount = follower.PostingErrorCount });
             }
         }
 
@@ -158,7 +171,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 ActorId = follower.ActorId,
                 SharedInboxRoute = follower.SharedInboxRoute,
                 Followings = follower.Followings.ToList(),
-                FollowingsSyncStatus = JsonConvert.DeserializeObject<Dictionary<int,long>>(follower.FollowingsSyncStatus)
+                FollowingsSyncStatus = JsonConvert.DeserializeObject<Dictionary<int,long>>(follower.FollowingsSyncStatus),
+                PostingErrorCount = follower.PostingErrorCount
             };
         }
     }
@@ -174,5 +188,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         public string InboxRoute { get; set; }
         public string SharedInboxRoute { get; set; }
         public string ActorId { get; set; }
+        public int PostingErrorCount { get; set; }
     }
 }

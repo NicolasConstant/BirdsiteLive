@@ -95,7 +95,7 @@ namespace BirdsiteLive.Statistics.Domain
                 TimelineCallsCountMin = timelineCalls.Any() ? timelineCalls.Min() : 0,
                 TimelineCallsCountAvg = timelineCalls.Any() ? (int)timelineCalls.Average() : 0,
                 TimelineCallsCountMax = timelineCalls.Any() ? timelineCalls.Max() : 0,
-                TimelineCallsMax = 1500
+                TimelineCallsMax = 1000
             };
         }
     }

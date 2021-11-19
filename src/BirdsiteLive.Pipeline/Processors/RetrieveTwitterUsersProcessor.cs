@@ -55,7 +55,12 @@ namespace BirdsiteLive.Pipeline.Processors
                     }
 
                     var splitCount = splitUsers.Count();
-                    if (splitCount < 15) await Task.Delay((15 - splitCount) * WaitFactor, ct);
+                    if (splitCount < 15) await Task.Delay((15 - splitCount) * WaitFactor, ct); //Always wait 15min
+
+                    //// Extra wait time to fit 100.000/day limit
+                    //var extraWaitTime = (int)Math.Ceiling((60 / ((100000d / 24) / userCount)) - 15);
+                    //if (extraWaitTime < 0) extraWaitTime = 0;
+                    //await Task.Delay(extraWaitTime * 1000, ct);
                 }
                 catch (Exception e)
                 {

@@ -27,6 +27,7 @@ namespace BirdsiteLive.Pipeline.Tests
                     It.IsAny<CancellationToken>()))
                 .Returns(Task.Delay(0));
 
+            var refreshTwitterUserStatusProcessor = new Mock<IRefreshTwitterUserStatusProcessor>(MockBehavior.Strict);
             var retrieveTweetsProcessor = new Mock<IRetrieveTweetsProcessor>(MockBehavior.Strict);
             var retrieveFollowersProcessor = new Mock<IRetrieveFollowersProcessor>(MockBehavior.Strict);
             var sendTweetsToFollowersProcessor = new Mock<ISendTweetsToFollowersProcessor>(MockBehavior.Strict);
@@ -34,7 +35,7 @@ namespace BirdsiteLive.Pipeline.Tests
             var logger = new Mock<ILogger<StatusPublicationPipeline>>();
             #endregion
 
-            var pipeline = new StatusPublicationPipeline(retrieveTweetsProcessor.Object, retrieveTwitterUsersProcessor.Object, retrieveFollowersProcessor.Object, sendTweetsToFollowersProcessor.Object, saveProgressionProcessor.Object, logger.Object);
+            var pipeline = new StatusPublicationPipeline(retrieveTweetsProcessor.Object, retrieveTwitterUsersProcessor.Object, retrieveFollowersProcessor.Object, sendTweetsToFollowersProcessor.Object, saveProgressionProcessor.Object, refreshTwitterUserStatusProcessor.Object, logger.Object);
             await pipeline.ExecuteAsync(ct.Token);
 
             #region Validations

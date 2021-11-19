@@ -5,8 +5,8 @@ using BirdsiteLive.Pipeline.Models;
 
 namespace BirdsiteLive.Pipeline.Contracts
 {
-    public interface IRetrieveTweetsProcessor
+    public interface IRefreshTwitterUserStatusProcessor
     {
-        Task<UserWithDataToSync[]> ProcessAsync(UserWithDataToSync[] syncTwitterUsers, CancellationToken ct);
+        Task<UserWithDataToSync[]> ProcessAsync(SyncTwitterUser[] syncTwitterUsers, CancellationToken ct);
     }
 }

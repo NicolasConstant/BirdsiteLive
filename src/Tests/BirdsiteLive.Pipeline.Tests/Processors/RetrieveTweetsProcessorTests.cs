@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
+using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Pipeline.Processors;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
@@ -27,9 +28,14 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 LastTweetPostedId = -1
             };
 
+            var user1WtData = new UserWithDataToSync
+            {
+                User = user1,
+            };
+
             var users = new[]
             {
-                user1
+                user1WtData
             };
 
             var tweets = new[]
@@ -57,14 +63,12 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.Is<int>(y => y == user1.Id),
                     It.Is<long>(y => y == tweets.Last().Id),
                     It.Is<long>(y => y == tweets.Last().Id),
+                    It.Is<int>(y => y == 0),
                     It.IsAny<DateTime>()
                 ))
                 .Returns(Task.CompletedTask);
 
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
-            twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == user1.Acct)))
-                .Returns(new TwitterUser {Protected = false});
 
             var logger = new Mock<ILogger<RetrieveTweetsProcessor>>(MockBehavior.Strict);
             #endregion
@@ -94,9 +98,14 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 LastTweetSynchronizedForAllFollowersId = 46
             };
 
+            var user1WtData = new UserWithDataToSync
+            {
+                User = user1,
+            };
+
             var users = new[]
             {
-                user1
+                user1WtData
             };
 
             var tweets = new[]
@@ -129,9 +138,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
 
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
-            twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == user1.Acct)))
-                .Returns(new TwitterUser { Protected = false });
 
             var logger = new Mock<ILogger<RetrieveTweetsProcessor>>(MockBehavior.Strict);
             #endregion
@@ -147,7 +153,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
 
             Assert.AreEqual(users.Length, usersResult.Length);
-            Assert.AreEqual(users[0].Acct, usersResult[0].User.Acct);
+            Assert.AreEqual(users[0].User.Acct, usersResult[0].User.Acct);
             Assert.AreEqual(tweets.Length, usersResult[0].Tweets.Length);
             #endregion
         }
@@ -164,9 +170,14 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 LastTweetSynchronizedForAllFollowersId = 46
             };
 
+            var user1WtData = new UserWithDataToSync
+            {
+                User = user1,
+            };
+
             var users = new[]
             {
-                user1
+                user1WtData
             };
 
             var tweets = new[]
@@ -199,9 +210,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
 
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
-            twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == user1.Acct)))
-                .Returns(new TwitterUser { Protected = false });
 
             var logger = new Mock<ILogger<RetrieveTweetsProcessor>>(MockBehavior.Strict);
             #endregion
@@ -216,7 +224,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             logger.VerifyAll();
 
             Assert.AreEqual(users.Length, usersResult.Length);
-            Assert.AreEqual(users[0].Acct, usersResult[0].User.Acct);
+            Assert.AreEqual(users[0].User.Acct, usersResult[0].User.Acct);
             Assert.AreEqual(tweets.Length, usersResult[0].Tweets.Length);
             #endregion
         }

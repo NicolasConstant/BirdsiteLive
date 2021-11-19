@@ -11,5 +11,7 @@
 
         public string UnlistedTwitterAccounts { get; set; }
         public string SensitiveTwitterAccounts { get; set; }
+
+        public int FailingTwitterUserCleanUpThreshold { get; set; }
     }
 }

@@ -49,6 +49,9 @@ namespace BirdsiteLive.Twitter
             catch (Exception e)
             {
                 _logger.LogError(e, "Error retrieving user {Username}", username);
+
+                // TODO keep track of error, see where to remove user if too much errors
+
                 return null;
             }
 

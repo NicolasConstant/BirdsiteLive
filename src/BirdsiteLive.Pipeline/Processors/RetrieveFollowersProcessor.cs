@@ -18,7 +18,7 @@ namespace BirdsiteLive.Pipeline.Processors
         }
         #endregion
 
-        public async Task<IEnumerable<UserWithTweetsToSync>> ProcessAsync(UserWithTweetsToSync[] userWithTweetsToSyncs, CancellationToken ct)
+        public async Task<IEnumerable<UserWithDataToSync>> ProcessAsync(UserWithDataToSync[] userWithTweetsToSyncs, CancellationToken ct)
         {
             //TODO multithread this
             foreach (var user in userWithTweetsToSyncs)

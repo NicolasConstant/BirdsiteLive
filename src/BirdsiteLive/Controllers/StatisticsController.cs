@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Domain.Statistics;
@@ -15,7 +16,6 @@ namespace BirdsiteLive.Controllers
         private readonly IFollowersDal _followersDal;
         private readonly ITwitterStatisticsHandler _twitterStatistics;
         private readonly IExtractionStatisticsHandler _extractionStatistics;
-
 
         #region Ctor
         public StatisticsController(ITwitterUserDal twitterUserDal, IFollowersDal followersDal, ITwitterStatisticsHandler twitterStatistics, IExtractionStatisticsHandler extractionStatistics)
@@ -32,7 +32,9 @@ namespace BirdsiteLive.Controllers
             var stats = new Models.StatisticsModels.Statistics
             {
                 FollowersCount = await _followersDal.GetFollowersCountAsync(),
+                FailingFollowersCount = await _followersDal.GetFailingFollowersCountAsync(),
                 TwitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync(),
+                FailingTwitterUserCount = await _twitterUserDal.GetFailingTwitterUsersCountAsync(),
                 TwitterStatistics = _twitterStatistics.GetStatistics(),
                 ExtractionStatistics = _extractionStatistics.GetStatistics(),
             };

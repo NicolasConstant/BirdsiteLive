@@ -26,7 +26,7 @@ namespace BSLManager.Domain
 
             foreach (var follower in _sourceUserList)
             {
-                var displayedUser = $"{GetFullHandle(follower)}     ({follower.Followings.Count})";
+                var displayedUser = $"{GetFullHandle(follower)}   ({follower.Followings.Count})  (err:{follower.PostingErrorCount})";
                 _filteredDisplayableUserList.Add(displayedUser);
             }
         }
