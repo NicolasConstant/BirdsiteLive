@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
@@ -57,6 +58,7 @@ namespace BirdsiteLive.Pipeline.Processors
         {
             var dbUser = await _twitterUserDal.GetTwitterUserAsync(user.Acct);
             dbUser.FetchingErrorCount++;
+            dbUser.LastSync = DateTime.UtcNow;
 
             if (dbUser.FetchingErrorCount > _instanceSettings.FailingTwitterUserCleanUpThreshold)
             {
