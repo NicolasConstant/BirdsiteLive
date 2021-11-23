@@ -329,5 +329,64 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             removeTwitterAccountActionMock.VerifyAll();
             #endregion
         }
+
+        [TestMethod]
+        public async Task ProcessAsync_Unfound_NotInit_Test()
+        {
+            #region Stubs
+            var userId1 = 1;
+            var acct1 = "user1";
+            
+            var users = new List<SyncTwitterUser>
+            {
+                new SyncTwitterUser
+                {
+                    Id = userId1,
+                    Acct = acct1,
+                    LastSync = default,
+                    LastTweetPostedId = -1,
+                    LastTweetSynchronizedForAllFollowersId = -1
+                }
+            };
+
+            var settings = new InstanceSettings
+            {
+                FailingTwitterUserCleanUpThreshold = 300
+            };
+            #endregion
+
+            #region Mocks
+            var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
+            twitterUserServiceMock
+                .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
+                .Returns((TwitterUser)null);
+            
+            twitterUserServiceMock
+                .Setup(x => x.PurgeUser(It.Is<string>(y => y == acct1)));
+
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
+            twitterUserDalMock
+                .Setup(x => x.GetTwitterUserAsync(It.Is<string>(y => y == acct1)))
+                .ReturnsAsync(users.First());
+
+            twitterUserDalMock
+                .Setup(x => x.UpdateTwitterUserAsync(
+                    It.Is<SyncTwitterUser>(y => y.Id == userId1 && y.FetchingErrorCount == 1 && y.LastSync != default)))
+                .Returns(Task.CompletedTask);
+
+            var removeTwitterAccountActionMock = new Mock<IRemoveTwitterAccountAction>(MockBehavior.Strict);
+            #endregion
+
+            var processor = new RefreshTwitterUserStatusProcessor(twitterUserServiceMock.Object, twitterUserDalMock.Object, removeTwitterAccountActionMock.Object, settings);
+            var result = await processor.ProcessAsync(users.ToArray(), CancellationToken.None);
+
+            #region Validations
+            Assert.AreEqual(0, result.Length);
+
+            twitterUserServiceMock.VerifyAll();
+            twitterUserDalMock.VerifyAll();
+            removeTwitterAccountActionMock.VerifyAll();
+            #endregion
+        }
     }
 }

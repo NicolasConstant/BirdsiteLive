@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using BirdsiteLive.DAL.Postgres.DataAccessLayers;
@@ -229,6 +230,39 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             Assert.IsFalse(result[0].Acct == default);
             Assert.IsFalse(result[0].LastTweetPostedId == default);
             Assert.IsFalse(result[0].LastTweetSynchronizedForAllFollowersId == default);
+        }
+
+        [TestMethod]
+        public async Task GetAllTwitterUsers_Top_NotInit()
+        {
+            // Create accounts
+            var dal = new TwitterUserPostgresDal(_settings);
+            for (var i = 0; i < 1000; i++)
+            {
+                var acct = $"myid{i}";
+                var lastTweetId = i+10;
+
+                await dal.CreateTwitterUserAsync(acct, lastTweetId);
+            }
+
+            // Update accounts
+            var now = DateTime.UtcNow;
+            var allUsers = await dal.GetAllTwitterUsersAsync();
+            foreach (var acc in allUsers)
+            {
+                var lastSync = now.AddDays(acc.LastTweetPostedId);
+                acc.LastSync = lastSync;
+                await dal.UpdateTwitterUserAsync(acc);
+            }
+
+            // Create a not init account
+            await dal.CreateTwitterUserAsync("not_init", -1);
+
+            var result = await dal.GetAllTwitterUsersAsync(10);
+
+            Assert.IsTrue(result.Any(x => x.Acct == "myid0"));
+            Assert.IsTrue(result.Any(x => x.Acct == "myid8"));
+            Assert.IsTrue(result.Any(x => x.Acct == "not_init"));
         }
 
         [TestMethod]
