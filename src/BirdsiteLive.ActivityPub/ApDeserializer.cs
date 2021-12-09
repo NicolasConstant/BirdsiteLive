@@ -1,4 +1,5 @@
 ﻿using System;
+using BirdsiteLive.ActivityPub.Models;
 using Newtonsoft.Json;
 
 namespace BirdsiteLive.ActivityPub
@@ -19,6 +20,8 @@ namespace BirdsiteLive.ActivityPub
                         if(a.apObject.type == "Follow")
                             return JsonConvert.DeserializeObject<ActivityUndoFollow>(json);
                         break;
+                    case "Delete":
+                        return JsonConvert.DeserializeObject<ActivityDelete>(json);
                     case "Accept":
                         var accept = JsonConvert.DeserializeObject<ActivityAccept>(json);
                         //var acceptType = JsonConvert.DeserializeObject<Activity>(accept.apObject);

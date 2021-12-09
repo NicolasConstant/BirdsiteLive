@@ -13,6 +13,7 @@ using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Models;
+using BirdsiteLive.Tools;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
 using Microsoft.AspNetCore.Http;
@@ -142,7 +143,6 @@ namespace BirdsiteLive.Controllers
                 //System.IO.File.WriteAllText($@"C:\apdebug\{Guid.NewGuid()}.json", body);
 
                 var activity = ApDeserializer.ProcessActivity(body);
-                // Do something
                 var signature = r.Headers["Signature"].First();
                 
                 switch (activity?.type)
@@ -150,7 +150,7 @@ namespace BirdsiteLive.Controllers
                     case "Follow":
                         {
                             var succeeded = await _userService.FollowRequestedAsync(signature, r.Method, r.Path,
-                                r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityFollow, body);
+                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityFollow, body);
                             if (succeeded) return Accepted();
                             else return Unauthorized();
                         }
@@ -158,11 +158,18 @@ namespace BirdsiteLive.Controllers
                         if (activity is ActivityUndoFollow)
                         {
                             var succeeded = await _userService.UndoFollowRequestedAsync(signature, r.Method, r.Path,
-                                r.QueryString.ToString(), RequestHeaders(r.Headers), activity as ActivityUndoFollow, body);
+                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityUndoFollow, body);
                             if (succeeded) return Accepted();
                             else return Unauthorized();
                         }
                         return Accepted();
+                    case "Delete":
+                        {
+                            var succeeded = await _userService.DeleteRequestedAsync(signature, r.Method, r.Path,
+                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityDelete, body);
+                            if (succeeded) return Accepted();
+                            else return Unauthorized();
+                        }
                     default:
                         return Accepted();
                 }
@@ -184,9 +191,6 @@ namespace BirdsiteLive.Controllers
             return Content(jsonApUser, "application/activity+json; charset=utf-8");
         }
 
-        private Dictionary<string, string> RequestHeaders(IHeaderDictionary header)
-        {
-            return header.ToDictionary<KeyValuePair<string, StringValues>, string, string>(h => h.Key.ToLowerInvariant(), h => h.Value);
-        }
+      
     }
 }
