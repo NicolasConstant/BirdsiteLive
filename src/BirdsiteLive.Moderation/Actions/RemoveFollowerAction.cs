@@ -1,12 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using BirdsiteLive.ActivityPub;
-using BirdsiteLive.ActivityPub.Converters;
-using BirdsiteLive.Common.Settings;
-using BirdsiteLive.DAL.Contracts;
+﻿using System.Threading.Tasks;
 using BirdsiteLive.DAL.Models;
-using BirdsiteLive.Domain;
+using BirdsiteLive.Domain.BusinessUseCases;
 
 namespace BirdsiteLive.Moderation.Actions
 {
@@ -17,16 +11,14 @@ namespace BirdsiteLive.Moderation.Actions
 
     public class RemoveFollowerAction : IRemoveFollowerAction
     {
-        private readonly IFollowersDal _followersDal;
-        private readonly ITwitterUserDal _twitterUserDal;
         private readonly IRejectAllFollowingsAction _rejectAllFollowingsAction;
+        private readonly IProcessDeleteUser _processDeleteUser;
 
         #region Ctor
-        public RemoveFollowerAction(IFollowersDal followersDal, ITwitterUserDal twitterUserDal, IRejectAllFollowingsAction rejectAllFollowingsAction)
+        public RemoveFollowerAction(IRejectAllFollowingsAction rejectAllFollowingsAction, IProcessDeleteUser processDeleteUser)
         {
-            _followersDal = followersDal;
-            _twitterUserDal = twitterUserDal;
             _rejectAllFollowingsAction = rejectAllFollowingsAction;
+            _processDeleteUser = processDeleteUser;
         }
         #endregion
 
@@ -36,16 +28,7 @@ namespace BirdsiteLive.Moderation.Actions
             await _rejectAllFollowingsAction.ProcessAsync(follower);
 
             // Remove twitter users if no more followers
-            var followings = follower.Followings;
-            foreach (var following in followings)
-            {
-                var followers = await _followersDal.GetFollowersAsync(following);
-                if (followers.Length == 1 && followers.First().Id == follower.Id)
-                    await _twitterUserDal.DeleteTwitterUserAsync(following);
-            }
-
-            // Remove follower from DB
-            await _followersDal.DeleteFollowerAsync(follower.Id);
+            await _processDeleteUser.ExecuteAsync(follower);
         }
     }
 }

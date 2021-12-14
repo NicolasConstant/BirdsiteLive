@@ -34,6 +34,7 @@ namespace BirdsiteLive.Domain
 
     public class UserService : IUserService
     {
+        private readonly IProcessDeleteUser _processDeleteUser;
         private readonly IProcessFollowUser _processFollowUser;
         private readonly IProcessUndoFollowUser _processUndoFollowUser;
 
@@ -48,7 +49,7 @@ namespace BirdsiteLive.Domain
         private readonly IModerationRepository _moderationRepository;
 
         #region Ctor
-        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, IModerationRepository moderationRepository)
+        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, IModerationRepository moderationRepository, IProcessDeleteUser processDeleteUser)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
@@ -59,6 +60,7 @@ namespace BirdsiteLive.Domain
             _statisticsHandler = statisticsHandler;
             _twitterUserService = twitterUserService;
             _moderationRepository = moderationRepository;
+            _processDeleteUser = processDeleteUser;
         }
         #endregion
 
@@ -128,10 +130,10 @@ namespace BirdsiteLive.Domain
             if (!sigValidation.SignatureIsValidated) return false;
 
             // Prepare data
-            var followerUserName = sigValidation.User.preferredUsername.ToLowerInvariant().Trim();
-            var followerHost = sigValidation.User.url.Replace("https://", string.Empty).Split('/').First();
+            var followerUserName = SigValidationResultExtractor.GetUserName(sigValidation);
+            var followerHost = SigValidationResultExtractor.GetHost(sigValidation);
             var followerInbox = sigValidation.User.inbox;
-            var followerSharedInbox = sigValidation.User?.endpoints?.sharedInbox;
+            var followerSharedInbox = SigValidationResultExtractor.GetSharedInbox(sigValidation);
             var twitterUser = activity.apObject.Split('/').Last().Replace("@", string.Empty).ToLowerInvariant().Trim();
 
             // Make sure to only keep routes
@@ -268,7 +270,10 @@ namespace BirdsiteLive.Domain
             if (!sigValidation.SignatureIsValidated) return false;
 
             // Remove user and followings
-            throw new NotImplementedException();
+            var followerUserName = SigValidationResultExtractor.GetUserName(sigValidation);
+            var followerHost = SigValidationResultExtractor.GetHost(sigValidation);
+
+            await _processDeleteUser.ExecuteAsync(followerUserName, followerHost);
 
             return true;
         }
