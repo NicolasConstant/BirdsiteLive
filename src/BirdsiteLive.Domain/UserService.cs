@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
+using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
@@ -28,10 +29,12 @@ namespace BirdsiteLive.Domain
         Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity, string body);
 
         Task<bool> SendRejectFollowAsync(ActivityFollow activity, string followerHost);
+        Task<bool> DeleteRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityDelete activity, string body);
     }
 
     public class UserService : IUserService
     {
+        private readonly IProcessDeleteUser _processDeleteUser;
         private readonly IProcessFollowUser _processFollowUser;
         private readonly IProcessUndoFollowUser _processUndoFollowUser;
 
@@ -46,7 +49,7 @@ namespace BirdsiteLive.Domain
         private readonly IModerationRepository _moderationRepository;
 
         #region Ctor
-        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, IModerationRepository moderationRepository)
+        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, IModerationRepository moderationRepository, IProcessDeleteUser processDeleteUser)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
@@ -57,6 +60,7 @@ namespace BirdsiteLive.Domain
             _statisticsHandler = statisticsHandler;
             _twitterUserService = twitterUserService;
             _moderationRepository = moderationRepository;
+            _processDeleteUser = processDeleteUser;
         }
         #endregion
 
@@ -126,10 +130,10 @@ namespace BirdsiteLive.Domain
             if (!sigValidation.SignatureIsValidated) return false;
 
             // Prepare data
-            var followerUserName = sigValidation.User.preferredUsername.ToLowerInvariant().Trim();
-            var followerHost = sigValidation.User.url.Replace("https://", string.Empty).Split('/').First();
+            var followerUserName = SigValidationResultExtractor.GetUserName(sigValidation);
+            var followerHost = SigValidationResultExtractor.GetHost(sigValidation);
             var followerInbox = sigValidation.User.inbox;
-            var followerSharedInbox = sigValidation.User?.endpoints?.sharedInbox;
+            var followerSharedInbox = SigValidationResultExtractor.GetSharedInbox(sigValidation);
             var twitterUser = activity.apObject.Split('/').Last().Replace("@", string.Empty).ToLowerInvariant().Trim();
 
             // Make sure to only keep routes
@@ -213,7 +217,7 @@ namespace BirdsiteLive.Domain
             return result == HttpStatusCode.Accepted ||
                    result == HttpStatusCode.OK; //TODO: revamp this for better error handling
         }
-
+        
         private string OnlyKeepRoute(string inbox, string host)
         {
             if (string.IsNullOrWhiteSpace(inbox)) 
@@ -256,6 +260,22 @@ namespace BirdsiteLive.Domain
             };
             var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject.apObject);
             return result == HttpStatusCode.Accepted || result == HttpStatusCode.OK; //TODO: revamp this for better error handling
+        }
+
+        public async Task<bool> DeleteRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders,
+            ActivityDelete activity, string body)
+        {
+            // Validate
+            var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders, body);
+            if (!sigValidation.SignatureIsValidated) return false;
+
+            // Remove user and followings
+            var followerUserName = SigValidationResultExtractor.GetUserName(sigValidation);
+            var followerHost = SigValidationResultExtractor.GetHost(sigValidation);
+
+            await _processDeleteUser.ExecuteAsync(followerUserName, followerHost);
+
+            return true;
         }
 
         private async Task<SignatureValidationResult> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders, string body)
