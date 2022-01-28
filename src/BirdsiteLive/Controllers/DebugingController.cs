@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 
 namespace BirdsiteLive.Controllers
 {
+    #if DEBUG
     public class DebugingController : Controller
     {
         private readonly InstanceSettings _instanceSettings;
@@ -67,7 +68,7 @@ namespace BirdsiteLive.Controllers
             var noteGuid = Guid.NewGuid();
             var noteId = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{noteGuid}";
             var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{noteGuid}";
-            
+
             var to = $"{actor}/followers";
 
             var now = DateTime.UtcNow;
@@ -80,12 +81,12 @@ namespace BirdsiteLive.Controllers
                 type = "Create",
                 actor = actor,
                 published = nowString,
-                to = new []{ to },
+                to = new[] { to },
                 //cc = new [] { "https://www.w3.org/ns/activitystreams#Public" },
                 apObject = new Note()
                 {
                     id = noteId,
-                    summary = null, 
+                    summary = null,
                     inReplyTo = null,
                     published = nowString,
                     url = noteUrl,
@@ -93,7 +94,7 @@ namespace BirdsiteLive.Controllers
 
                     // Unlisted
                     to = new[] { to },
-                    cc = new [] { "https://www.w3.org/ns/activitystreams#Public" },
+                    cc = new[] { "https://www.w3.org/ns/activitystreams#Public" },
 
                     //// Public
                     //to = new[] { "https://www.w3.org/ns/activitystreams#Public" },
@@ -125,6 +126,7 @@ namespace BirdsiteLive.Controllers
             return View("Index");
         }
     }
+    #endif
 
     public static class HtmlHelperExtensions
     {
