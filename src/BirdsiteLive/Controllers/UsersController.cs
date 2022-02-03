@@ -13,6 +13,7 @@ using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Models;
+using BirdsiteLive.Statistics.Domain;
 using BirdsiteLive.Tools;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
@@ -32,9 +33,10 @@ namespace BirdsiteLive.Controllers
         private readonly IStatusService _statusService;
         private readonly InstanceSettings _instanceSettings;
         private readonly ILogger<UsersController> _logger;
+        private readonly ITwitterStatisticsHandler _twitterStatisticsHandler;
 
         #region Ctor
-        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService, ILogger<UsersController> logger)
+        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService, ILogger<UsersController> logger, ITwitterStatisticsHandler twitterStatisticsHandler)
         {
             _twitterUserService = twitterUserService;
             _userService = userService;
@@ -42,6 +44,7 @@ namespace BirdsiteLive.Controllers
             _instanceSettings = instanceSettings;
             _twitterTweetService = twitterTweetService;
             _logger = logger;
+            _twitterStatisticsHandler = twitterStatisticsHandler;
         }
         #endregion
 
@@ -72,12 +75,17 @@ namespace BirdsiteLive.Controllers
             if (!string.IsNullOrWhiteSpace(id) && UserRegexes.TwitterAccount.IsMatch(id) && id.Length <= 15)
                 user = _twitterUserService.GetUser(id);
 
+            var isSaturated = user == null
+                               && _twitterStatisticsHandler.GetCurrentUserCalls() >=
+                               _twitterStatisticsHandler.GetStatistics().UserCallsMax;
+
             var acceptHeaders = Request.Headers["Accept"];
             if (acceptHeaders.Any())
             {
                 var r = acceptHeaders.First();
                 if (r.Contains("application/activity+json"))
                 {
+                    if (user == null && isSaturated) return new ObjectResult("Too Many Requests") { StatusCode = 429 };
                     if (user == null) return NotFound();
                     var apUser = _userService.GetUser(user);
                     var jsonApUser = JsonConvert.SerializeObject(apUser);
@@ -85,8 +93,9 @@ namespace BirdsiteLive.Controllers
                 }
             }
 
+            if (user == null && isSaturated) return View("ApiSaturated");
             if (user == null) return View("UserNotFound");
-
+            
             var displayableUser = new DisplayTwitterUser
             {
                 Name = user.Name,
@@ -190,7 +199,5 @@ namespace BirdsiteLive.Controllers
             var jsonApUser = JsonConvert.SerializeObject(followers);
             return Content(jsonApUser, "application/activity+json; charset=utf-8");
         }
-
-      
     }
 }
