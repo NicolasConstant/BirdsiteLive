@@ -32,6 +32,12 @@ namespace BirdsiteLive.Twitter
 
         public TwitterUser GetUser(string username)
         {
+            //Check if API is saturated 
+            var currentCalls = _statisticsHandler.GetCurrentUserCalls();
+            var maxCalls = _statisticsHandler.GetStatistics().UserCallsMax;
+            if (currentCalls > maxCalls) return null;
+
+            //Proceed to account retrieval
             _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
             ExceptionHandler.SwallowWebExceptions = false;
 
@@ -49,9 +55,6 @@ namespace BirdsiteLive.Twitter
             catch (Exception e)
             {
                 _logger.LogError(e, "Error retrieving user {Username}", username);
-
-                // TODO keep track of error, see where to remove user if too much errors
-
                 return null;
             }
 

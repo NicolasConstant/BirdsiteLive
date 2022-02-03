@@ -13,6 +13,8 @@ namespace BirdsiteLive.Statistics.Domain
         void CalledTweetApi();
         void CalledTimelineApi();
         ApiStatistics GetStatistics();
+
+        int GetCurrentUserCalls();
     }
 
     //Rate limits: https://developer.twitter.com/en/docs/twitter-api/v1/rate-limits
@@ -60,7 +62,12 @@ namespace BirdsiteLive.Statistics.Domain
             foreach (var old in oldSnapshots) _snapshots.TryRemove(old, out var data);
         }
 
-        public void CalledUserApi()  //GET users/show - 900/15mins
+        public int GetCurrentUserCalls()
+        {
+            return _userCalls;
+        }
+
+        public void CalledUserApi()  //GET users/show - 300/15mins
         {
             Interlocked.Increment(ref _userCalls);
         }
