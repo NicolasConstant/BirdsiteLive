@@ -2,8 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
+using BirdsiteLive.Moderation.Actions;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Pipeline.Processors;
 using BirdsiteLive.Pipeline.Processors.SubTasks;
@@ -72,17 +74,22 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
-
+            
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings();
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object);
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
             var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
             sendTweetsToSharedInboxTaskMock.VerifyAll();
             followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
             #endregion
         }
 
@@ -147,15 +154,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
             
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings();
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object);
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
             var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
             sendTweetsToSharedInboxTaskMock.VerifyAll();
             followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
             #endregion
         }
 
@@ -229,15 +241,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings();
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object);
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
             var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
             sendTweetsToSharedInboxTaskMock.VerifyAll();
             followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
             #endregion
         }
 
@@ -312,15 +329,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings();
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object);
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
             var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
             sendTweetsToSharedInboxTaskMock.VerifyAll();
             followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
             #endregion
         }
 
@@ -400,15 +422,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings();
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object);
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
             var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
             sendTweetsToSharedInboxTaskMock.VerifyAll();
             followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
             #endregion
         }
 
@@ -471,15 +498,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings();
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object);
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
             var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
             sendTweetsToSharedInboxTaskMock.VerifyAll();
             followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
             #endregion
         }
 
@@ -543,15 +575,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings();
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object);
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
             var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
             sendTweetsToSharedInboxTaskMock.VerifyAll();
             followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
             #endregion
         }
 
@@ -623,15 +660,196 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings();
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object);
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
             var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
             sendTweetsToSharedInboxTaskMock.VerifyAll();
             followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
+            #endregion
+        }
+
+        [TestMethod]
+        public async Task ProcessAsync_MultiInstances_Inbox_OneTweet_Error_SettingsThreshold_Test()
+        {
+            #region Stubs
+            var tweetId = 1;
+            var host1 = "domain1.ext";
+            var host2 = "domain2.ext";
+            var inbox = "/user/inbox";
+            var userId1 = 2;
+            var userId2 = 3;
+            var userAcct = "user";
+
+            var userWithTweets = new UserWithDataToSync()
+            {
+                Tweets = new[]
+                {
+                    new ExtractedTweet
+                    {
+                        Id = tweetId
+                    }
+                },
+                User = new SyncTwitterUser
+                {
+                    Acct = userAcct
+                },
+                Followers = new[]
+                {
+                    new Follower
+                    {
+                        Id = userId1,
+                        Host = host1,
+                        InboxRoute = inbox
+                    },
+                    new Follower
+                    {
+                        Id = userId2,
+                        Host = host2,
+                        InboxRoute = inbox,
+                        PostingErrorCount = 42
+                    },
+                }
+            };
+            #endregion
+
+            #region Mocks
+            var sendTweetsToInboxTaskMock = new Mock<ISendTweetsToInboxTask>(MockBehavior.Strict);
+            sendTweetsToInboxTaskMock
+                .Setup(x => x.ExecuteAsync(
+                    It.Is<ExtractedTweet[]>(y => y.Length == 1),
+                    It.Is<Follower>(y => y.Id == userId1),
+                    It.Is<SyncTwitterUser>(y => y.Acct == userAcct)))
+                .Returns(Task.CompletedTask);
+
+            sendTweetsToInboxTaskMock
+                .Setup(x => x.ExecuteAsync(
+                    It.Is<ExtractedTweet[]>(y => y.Length == 1),
+                    It.Is<Follower>(y => y.Id == userId2),
+                    It.Is<SyncTwitterUser>(y => y.Acct == userAcct)))
+                .Throws(new Exception());
+
+            var sendTweetsToSharedInboxTaskMock = new Mock<ISendTweetsToSharedInboxTask>(MockBehavior.Strict);
+
+            var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
+
+            var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings
+            {
+                FailingFollowerCleanUpThreshold = 10
+            };
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
+            removeFollowerMock
+                .Setup(x => x.ProcessAsync(It.Is<Follower>(y => y.Id == userId2)))
+                .Returns(Task.CompletedTask);
+            #endregion
+
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
+            var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+
+            #region Validations
+            sendTweetsToInboxTaskMock.VerifyAll();
+            sendTweetsToSharedInboxTaskMock.VerifyAll();
+            followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
+            #endregion
+        }
+
+        [TestMethod]
+        public async Task ProcessAsync_MultiInstances_Inbox_OneTweet_Error_MaxThreshold_Test()
+        {
+            #region Stubs
+            var tweetId = 1;
+            var host1 = "domain1.ext";
+            var host2 = "domain2.ext";
+            var inbox = "/user/inbox";
+            var userId1 = 2;
+            var userId2 = 3;
+            var userAcct = "user";
+
+            var userWithTweets = new UserWithDataToSync()
+            {
+                Tweets = new[]
+                {
+                    new ExtractedTweet
+                    {
+                        Id = tweetId
+                    }
+                },
+                User = new SyncTwitterUser
+                {
+                    Acct = userAcct
+                },
+                Followers = new[]
+                {
+                    new Follower
+                    {
+                        Id = userId1,
+                        Host = host1,
+                        InboxRoute = inbox
+                    },
+                    new Follower
+                    {
+                        Id = userId2,
+                        Host = host2,
+                        InboxRoute = inbox,
+                        PostingErrorCount = 2147483600
+                    },
+                }
+            };
+            #endregion
+
+            #region Mocks
+            var sendTweetsToInboxTaskMock = new Mock<ISendTweetsToInboxTask>(MockBehavior.Strict);
+            sendTweetsToInboxTaskMock
+                .Setup(x => x.ExecuteAsync(
+                    It.Is<ExtractedTweet[]>(y => y.Length == 1),
+                    It.Is<Follower>(y => y.Id == userId1),
+                    It.Is<SyncTwitterUser>(y => y.Acct == userAcct)))
+                .Returns(Task.CompletedTask);
+
+            sendTweetsToInboxTaskMock
+                .Setup(x => x.ExecuteAsync(
+                    It.Is<ExtractedTweet[]>(y => y.Length == 1),
+                    It.Is<Follower>(y => y.Id == userId2),
+                    It.Is<SyncTwitterUser>(y => y.Acct == userAcct)))
+                .Throws(new Exception());
+
+            var sendTweetsToSharedInboxTaskMock = new Mock<ISendTweetsToSharedInboxTask>(MockBehavior.Strict);
+
+            var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
+
+            var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings
+            {
+                FailingFollowerCleanUpThreshold = 0
+            };
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
+            removeFollowerMock
+                .Setup(x => x.ProcessAsync(It.Is<Follower>(y => y.Id == userId2)))
+                .Returns(Task.CompletedTask);
+            #endregion
+
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
+            var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+
+            #region Validations
+            sendTweetsToInboxTaskMock.VerifyAll();
+            sendTweetsToSharedInboxTaskMock.VerifyAll();
+            followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
             #endregion
         }
 
@@ -704,15 +922,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings();
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object);
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
             var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
             sendTweetsToSharedInboxTaskMock.VerifyAll();
             followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
             #endregion
         }
 
@@ -790,15 +1013,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
+
+            var settings = new InstanceSettings();
+
+            var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
-            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object);
+            var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
             var result = await processor.ProcessAsync(userWithTweets, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
             sendTweetsToSharedInboxTaskMock.VerifyAll();
             followersDalMock.VerifyAll();
+            removeFollowerMock.VerifyAll();
             #endregion
         }
     }

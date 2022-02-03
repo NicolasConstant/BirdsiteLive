@@ -131,6 +131,38 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         }
 
         [TestMethod]
+        public async Task CreateUpdate3AndGetUser()
+        {
+            var acct = "myid";
+            var lastTweetId = 1548L;
+
+            var dal = new TwitterUserPostgresDal(_settings);
+
+            await dal.CreateTwitterUserAsync(acct, lastTweetId);
+            var result = await dal.GetTwitterUserAsync(acct);
+
+
+            var updatedLastTweetId = 1600L;
+            var updatedLastSyncId = 1550L;
+            var now = DateTime.Now;
+            var errors = 32768;
+
+            result.LastTweetPostedId = updatedLastTweetId;
+            result.LastTweetSynchronizedForAllFollowersId = updatedLastSyncId;
+            result.FetchingErrorCount = errors;
+            result.LastSync = now;
+            await dal.UpdateTwitterUserAsync(result);
+
+            result = await dal.GetTwitterUserAsync(acct);
+
+            Assert.AreEqual(acct, result.Acct);
+            Assert.AreEqual(updatedLastTweetId, result.LastTweetPostedId);
+            Assert.AreEqual(updatedLastSyncId, result.LastTweetSynchronizedForAllFollowersId);
+            Assert.AreEqual(errors, result.FetchingErrorCount);
+            Assert.IsTrue(Math.Abs((now.ToUniversalTime() - result.LastSync).Milliseconds) < 100);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public async Task Update_NoId()
         {
