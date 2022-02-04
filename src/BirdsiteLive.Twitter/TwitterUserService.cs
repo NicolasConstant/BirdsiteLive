@@ -13,6 +13,7 @@ namespace BirdsiteLive.Twitter
     public interface ITwitterUserService
     {
         TwitterUser GetUser(string username);
+        bool IsUserApiRateLimited();
     }
 
     public class TwitterUserService : ITwitterUserService
@@ -33,13 +34,12 @@ namespace BirdsiteLive.Twitter
         public TwitterUser GetUser(string username)
         {
             //Check if API is saturated 
-            var currentCalls = _statisticsHandler.GetCurrentUserCalls();
-            var maxCalls = _statisticsHandler.GetStatistics().UserCallsMax;
-            if (currentCalls > maxCalls) return null;
+            if (IsUserApiRateLimited()) return null;
 
             //Proceed to account retrieval
             _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
             ExceptionHandler.SwallowWebExceptions = false;
+            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackOnly;
 
             IUser user;
             try
@@ -75,6 +75,33 @@ namespace BirdsiteLive.Twitter
                 ProfileBannerURL = user.ProfileBannerURL,
                 Protected = user.Protected
             };
+        }
+
+        public bool IsUserApiRateLimited()
+        {
+            // Retrieve limit from tooling
+            _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
+            ExceptionHandler.SwallowWebExceptions = false;
+            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackOnly;
+
+            try
+            {
+                var queryRateLimits = RateLimit.GetQueryRateLimit("https://api.twitter.com/1.1/users/show.json?screen_name=mastodon");
+
+                if (queryRateLimits != null)
+                {
+                    return queryRateLimits.Remaining <= 0;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error retrieving rate limits");
+            }
+
+            // Fallback
+            var currentCalls = _statisticsHandler.GetCurrentUserCalls();
+            var maxCalls = _statisticsHandler.GetStatistics().UserCallsMax;
+            return currentCalls >= maxCalls;
         }
     }
 }

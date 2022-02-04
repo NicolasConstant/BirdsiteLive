@@ -13,7 +13,6 @@ using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Models;
-using BirdsiteLive.Statistics.Domain;
 using BirdsiteLive.Tools;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
@@ -33,10 +32,9 @@ namespace BirdsiteLive.Controllers
         private readonly IStatusService _statusService;
         private readonly InstanceSettings _instanceSettings;
         private readonly ILogger<UsersController> _logger;
-        private readonly ITwitterStatisticsHandler _twitterStatisticsHandler;
 
         #region Ctor
-        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService, ILogger<UsersController> logger, ITwitterStatisticsHandler twitterStatisticsHandler)
+        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService, ILogger<UsersController> logger)
         {
             _twitterUserService = twitterUserService;
             _userService = userService;
@@ -44,7 +42,6 @@ namespace BirdsiteLive.Controllers
             _instanceSettings = instanceSettings;
             _twitterTweetService = twitterTweetService;
             _logger = logger;
-            _twitterStatisticsHandler = twitterStatisticsHandler;
         }
         #endregion
 
@@ -75,9 +72,7 @@ namespace BirdsiteLive.Controllers
             if (!string.IsNullOrWhiteSpace(id) && UserRegexes.TwitterAccount.IsMatch(id) && id.Length <= 15)
                 user = _twitterUserService.GetUser(id);
 
-            var isSaturated = user == null
-                               && _twitterStatisticsHandler.GetCurrentUserCalls() >=
-                               _twitterStatisticsHandler.GetStatistics().UserCallsMax;
+            var isSaturated = _twitterUserService.IsUserApiRateLimited();
 
             var acceptHeaders = Request.Headers["Accept"];
             if (acceptHeaders.Any())
