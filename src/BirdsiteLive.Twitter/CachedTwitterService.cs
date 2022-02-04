@@ -47,6 +47,11 @@ namespace BirdsiteLive.Twitter
             return user;
         }
 
+        public bool IsUserApiRateLimited()
+        {
+            return _twitterService.IsUserApiRateLimited();
+        }
+
         public void PurgeUser(string username)
         {
             _userCache.Remove(username);
