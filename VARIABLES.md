@@ -50,6 +50,7 @@ If both whitelisting and blacklisting are set, only the whitelisting will be act
 * `Instance:SensitiveTwitterAccounts` (default: null) mark all media from given accounts as sensitive by default, separated by `;`. 
 * `Instance:FailingTwitterUserCleanUpThreshold` (default: 700) set the max allowed errors (due to a banned/deleted/private account) from a Twitter Account retrieval before auto-removal. (by default an account is called every 15 mins)
 * `Instance:FailingFollowerCleanUpThreshold` (default: 30000) set the max allowed errors from a Follower (Fediverse) Account before auto-removal. (often due to account suppression, instance issues, etc)
+* `Instance:UserCacheCapacity` (default: 10000) set the caching limit of the Twitter User retrieval. Must be higher than the number of synchronized accounts on the instance.
 
 # Docker Compose full example
 
