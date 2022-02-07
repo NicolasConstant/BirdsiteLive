@@ -6,6 +6,7 @@ using BirdsiteLive.Twitter.Models;
 using BirdsiteLive.Twitter.Tools;
 using Microsoft.Extensions.Logging;
 using Tweetinvi;
+using Tweetinvi.Exceptions;
 using Tweetinvi.Models;
 
 namespace BirdsiteLive.Twitter
@@ -45,17 +46,34 @@ namespace BirdsiteLive.Twitter
             try
             {
                 user = User.GetUserFromScreenName(username);
-                _statisticsHandler.CalledUserApi();
-                if (user == null)
+            }
+            catch (TwitterException e)
+            {
+                if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User has been suspended".ToLowerInvariant())))
                 {
-                    _logger.LogWarning("User {username} not found", username);
-                    return null;
+                    throw new UserHasBeenSuspendedException();
+                }
+                else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User not found".ToLowerInvariant())))
+                {
+                    throw new UserNotFoundException();
+                }
+                else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("Rate limit exceeded".ToLowerInvariant())))
+                {
+                    throw new RateLimitExceededException();
+                }
+                else
+                {
+                    throw;
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Error retrieving user {Username}", username);
-                return null;
+                throw;
+            }
+            finally
+            {
+                _statisticsHandler.CalledUserApi();
             }
 
             // Expand URLs
