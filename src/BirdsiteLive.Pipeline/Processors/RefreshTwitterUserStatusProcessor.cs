@@ -9,6 +9,7 @@ using BirdsiteLive.Moderation.Actions;
 using BirdsiteLive.Pipeline.Contracts;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Twitter;
+using BirdsiteLive.Twitter.Models;
 
 namespace BirdsiteLive.Pipeline.Processors
 {
@@ -35,26 +36,61 @@ namespace BirdsiteLive.Pipeline.Processors
 
             foreach (var user in syncTwitterUsers)
             {
-                var userView = _twitterUserService.GetUser(user.Acct);
-                if (userView == null)
-                {
-                    await AnalyseFailingUserAsync(user);
-                }
-                else if (!userView.Protected)
-                {
-                    user.FetchingErrorCount = 0;
-                    var userWtData = new UserWithDataToSync
-                    {
-                        User = user
-                    };
-                    usersWtData.Add(userWtData);
-                }
-            }
+                TwitterUser userView = null;
 
+                try
+                {
+                    userView = _twitterUserService.GetUser(user.Acct);
+                }
+                catch (UserNotFoundException)
+                {
+                    await ProcessNotFoundUserAsync(user);
+                    continue;
+                }
+                catch (UserHasBeenSuspendedException)
+                {
+                    await ProcessNotFoundUserAsync(user);
+                    continue;
+                }
+                catch (RateLimitExceededException)
+                {
+                    await ProcessRateLimitExceededAsync(user);
+                    continue;
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+
+                if (userView == null || userView.Protected)
+                {
+                    await ProcessFailingUserAsync(user);
+                    continue;
+                }
+
+                user.FetchingErrorCount = 0;
+                var userWtData = new UserWithDataToSync
+                {
+                    User = user
+                };
+                usersWtData.Add(userWtData);
+            }
             return usersWtData.ToArray();
         }
 
-        private async Task AnalyseFailingUserAsync(SyncTwitterUser user)
+        private async Task ProcessRateLimitExceededAsync(SyncTwitterUser user)
+        {
+            var dbUser = await _twitterUserDal.GetTwitterUserAsync(user.Acct);
+            dbUser.LastSync = DateTime.UtcNow;
+            await _twitterUserDal.UpdateTwitterUserAsync(dbUser);
+        }
+
+        private async Task ProcessNotFoundUserAsync(SyncTwitterUser user)
+        {
+            await _removeTwitterAccountAction.ProcessAsync(user);
+        }
+
+        private async Task ProcessFailingUserAsync(SyncTwitterUser user)
         {
             var dbUser = await _twitterUserDal.GetTwitterUserAsync(user.Acct);
             dbUser.FetchingErrorCount++;
@@ -68,9 +104,6 @@ namespace BirdsiteLive.Pipeline.Processors
             {
                 await _twitterUserDal.UpdateTwitterUserAsync(dbUser);
             }
-
-            // Purge
-            _twitterUserService.PurgeUser(user.Acct);
         }
     }
 }

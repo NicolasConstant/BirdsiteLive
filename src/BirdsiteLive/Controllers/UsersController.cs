@@ -66,13 +66,42 @@ namespace BirdsiteLive.Controllers
 
             id = id.Trim(new[] { ' ', '@' }).ToLowerInvariant();
 
+            TwitterUser user = null;
+            var isSaturated = false;
+            var notFound = false;
+
             // Ensure valid username 
             // https://help.twitter.com/en/managing-your-account/twitter-username-rules
-            TwitterUser user = null;
             if (!string.IsNullOrWhiteSpace(id) && UserRegexes.TwitterAccount.IsMatch(id) && id.Length <= 15)
-                user = _twitterUserService.GetUser(id);
+            {
+                try
+                {
+                    user = _twitterUserService.GetUser(id);
+                }
+                catch (UserNotFoundException)
+                {
+                    notFound = true;
+                }
+                catch (UserHasBeenSuspendedException)
+                {
+                    notFound = true;
+                }
+                catch (RateLimitExceededException)
+                {
+                    isSaturated = true;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Exception getting {Id}", id);
+                    throw;
+                }
+            }
+            else
+            {
+                notFound = true;
+            }
 
-            var isSaturated = _twitterUserService.IsUserApiRateLimited();
+            //var isSaturated = _twitterUserService.IsUserApiRateLimited();
 
             var acceptHeaders = Request.Headers["Accept"];
             if (acceptHeaders.Any())
@@ -80,17 +109,17 @@ namespace BirdsiteLive.Controllers
                 var r = acceptHeaders.First();
                 if (r.Contains("application/activity+json"))
                 {
-                    if (user == null && isSaturated) return new ObjectResult("Too Many Requests") { StatusCode = 429 };
-                    if (user == null) return NotFound();
+                    if (isSaturated) return new ObjectResult("Too Many Requests") { StatusCode = 429 };
+                    if (notFound) return NotFound();
                     var apUser = _userService.GetUser(user);
                     var jsonApUser = JsonConvert.SerializeObject(apUser);
                     return Content(jsonApUser, "application/activity+json; charset=utf-8");
                 }
             }
 
-            if (user == null && isSaturated) return View("ApiSaturated");
-            if (user == null) return View("UserNotFound");
-            
+            if (isSaturated) return View("ApiSaturated");
+            if (notFound) return View("UserNotFound");
+
             var displayableUser = new DisplayTwitterUser
             {
                 Name = user.Name,
@@ -138,45 +167,60 @@ namespace BirdsiteLive.Controllers
         [HttpPost]
         public async Task<IActionResult> Inbox()
         {
-            var r = Request;
-            using (var reader = new StreamReader(Request.Body))
+            try
             {
-                var body = await reader.ReadToEndAsync();
-
-                _logger.LogTrace("User Inbox: {Body}", body);
-                //System.IO.File.WriteAllText($@"C:\apdebug\{Guid.NewGuid()}.json", body);
-
-                var activity = ApDeserializer.ProcessActivity(body);
-                var signature = r.Headers["Signature"].First();
-                
-                switch (activity?.type)
+                var r = Request;
+                using (var reader = new StreamReader(Request.Body))
                 {
-                    case "Follow":
-                        {
-                            var succeeded = await _userService.FollowRequestedAsync(signature, r.Method, r.Path,
-                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityFollow, body);
-                            if (succeeded) return Accepted();
-                            else return Unauthorized();
-                        }
-                    case "Undo":
-                        if (activity is ActivityUndoFollow)
-                        {
-                            var succeeded = await _userService.UndoFollowRequestedAsync(signature, r.Method, r.Path,
-                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityUndoFollow, body);
-                            if (succeeded) return Accepted();
-                            else return Unauthorized();
-                        }
-                        return Accepted();
-                    case "Delete":
-                        {
-                            var succeeded = await _userService.DeleteRequestedAsync(signature, r.Method, r.Path,
-                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityDelete, body);
-                            if (succeeded) return Accepted();
-                            else return Unauthorized();
-                        }
-                    default:
-                        return Accepted();
+                    var body = await reader.ReadToEndAsync();
+
+                    _logger.LogTrace("User Inbox: {Body}", body);
+                    //System.IO.File.WriteAllText($@"C:\apdebug\{Guid.NewGuid()}.json", body);
+
+                    var activity = ApDeserializer.ProcessActivity(body);
+                    var signature = r.Headers["Signature"].First();
+
+                    switch (activity?.type)
+                    {
+                        case "Follow":
+                            {
+                                var succeeded = await _userService.FollowRequestedAsync(signature, r.Method, r.Path,
+                                    r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityFollow, body);
+                                if (succeeded) return Accepted();
+                                else return Unauthorized();
+                            }
+                        case "Undo":
+                            if (activity is ActivityUndoFollow)
+                            {
+                                var succeeded = await _userService.UndoFollowRequestedAsync(signature, r.Method, r.Path,
+                                    r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityUndoFollow, body);
+                                if (succeeded) return Accepted();
+                                else return Unauthorized();
+                            }
+                            return Accepted();
+                        case "Delete":
+                            {
+                                var succeeded = await _userService.DeleteRequestedAsync(signature, r.Method, r.Path,
+                                    r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityDelete, body);
+                                if (succeeded) return Accepted();
+                                else return Unauthorized();
+                            }
+                        default:
+                            return Accepted();
+                    }
                 }
+            }
+            catch (UserNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (UserHasBeenSuspendedException)
+            {
+                return NotFound();
+            }
+            catch (RateLimitExceededException)
+            {
+                return new ObjectResult("Too Many Requests") { StatusCode = 429 };
             }
         }
 

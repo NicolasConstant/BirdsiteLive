@@ -12,6 +12,7 @@ using BirdsiteLive.Models;
 using BirdsiteLive.Models.WellKnownModels;
 using BirdsiteLive.Twitter;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BirdsiteLive.Controllers
@@ -23,13 +24,15 @@ namespace BirdsiteLive.Controllers
         private readonly ITwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly InstanceSettings _settings;
-
+        private readonly ILogger<WellKnownController> _logger;
+        
         #region Ctor
-        public WellKnownController(InstanceSettings settings, ITwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, IModerationRepository moderationRepository)
+        public WellKnownController(InstanceSettings settings, ITwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, IModerationRepository moderationRepository, ILogger<WellKnownController> logger)
         {
             _twitterUserService = twitterUserService;
             _twitterUserDal = twitterUserDal;
             _moderationRepository = moderationRepository;
+            _logger = logger;
             _settings = settings;
         }
         #endregion
@@ -174,9 +177,27 @@ namespace BirdsiteLive.Controllers
             if (!string.IsNullOrWhiteSpace(domain) && domain != _settings.Domain)
                 return NotFound();
 
-            var user = _twitterUserService.GetUser(name);
-            if (user == null)
+            try
+            {
+                _twitterUserService.GetUser(name);
+            }
+            catch (UserNotFoundException)
+            {
                 return NotFound();
+            }
+            catch (UserHasBeenSuspendedException)
+            {
+                return NotFound();
+            }
+            catch (RateLimitExceededException)
+            {
+                return new ObjectResult("Too Many Requests") { StatusCode = 429 };
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Exception getting {Name}", name);
+                throw;
+            }
 
             var actorUrl = UrlFactory.GetActorUrl(_settings.Domain, name);
 
