@@ -4,6 +4,9 @@
 
 You will need a Twitter API key to make BirdsiteLIVE working. First create an **Standalone App** in the [Twitter developer portal](https://developer.twitter.com/en/portal/projects-and-apps) and retrieve the API Key and API Secret Key. 
 
+Please make sure you are using a **Standalone App** API Key and not a **Project App** API Key (that will NOT work with BirdsiteLIVE), if you don't see the **Standalone App** section, you might need to [apply for Elevated Access](https://developer.twitter.com/en/portal/products/elevated) as described in the [API documentation](https://developer.twitter.com/en/support/twitter-api/developer-account).
+
+
 ## Server prerequisites
 
 Your instance will need [docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/) installed and working. 
