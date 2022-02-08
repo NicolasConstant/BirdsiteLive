@@ -45,14 +45,17 @@ namespace BirdsiteLive.Pipeline.Processors
                 catch (UserNotFoundException)
                 {
                     await ProcessNotFoundUserAsync(user);
+                    continue;
                 }
                 catch (UserHasBeenSuspendedException)
                 {
                     await ProcessNotFoundUserAsync(user);
+                    continue;
                 }
                 catch (RateLimitExceededException)
                 {
                     await ProcessRateLimitExceededAsync(user);
+                    continue;
                 }
                 catch (Exception)
                 {
