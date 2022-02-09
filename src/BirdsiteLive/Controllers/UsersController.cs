@@ -183,32 +183,40 @@ namespace BirdsiteLive.Controllers
                     switch (activity?.type)
                     {
                         case "Follow":
-                            {
-                                var succeeded = await _userService.FollowRequestedAsync(signature, r.Method, r.Path,
-                                    r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityFollow, body);
-                                if (succeeded) return Accepted();
-                                else return Unauthorized();
-                            }
+                        {
+                            var succeeded = await _userService.FollowRequestedAsync(signature, r.Method, r.Path,
+                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers),
+                                activity as ActivityFollow, body);
+                            if (succeeded) return Accepted();
+                            else return Unauthorized();
+                        }
                         case "Undo":
                             if (activity is ActivityUndoFollow)
                             {
                                 var succeeded = await _userService.UndoFollowRequestedAsync(signature, r.Method, r.Path,
-                                    r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityUndoFollow, body);
+                                    r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers),
+                                    activity as ActivityUndoFollow, body);
                                 if (succeeded) return Accepted();
                                 else return Unauthorized();
                             }
+
                             return Accepted();
                         case "Delete":
-                            {
-                                var succeeded = await _userService.DeleteRequestedAsync(signature, r.Method, r.Path,
-                                    r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityDelete, body);
-                                if (succeeded) return Accepted();
-                                else return Unauthorized();
-                            }
+                        {
+                            var succeeded = await _userService.DeleteRequestedAsync(signature, r.Method, r.Path,
+                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers),
+                                activity as ActivityDelete, body);
+                            if (succeeded) return Accepted();
+                            else return Unauthorized();
+                        }
                         default:
                             return Accepted();
                     }
                 }
+            }
+            catch (UserIsGoneException)
+            {
+                return Accepted();
             }
             catch (UserNotFoundException)
             {
