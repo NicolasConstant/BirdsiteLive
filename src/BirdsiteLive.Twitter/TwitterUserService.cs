@@ -6,6 +6,7 @@ using BirdsiteLive.Twitter.Models;
 using BirdsiteLive.Twitter.Tools;
 using Microsoft.Extensions.Logging;
 using Tweetinvi;
+using Tweetinvi.Exceptions;
 using Tweetinvi.Models;
 
 namespace BirdsiteLive.Twitter
@@ -13,6 +14,7 @@ namespace BirdsiteLive.Twitter
     public interface ITwitterUserService
     {
         TwitterUser GetUser(string username);
+        bool IsUserApiRateLimited();
     }
 
     public class TwitterUserService : ITwitterUserService
@@ -32,27 +34,46 @@ namespace BirdsiteLive.Twitter
 
         public TwitterUser GetUser(string username)
         {
+            //Check if API is saturated 
+            if (IsUserApiRateLimited()) throw new RateLimitExceededException();
+
+            //Proceed to account retrieval
             _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
             ExceptionHandler.SwallowWebExceptions = false;
+            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackOnly;
 
             IUser user;
             try
             {
                 user = User.GetUserFromScreenName(username);
-                _statisticsHandler.CalledUserApi();
-                if (user == null)
+            }
+            catch (TwitterException e)
+            {
+                if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User has been suspended".ToLowerInvariant())))
                 {
-                    _logger.LogWarning("User {username} not found", username);
-                    return null;
+                    throw new UserHasBeenSuspendedException();
+                }
+                else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User not found".ToLowerInvariant())))
+                {
+                    throw new UserNotFoundException();
+                }
+                else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("Rate limit exceeded".ToLowerInvariant())))
+                {
+                    throw new RateLimitExceededException();
+                }
+                else
+                {
+                    throw;
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Error retrieving user {Username}", username);
-
-                // TODO keep track of error, see where to remove user if too much errors
-
-                return null;
+                throw;
+            }
+            finally
+            {
+                _statisticsHandler.CalledUserApi();
             }
 
             // Expand URLs
@@ -72,6 +93,33 @@ namespace BirdsiteLive.Twitter
                 ProfileBannerURL = user.ProfileBannerURL,
                 Protected = user.Protected
             };
+        }
+
+        public bool IsUserApiRateLimited()
+        {
+            // Retrieve limit from tooling
+            _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
+            ExceptionHandler.SwallowWebExceptions = false;
+            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackOnly;
+
+            try
+            {
+                var queryRateLimits = RateLimit.GetQueryRateLimit("https://api.twitter.com/1.1/users/show.json?screen_name=mastodon");
+
+                if (queryRateLimits != null)
+                {
+                    return queryRateLimits.Remaining <= 0;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error retrieving rate limits");
+            }
+
+            // Fallback
+            var currentCalls = _statisticsHandler.GetCurrentUserCalls();
+            var maxCalls = _statisticsHandler.GetStatistics().UserCallsMax;
+            return currentCalls >= maxCalls;
         }
     }
 }

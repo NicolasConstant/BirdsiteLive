@@ -11,7 +11,6 @@ using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Bcpg;
 
 namespace BirdsiteLive.Domain
 {
@@ -45,6 +44,12 @@ namespace BirdsiteLive.Domain
             var httpClient = _httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.Add("Accept", "application/activity+json");
             var result = await httpClient.GetAsync(objectId);
+
+            if (result.StatusCode == HttpStatusCode.Gone)
+                throw new FollowerIsGoneException();
+
+            result.EnsureSuccessStatusCode();
+
             var content = await result.Content.ReadAsStringAsync();
 
             var actor = JsonConvert.DeserializeObject<Actor>(content);

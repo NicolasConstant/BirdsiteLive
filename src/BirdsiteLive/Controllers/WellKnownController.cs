@@ -12,6 +12,7 @@ using BirdsiteLive.Models;
 using BirdsiteLive.Models.WellKnownModels;
 using BirdsiteLive.Twitter;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BirdsiteLive.Controllers
@@ -23,13 +24,15 @@ namespace BirdsiteLive.Controllers
         private readonly ITwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly InstanceSettings _settings;
-
+        private readonly ILogger<WellKnownController> _logger;
+        
         #region Ctor
-        public WellKnownController(InstanceSettings settings, ITwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, IModerationRepository moderationRepository)
+        public WellKnownController(InstanceSettings settings, ITwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, IModerationRepository moderationRepository, ILogger<WellKnownController> logger)
         {
             _twitterUserService = twitterUserService;
             _twitterUserDal = twitterUserDal;
             _moderationRepository = moderationRepository;
+            _logger = logger;
             _settings = settings;
         }
         #endregion
@@ -141,30 +144,54 @@ namespace BirdsiteLive.Controllers
         [Route("/.well-known/webfinger")]
         public IActionResult Webfinger(string resource = null)
         {
-            var acct = resource.Split("acct:")[1].Trim();
+            if (string.IsNullOrWhiteSpace(resource)) 
+                return BadRequest();
 
             string name = null;
             string domain = null;
 
-            var splitAcct = acct.Split('@', StringSplitOptions.RemoveEmptyEntries);
+            if (resource.StartsWith("acct:"))
+            {
+                var acct = resource.Split("acct:")[1].Trim();
+                var splitAcct = acct.Split('@', StringSplitOptions.RemoveEmptyEntries);
 
-            var atCount = acct.Count(x => x == '@');
-            if (atCount == 1 && acct.StartsWith('@'))
-            {
-                name = splitAcct[1];
+                var atCount = acct.Count(x => x == '@');
+                if (atCount == 1 && acct.StartsWith('@'))
+                {
+                    name = splitAcct[1];
+                }
+                else if (atCount == 1 || atCount == 2)
+                {
+                    name = splitAcct[0];
+                    domain = splitAcct[1];
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
-            else if (atCount == 1 || atCount == 2)
+            else if (resource.StartsWith("https://"))
             {
-                name = splitAcct[0];
-                domain = splitAcct[1];
+                try
+                {
+                    name = resource.Split('/').Last().Trim();
+                    domain = resource.Split("https://", StringSplitOptions.RemoveEmptyEntries)[0].Split('/')[0].Trim();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Error parsing {Resource}", resource);
+                    throw new NotImplementedException();
+                }
             }
             else
             {
-                return BadRequest();
+                _logger.LogError("Error parsing {Resource}", resource);
+                throw new NotImplementedException();
             }
 
             // Ensure lowercase
             name = name.ToLowerInvariant();
+            domain = domain?.ToLowerInvariant();
 
             // Ensure valid username 
             // https://help.twitter.com/en/managing-your-account/twitter-username-rules
@@ -174,9 +201,27 @@ namespace BirdsiteLive.Controllers
             if (!string.IsNullOrWhiteSpace(domain) && domain != _settings.Domain)
                 return NotFound();
 
-            var user = _twitterUserService.GetUser(name);
-            if (user == null)
+            try
+            {
+                _twitterUserService.GetUser(name);
+            }
+            catch (UserNotFoundException)
+            {
                 return NotFound();
+            }
+            catch (UserHasBeenSuspendedException)
+            {
+                return NotFound();
+            }
+            catch (RateLimitExceededException)
+            {
+                return new ObjectResult("Too Many Requests") { StatusCode = 429 };
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Exception getting {Name}", name);
+                throw;
+            }
 
             var actorUrl = UrlFactory.GetActorUrl(_settings.Domain, name);
 

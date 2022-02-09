@@ -341,6 +341,48 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         }
 
         [TestMethod]
+        public async Task CreateUpdateAndGetFollower_Integer()
+        {
+            var acct = "myhandle";
+            var host = "domain.ext";
+            var following = new[] { 12, 19, 23 };
+            var followingSync = new Dictionary<int, long>()
+            {
+                {12, 165L},
+                {19, 166L},
+                {23, 167L}
+            };
+            var inboxRoute = "/myhandle/inbox";
+            var sharedInboxRoute = "/inbox";
+            var actorId = $"https://{host}/{acct}";
+
+            var dal = new FollowersPostgresDal(_settings);
+            await dal.CreateFollowerAsync(acct, host, inboxRoute, sharedInboxRoute, actorId, following, followingSync);
+            var result = await dal.GetFollowerAsync(acct, host);
+
+            var updatedFollowing = new List<int> { 12, 19, 23, 24 };
+            var updatedFollowingSync = new Dictionary<int, long>(){
+                {12, 170L},
+                {19, 171L},
+                {23, 172L},
+                {24, 173L}
+            };
+            result.Followings = updatedFollowing.ToList();
+            result.FollowingsSyncStatus = updatedFollowingSync;
+            result.PostingErrorCount = 32768;
+
+            await dal.UpdateFollowerAsync(result);
+            result = await dal.GetFollowerAsync(acct, host);
+
+            Assert.AreEqual(updatedFollowing.Count, result.Followings.Count);
+            Assert.AreEqual(updatedFollowing[0], result.Followings[0]);
+            Assert.AreEqual(updatedFollowingSync.Count, result.FollowingsSyncStatus.Count);
+            Assert.AreEqual(updatedFollowingSync.First().Key, result.FollowingsSyncStatus.First().Key);
+            Assert.AreEqual(updatedFollowingSync.First().Value, result.FollowingsSyncStatus.First().Value);
+            Assert.AreEqual(32768, result.PostingErrorCount);
+        }
+
+        [TestMethod]
         public async Task CreateUpdateAndGetFollower_Remove()
         {
             var acct = "myhandle";

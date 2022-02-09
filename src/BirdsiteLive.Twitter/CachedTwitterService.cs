@@ -1,4 +1,5 @@
 ﻿using System;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Twitter.Models;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -13,11 +14,8 @@ namespace BirdsiteLive.Twitter
     {
         private readonly ITwitterUserService _twitterService;
 
-        private MemoryCache _userCache = new MemoryCache(new MemoryCacheOptions()
-        {
-            SizeLimit = 5000
-        });
-        private MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions()
+        private readonly MemoryCache _userCache;
+        private readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions()
             .SetSize(1)//Size amount
             //Priority on removing when reaching size limit (memory pressure)
             .SetPriority(CacheItemPriority.High)
@@ -27,9 +25,14 @@ namespace BirdsiteLive.Twitter
             .SetAbsoluteExpiration(TimeSpan.FromDays(7));
 
         #region Ctor
-        public CachedTwitterUserService(ITwitterUserService twitterService)
+        public CachedTwitterUserService(ITwitterUserService twitterService, InstanceSettings settings)
         {
             _twitterService = twitterService;
+
+            _userCache = new MemoryCache(new MemoryCacheOptions()
+            {
+                SizeLimit = settings.UserCacheCapacity
+            });
         }
         #endregion
 
@@ -42,6 +45,11 @@ namespace BirdsiteLive.Twitter
             }
 
             return user;
+        }
+
+        public bool IsUserApiRateLimited()
+        {
+            return _twitterService.IsUserApiRateLimited();
         }
 
         public void PurgeUser(string username)

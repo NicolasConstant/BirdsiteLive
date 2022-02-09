@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using BirdsiteLive.ActivityPub.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
 namespace BirdsiteLive.ActivityPub.Tests
@@ -46,6 +47,20 @@ namespace BirdsiteLive.ActivityPub.Tests
             Assert.AreEqual("https://85da1577f778.ngrok.io/users/gra", data.apObject.actor);
             Assert.AreEqual("Follow", data.apObject.type);
             Assert.AreEqual("https://mamot.fr/users/testtest", data.apObject.apObject);
+        }
+
+        [TestMethod]
+        public void DeleteDeserializationTest()
+        {
+            var json =
+                "{\"@context\": \"https://www.w3.org/ns/activitystreams\", \"id\": \"https://mastodon.technology/users/deleteduser#delete\", \"type\": \"Delete\", \"actor\": \"https://mastodon.technology/users/deleteduser\", \"to\": [\"https://www.w3.org/ns/activitystreams#Public\"],\"object\": \"https://mastodon.technology/users/deleteduser\",\"signature\": {\"type\": \"RsaSignature2017\",\"creator\": \"https://mastodon.technology/users/deleteduser#main-key\",\"created\": \"2020-11-19T22:43:01Z\",\"signatureValue\": \"peksQao4v5N+sMZgHXZ6xZnGaZrd0s+LqZimu63cnp7O5NBJM6gY9AAu/vKUgrh4C50r66f9OQdHg5yChQhc4ViE+yLR/3/e59YQimelmXJPpcC99Nt0YLU/iTRLsBehY3cDdC6+ogJKgpkToQvB6tG2KrPdrkreYh4Il4eXLKMfiQhgdKluOvenLnl2erPWfE02hIu/jpuljyxSuvJunMdU4yQVSZHTtk/I8q3jjzIzhgyb7ICWU5Hkx0H/47Q24ztsvOgiTWNgO+v6l9vA7qIhztENiRPhzGP5RCCzUKRAe6bcSu1Wfa3NKWqB9BeJ7s+2y2bD7ubPbiEE1MQV7Q==\"}}";
+
+            var data = ApDeserializer.ProcessActivity(json) as ActivityDelete;
+
+            Assert.AreEqual("https://mastodon.technology/users/deleteduser#delete", data.id);
+            Assert.AreEqual("Delete", data.type);
+            Assert.AreEqual("https://mastodon.technology/users/deleteduser", data.actor);
+            Assert.AreEqual("https://mastodon.technology/users/deleteduser", data.apObject);
         }
 
         //[TestMethod]

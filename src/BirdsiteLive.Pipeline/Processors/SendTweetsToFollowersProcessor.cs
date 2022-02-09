@@ -5,9 +5,11 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain;
+using BirdsiteLive.Moderation.Actions;
 using BirdsiteLive.Pipeline.Contracts;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Pipeline.Processors.SubTasks;
@@ -23,14 +25,18 @@ namespace BirdsiteLive.Pipeline.Processors
         private readonly ISendTweetsToInboxTask _sendTweetsToInboxTask;
         private readonly ISendTweetsToSharedInboxTask _sendTweetsToSharedInbox;
         private readonly IFollowersDal _followersDal;
+        private readonly InstanceSettings _instanceSettings;
         private readonly ILogger<SendTweetsToFollowersProcessor> _logger;
+        private readonly IRemoveFollowerAction _removeFollowerAction;
 
         #region Ctor
-        public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox, IFollowersDal followersDal, ILogger<SendTweetsToFollowersProcessor> logger)
+        public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox, IFollowersDal followersDal, ILogger<SendTweetsToFollowersProcessor> logger, InstanceSettings instanceSettings, IRemoveFollowerAction removeFollowerAction)
         {
             _sendTweetsToInboxTask = sendTweetsToInboxTask;
             _sendTweetsToSharedInbox = sendTweetsToSharedInbox;
             _logger = logger;
+            _instanceSettings = instanceSettings;
+            _removeFollowerAction = removeFollowerAction;
             _followersDal = followersDal;
         }
         #endregion
@@ -107,7 +113,17 @@ namespace BirdsiteLive.Pipeline.Processors
         private async Task ProcessFailingUserAsync(Follower follower)
         {
             follower.PostingErrorCount++;
-            await _followersDal.UpdateFollowerAsync(follower);
+
+            if (follower.PostingErrorCount > _instanceSettings.FailingFollowerCleanUpThreshold 
+                && _instanceSettings.FailingFollowerCleanUpThreshold > 0
+                || follower.PostingErrorCount > 2147483600)
+            {
+                await _removeFollowerAction.ProcessAsync(follower);
+            }
+            else
+            {
+                await _followersDal.UpdateFollowerAsync(follower);
+            }
         }
     }
 }
