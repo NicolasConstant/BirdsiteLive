@@ -2,7 +2,7 @@
 
 namespace BirdsiteLive.Domain
 {
-    public class UserIsGoneException : Exception
+    public class FollowerIsGoneException : Exception
     {
     }
 }

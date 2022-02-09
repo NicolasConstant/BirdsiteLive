@@ -31,28 +31,32 @@ namespace BirdsiteLive.Controllers
         [HttpPost]
         public async Task<IActionResult> Inbox()
         {
-            var r = Request;
-            using (var reader = new StreamReader(Request.Body))
+            try
             {
-                var body = await reader.ReadToEndAsync();
-
-                _logger.LogTrace("Inbox: {Body}", body);
-                //System.IO.File.WriteAllText($@"C:\apdebug\inbox\{Guid.NewGuid()}.json", body);
-
-                var activity = ApDeserializer.ProcessActivity(body);
-                var signature = r.Headers["Signature"].First();
-
-                switch (activity?.type)
+                var r = Request;
+                using (var reader = new StreamReader(Request.Body))
                 {
-                    case "Delete":
+                    var body = await reader.ReadToEndAsync();
+
+                    _logger.LogTrace("Inbox: {Body}", body);
+                    //System.IO.File.WriteAllText($@"C:\apdebug\inbox\{Guid.NewGuid()}.json", body);
+
+                    var activity = ApDeserializer.ProcessActivity(body);
+                    var signature = r.Headers["Signature"].First();
+
+                    switch (activity?.type)
                     {
-                        var succeeded = await _userService.DeleteRequestedAsync(signature, r.Method, r.Path,
-                            r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityDelete, body);
-                        if (succeeded) return Accepted();
-                        else return Unauthorized();
+                        case "Delete":
+                        {
+                            var succeeded = await _userService.DeleteRequestedAsync(signature, r.Method, r.Path,
+                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityDelete, body);
+                            if (succeeded) return Accepted();
+                            else return Unauthorized();
+                        }
                     }
                 }
             }
+            catch (FollowerIsGoneException) { } //TODO: check if user in DB
 
             return Accepted();
         }

@@ -214,7 +214,7 @@ namespace BirdsiteLive.Controllers
                     }
                 }
             }
-            catch (UserIsGoneException)
+            catch (FollowerIsGoneException)  //TODO: check if user in DB
             {
                 return Accepted();
             }

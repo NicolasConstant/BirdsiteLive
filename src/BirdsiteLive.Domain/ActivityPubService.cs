@@ -46,7 +46,7 @@ namespace BirdsiteLive.Domain
             var result = await httpClient.GetAsync(objectId);
 
             if (result.StatusCode == HttpStatusCode.Gone)
-                throw new UserIsGoneException();
+                throw new FollowerIsGoneException();
 
             result.EnsureSuccessStatusCode();
 
