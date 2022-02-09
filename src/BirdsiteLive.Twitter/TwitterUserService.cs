@@ -35,7 +35,7 @@ namespace BirdsiteLive.Twitter
         public TwitterUser GetUser(string username)
         {
             //Check if API is saturated 
-            if (IsUserApiRateLimited()) return null;
+            if (IsUserApiRateLimited()) throw new RateLimitExceededException();
 
             //Proceed to account retrieval
             _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
