@@ -144,30 +144,54 @@ namespace BirdsiteLive.Controllers
         [Route("/.well-known/webfinger")]
         public IActionResult Webfinger(string resource = null)
         {
-            var acct = resource.Split("acct:")[1].Trim();
+            if (string.IsNullOrWhiteSpace(resource)) 
+                return BadRequest();
 
             string name = null;
             string domain = null;
 
-            var splitAcct = acct.Split('@', StringSplitOptions.RemoveEmptyEntries);
+            if (resource.StartsWith("acct:"))
+            {
+                var acct = resource.Split("acct:")[1].Trim();
+                var splitAcct = acct.Split('@', StringSplitOptions.RemoveEmptyEntries);
 
-            var atCount = acct.Count(x => x == '@');
-            if (atCount == 1 && acct.StartsWith('@'))
-            {
-                name = splitAcct[1];
+                var atCount = acct.Count(x => x == '@');
+                if (atCount == 1 && acct.StartsWith('@'))
+                {
+                    name = splitAcct[1];
+                }
+                else if (atCount == 1 || atCount == 2)
+                {
+                    name = splitAcct[0];
+                    domain = splitAcct[1];
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
-            else if (atCount == 1 || atCount == 2)
+            else if (resource.StartsWith("https://"))
             {
-                name = splitAcct[0];
-                domain = splitAcct[1];
+                try
+                {
+                    name = resource.Split('/').Last().Trim();
+                    domain = resource.Split("https://", StringSplitOptions.RemoveEmptyEntries)[0].Split('/')[0].Trim();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Error parsing {Resource}", resource);
+                    throw new NotImplementedException();
+                }
             }
             else
             {
-                return BadRequest();
+                _logger.LogError("Error parsing {Resource}", resource);
+                throw new NotImplementedException();
             }
 
             // Ensure lowercase
             name = name.ToLowerInvariant();
+            domain = domain?.ToLowerInvariant();
 
             // Ensure valid username 
             // https://help.twitter.com/en/managing-your-account/twitter-username-rules
