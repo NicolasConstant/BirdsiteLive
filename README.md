@@ -12,7 +12,7 @@ The code is pretty messy and far from a good state, since it's a playground for 
 
 ## Official instance 
 
-You can find an official (and temporary) instance here: [beta.birdsite.live](https://beta.birdsite.live). This instance can disapear at any time, if you want a long term instance you should install your own or use another one. 
+You can find an official (and temporary) instance here: [beta.birdsite.live](https://beta.birdsite.live). This instance can disappear at any time, if you want a long term instance you should install your own or use another one. 
 
 ## Installation
 
