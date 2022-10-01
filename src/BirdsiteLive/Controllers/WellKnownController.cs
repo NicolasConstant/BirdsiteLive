@@ -64,7 +64,7 @@ namespace BirdsiteLive.Controllers
         {
             var version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(3);
             var twitterUsersCount = await _twitterUserDal.GetTwitterUsersCountAsync();
-            var isOpenRegistration = _moderationRepository.GetModerationType(ModerationEntityTypeEnum.Follower) != ModerationTypeEnum.WhiteListing;
+            var isOpenRegistration = _moderationRepository.GetModerationType(ModerationEntityTypeEnum.Follower) != ModerationTypeEnum.AllowListing;
 
             if (id == "2.0")
             {

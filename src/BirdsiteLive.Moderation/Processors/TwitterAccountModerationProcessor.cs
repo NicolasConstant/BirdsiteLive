@@ -36,8 +36,8 @@ namespace BirdsiteLive.Moderation.Processors
                 var userHandle = user.Acct.ToLowerInvariant().Trim();
                 var status = _moderationRepository.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, userHandle);
 
-                if (type == ModerationTypeEnum.WhiteListing && status != ModeratedTypeEnum.WhiteListed ||
-                    type == ModerationTypeEnum.BlackListing && status == ModeratedTypeEnum.BlackListed)
+                if (type == ModerationTypeEnum.AllowListing && status != ModeratedTypeEnum.AllowListed ||
+                    type == ModerationTypeEnum.BlockListing && status == ModeratedTypeEnum.BlockListed)
                     await _removeTwitterAccountAction.ProcessAsync(user);
             }
         }

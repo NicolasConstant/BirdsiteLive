@@ -33,7 +33,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
         }
 
         [TestMethod]
-        public async Task ProcessAsync_WhiteListing_WhiteListed()
+        public async Task ProcessAsync_AllowListing_AllowListed()
         {
             #region Stubs
             var allUsers = new List<SyncTwitterUser>
@@ -56,13 +56,13 @@ namespace BirdsiteLive.Moderation.Tests.Processors
                 .Setup(x => x.CheckStatus(
                     It.Is<ModerationEntityTypeEnum>(y => y == ModerationEntityTypeEnum.TwitterAccount),
                     It.Is<string>(y => y == "acct")))
-                .Returns(ModeratedTypeEnum.WhiteListed);
+                .Returns(ModeratedTypeEnum.AllowListed);
 
             var removeTwitterAccountActionMock = new Mock<IRemoveTwitterAccountAction>(MockBehavior.Strict);
             #endregion
 
             var processor = new TwitterAccountModerationProcessor(twitterUserDalMock.Object, moderationRepositoryMock.Object, removeTwitterAccountActionMock.Object);
-            await processor.ProcessAsync(ModerationTypeEnum.WhiteListing);
+            await processor.ProcessAsync(ModerationTypeEnum.AllowListing);
 
             #region Validations
             twitterUserDalMock.VerifyAll();
@@ -72,7 +72,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
         }
 
         [TestMethod]
-        public async Task ProcessAsync_WhiteListing_NotWhiteListed()
+        public async Task ProcessAsync_AllowListing_NotAllowListed()
         {
             #region Stubs
             var allUsers = new List<SyncTwitterUser>
@@ -105,7 +105,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
             #endregion
 
             var processor = new TwitterAccountModerationProcessor(twitterUserDalMock.Object, moderationRepositoryMock.Object, removeTwitterAccountActionMock.Object);
-            await processor.ProcessAsync(ModerationTypeEnum.WhiteListing);
+            await processor.ProcessAsync(ModerationTypeEnum.AllowListing);
 
             #region Validations
             twitterUserDalMock.VerifyAll();
@@ -115,7 +115,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
         }
 
         [TestMethod]
-        public async Task ProcessAsync_BlackListing_BlackListed()
+        public async Task ProcessAsync_BlockListing_BlockListed()
         {
             #region Stubs
             var allUsers = new List<SyncTwitterUser>
@@ -138,7 +138,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
                 .Setup(x => x.CheckStatus(
                     It.Is<ModerationEntityTypeEnum>(y => y == ModerationEntityTypeEnum.TwitterAccount),
                     It.Is<string>(y => y == "acct")))
-                .Returns(ModeratedTypeEnum.BlackListed);
+                .Returns(ModeratedTypeEnum.BlockListed);
 
             var removeTwitterAccountActionMock = new Mock<IRemoveTwitterAccountAction>(MockBehavior.Strict);
             removeTwitterAccountActionMock
@@ -148,7 +148,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
             #endregion
 
             var processor = new TwitterAccountModerationProcessor(twitterUserDalMock.Object, moderationRepositoryMock.Object, removeTwitterAccountActionMock.Object);
-            await processor.ProcessAsync(ModerationTypeEnum.BlackListing);
+            await processor.ProcessAsync(ModerationTypeEnum.BlockListing);
 
             #region Validations
             twitterUserDalMock.VerifyAll();
@@ -158,7 +158,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
         }
 
         [TestMethod]
-        public async Task ProcessAsync_BlackListing_NotBlackListed()
+        public async Task ProcessAsync_BlockListing_NotBlockListed()
         {
             #region Stubs
             var allUsers = new List<SyncTwitterUser>
@@ -187,7 +187,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
             #endregion
 
             var processor = new TwitterAccountModerationProcessor(twitterUserDalMock.Object, moderationRepositoryMock.Object, removeTwitterAccountActionMock.Object);
-            await processor.ProcessAsync(ModerationTypeEnum.BlackListing);
+            await processor.ProcessAsync(ModerationTypeEnum.BlockListing);
 
             #region Validations
             twitterUserDalMock.VerifyAll();

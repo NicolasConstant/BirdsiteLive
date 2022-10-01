@@ -37,8 +37,8 @@ namespace BirdsiteLive.Moderation.Processors
                 var followerHandle = $"@{follower.Acct.Trim()}@{follower.Host.Trim()}".ToLowerInvariant();
                 var status = _moderationRepository.CheckStatus(ModerationEntityTypeEnum.Follower, followerHandle);
 
-                if (type == ModerationTypeEnum.WhiteListing && status != ModeratedTypeEnum.WhiteListed ||
-                    type == ModerationTypeEnum.BlackListing && status == ModeratedTypeEnum.BlackListed)
+                if (type == ModerationTypeEnum.AllowListing && status != ModeratedTypeEnum.AllowListed ||
+                    type == ModerationTypeEnum.BlockListing && status == ModeratedTypeEnum.BlockListed)
                 {
                     Console.WriteLine($"Remove {followerHandle}");
                     await _removeFollowerAction.ProcessAsync(follower);
