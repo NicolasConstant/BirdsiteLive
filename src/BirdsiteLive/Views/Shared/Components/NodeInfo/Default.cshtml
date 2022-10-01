@@ -3,11 +3,11 @@
 <div>
     @if (ViewData.Model.WhitelistingEnabled)
     {
-        <a asp-controller="About" asp-action="Whitelisting" class="badge badge-light" title="What does this mean?">Whitelisting Enabled</a>
+        <a asp-controller="About" asp-action="Allowlisting" class="badge badge-light" title="What does this mean?">Allowlist Enabled</a>
     }
     @if (ViewData.Model.BlacklistingEnabled)
     {
-        <a asp-controller="About" asp-action="Blacklisting" class="badge badge-light" title="What does this mean?">Blacklisting Enabled</a>
+        <a asp-controller="About" asp-action="Blocklisting" class="badge badge-light" title="What does this mean?">Blocklist Enabled</a>
     }
 
     <div class="node-progress-bar">
