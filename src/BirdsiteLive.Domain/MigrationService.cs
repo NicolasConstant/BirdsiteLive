@@ -10,11 +10,13 @@ namespace BirdsiteLive.Domain
     public class MigrationService
     {
         private readonly ITwitterTweetsService _twitterTweetsService;
+        private readonly IActivityPubService _activityPubService;
 
         #region Ctor
-        public MigrationService(ITwitterTweetsService twitterTweetsService)
+        public MigrationService(ITwitterTweetsService twitterTweetsService, IActivityPubService activityPubService)
         {
             _twitterTweetsService = twitterTweetsService;
+            _activityPubService = activityPubService;
         }
         #endregion
 
@@ -52,11 +54,23 @@ namespace BirdsiteLive.Domain
 
         public async Task<bool> ValidateFediverseAcctAsync(string fediverseAcct)
         {
-            return true;
+            if (string.IsNullOrWhiteSpace(fediverseAcct))
+                throw new ArgumentException("Please provide Fediverse account");
+
+            if( !fediverseAcct.Contains('@') || fediverseAcct.Trim('@').Split('@').Length != 2)
+                throw new ArgumentException("Please provide valid Fediverse handle");
+
+            var objectId = await _activityPubService.GetUserIdAsync(fediverseAcct);
+            var user = await _activityPubService.GetUser(objectId);
+
+            if(user != null) return true;
+
+            return false;
         }
 
         public async Task MigrateAccountAsync(string acct, string tweetId, string fediverseAcct, bool triggerRemoteMigration)
         {
+            throw new NotImplementedException("Migration not implemented");
         }
 
         private byte[] GetHash(string inputString)

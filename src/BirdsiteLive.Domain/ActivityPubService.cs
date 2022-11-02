@@ -16,10 +16,17 @@ namespace BirdsiteLive.Domain
 {
     public interface IActivityPubService
     {
+        Task<string> GetUserIdAsync(string acct);
         Task<Actor> GetUser(string objectId);
         Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null);
         Task PostNewNoteActivity(Note note, string username, string noteId, string targetHost,
             string targetInbox);
+    }
+
+    public class WebFinger
+    {
+        public string subject { get; set; }
+        public string[] aliases { get; set; }
     }
 
     public class ActivityPubService : IActivityPubService
@@ -38,6 +45,24 @@ namespace BirdsiteLive.Domain
             _logger = logger;
         }
         #endregion
+
+        public async Task<string> GetUserIdAsync(string acct)
+        {
+            var splittedAcct = acct.Trim('@').Split('@');
+
+            var url = $"https://{splittedAcct[1]}/.well-known/webfinger?resource=acct:{splittedAcct[0]}@{splittedAcct[1]}";
+
+            var httpClient = _httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+            var result = await httpClient.GetAsync(url);
+
+            result.EnsureSuccessStatusCode();
+
+            var content = await result.Content.ReadAsStringAsync();
+
+            var actor = JsonConvert.DeserializeObject<WebFinger>(content);
+            return actor.aliases.FirstOrDefault();
+        }
 
         public async Task<Actor> GetUser(string objectId)
         {
