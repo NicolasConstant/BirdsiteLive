@@ -113,6 +113,12 @@ namespace BirdsiteLive.Domain
                         type = "PropertyValue",
                         name = "Official",
                         value = $"<a href=\"https://twitter.com/{acct}\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">twitter.com/{acct}</span></a>"
+                    },
+                    new UserAttachment
+                    {
+                        type = "PropertyValue",
+                        name = "Disclaimer",
+                        value = "This is an automatically created and managed mirror profile from Twitter. While it reflects exactly the content of the original account, it doesn't provide support for interactions and replies. It is an equivalent view from other 3rd party Twitter client apps and uses the same technical means to provide it."
                     }
                 },
                 endpoints = new EndPoints
