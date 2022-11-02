@@ -1,17 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Npgsql.TypeHandlers;
+using BirdsiteLive.Domain;
 
 namespace BirdsiteLive.Controllers
 {
     public class MigrationController : Controller
     {
+        private readonly MigrationService _migrationService;
+
+        #region Ctor
+        public MigrationController(MigrationService migrationService)
+        {
+            _migrationService = migrationService;
+        }
+        #endregion
+
         [HttpGet]
         [Route("/migration/{id}")]
         public IActionResult Index(string id)
         {
-            var migrationCode = GetMigrationCode(id);
+            var migrationCode = _migrationService.GetMigrationCode(id);
             var data = new MigrationData()
             {
                 Acct = id,
@@ -23,9 +35,10 @@ namespace BirdsiteLive.Controllers
 
         [HttpPost]
         [Route("/migration/{id}")]
-        public IActionResult Migrate(string id, string tweetid, string handle)
+        public async Task<IActionResult> Migrate(string id, string tweetid, string handle)
         {
-            var migrationCode = GetMigrationCode(id);
+            var migrationCode = _migrationService.GetMigrationCode(id);
+            
             var data = new MigrationData()
             {
                 Acct = id,
@@ -38,28 +51,51 @@ namespace BirdsiteLive.Controllers
                 FediverseAccount = handle
             };
 
+            try
+            {
+                var isAcctValid = await _migrationService.ValidateFediverseAcctAsync(handle);
+                var isTweetValid = _migrationService.ValidateTweet(id, tweetid);
+
+                data.IsAcctValid = isAcctValid;
+                data.IsTweetValid = isTweetValid;
+            }
+            catch (Exception e)
+            {
+                data.ErrorMessage = e.Message;
+            }
+
+
+            if (data.IsAcctValid && data.IsTweetValid)
+            {
+                try
+                {
+                    await _migrationService.MigrateAccountAsync(id, tweetid, handle, true);
+                    data.MigrationSuccess = true;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    data.ErrorMessage = e.Message;
+                }
+            }
+
             return View("Index", data);
         }
 
-        public byte[] GetHash(string inputString)
+        [HttpPost]
+        [Route("/migration/{id}/{tweetid}/{handle}")]
+        public async Task<IActionResult> RemoteMigrate(string id, string tweetid, string handle)
         {
-            using (HashAlgorithm algorithm = SHA256.Create())
-                return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
-        }
+            var isAcctValid = await _migrationService.ValidateFediverseAcctAsync(handle);
+            var isTweetValid = _migrationService.ValidateTweet(id, tweetid);
 
-        public string GetHashString(string inputString)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (byte b in GetHash(inputString))
-                sb.Append(b.ToString("X2"));
+            if (isAcctValid && isTweetValid)
+            {
+                await _migrationService.MigrateAccountAsync(id, tweetid, handle, false);
+                return Ok();
+            }
 
-            return sb.ToString();
-        }
-
-        public string GetMigrationCode(string acct)
-        {
-            var hash = GetHashString(acct);
-            return $"[[BirdsiteLIVE-MigrationCode|{hash.Substring(0, 10)}]]";
+            return StatusCode(500);
         }
     }
 
@@ -81,6 +117,6 @@ namespace BirdsiteLive.Controllers
         public bool IsAcctValid { get; set; }
 
         public string ErrorMessage { get; set; }
-        
+        public bool MigrationSuccess { get; set; }
     }
 }
