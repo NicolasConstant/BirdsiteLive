@@ -72,6 +72,28 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         }
 
         [TestMethod]
+        public async Task CreateAndGetMigratedUser_byId()
+        {
+            var acct = "myid";
+            var lastTweetId = 1548L;
+            var movedTo = "https://";
+            var movedToAcct = "@account@instance";
+
+            var dal = new TwitterUserPostgresDal(_settings);
+
+            await dal.CreateTwitterUserAsync(acct, lastTweetId, movedTo, movedToAcct);
+            var result = await dal.GetTwitterUserAsync(acct);
+            var resultById = await dal.GetTwitterUserAsync(result.Id);
+
+            Assert.AreEqual(acct, resultById.Acct);
+            Assert.AreEqual(lastTweetId, resultById.LastTweetPostedId);
+            Assert.AreEqual(lastTweetId, resultById.LastTweetSynchronizedForAllFollowersId);
+            Assert.AreEqual(result.Id, resultById.Id);
+            Assert.AreEqual(movedTo, result.MovedTo);
+            Assert.AreEqual(movedToAcct, result.MovedToAcct);
+        }
+
+        [TestMethod]
         public async Task CreateUpdateAndGetUser()
         {
             var acct = "myid";
@@ -98,6 +120,37 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             Assert.IsTrue(Math.Abs((now.ToUniversalTime() - result.LastSync).Milliseconds) < 100);
             Assert.AreEqual(null, result.MovedTo);
             Assert.AreEqual(null, result.MovedToAcct);
+        }
+
+        [TestMethod]
+        public async Task CreateUpdateAndGetMigratedUser()
+        {
+            var acct = "myid";
+            var lastTweetId = 1548L;
+
+            var dal = new TwitterUserPostgresDal(_settings);
+
+            await dal.CreateTwitterUserAsync(acct, lastTweetId);
+            var result = await dal.GetTwitterUserAsync(acct);
+
+
+            var updatedLastTweetId = 1600L;
+            var updatedLastSyncId = 1550L;
+            var now = DateTime.Now;
+            var errors = 15;
+            var movedTo = "https://";
+            var movedToAcct = "@account@instance";
+            await dal.UpdateTwitterUserAsync(result.Id, updatedLastTweetId, updatedLastSyncId, errors, now, movedTo, movedToAcct);
+
+            result = await dal.GetTwitterUserAsync(acct);
+
+            Assert.AreEqual(acct, result.Acct);
+            Assert.AreEqual(updatedLastTweetId, result.LastTweetPostedId);
+            Assert.AreEqual(updatedLastSyncId, result.LastTweetSynchronizedForAllFollowersId);
+            Assert.AreEqual(errors, result.FetchingErrorCount);
+            Assert.IsTrue(Math.Abs((now.ToUniversalTime() - result.LastSync).Milliseconds) < 100);
+            Assert.AreEqual(movedTo, result.MovedTo);
+            Assert.AreEqual(movedToAcct, result.MovedToAcct);
         }
 
         [TestMethod]
@@ -258,7 +311,15 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
                 await dal.CreateTwitterUserAsync(acct, lastTweetId);
             }
 
-            var result = await dal.GetAllTwitterUsersAsync(1000);
+            for (int i = 0; i < 10; i++)
+            {
+                var acct = $"migrated-myid{i}";
+                var lastTweetId = 1548L;
+
+                await dal.CreateTwitterUserAsync(acct, lastTweetId, "https://url/account", "@user@domain");
+            }
+
+            var result = await dal.GetAllTwitterUsersAsync(1100);
             Assert.AreEqual(1000, result.Length);
             Assert.IsFalse(result[0].Id == default);
             Assert.IsFalse(result[0].Acct == default);
@@ -344,6 +405,14 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
                 var lastTweetId = 1548L;
 
                 await dal.CreateTwitterUserAsync(acct, lastTweetId);
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                var acct = $"migrated-myid{i}";
+                var lastTweetId = 1548L;
+
+                await dal.CreateTwitterUserAsync(acct, lastTweetId, "https://url/account", "@user@domain");
             }
 
             var result = await dal.GetAllTwitterUsersAsync();
