@@ -51,25 +51,27 @@ namespace BirdsiteLive.Controllers
                 FediverseAccount = handle
             };
 
+            ValidatedFediverseUser fediverseUserValidation = null;
+
             try
             {
-                var isAcctValid = await _migrationService.ValidateFediverseAcctAsync(handle);
+                fediverseUserValidation = await _migrationService.ValidateFediverseAcctAsync(handle);
                 var isTweetValid = _migrationService.ValidateTweet(id, tweetid);
 
-                data.IsAcctValid = isAcctValid;
+                data.IsAcctValid = fediverseUserValidation.IsValid;
                 data.IsTweetValid = isTweetValid;
             }
             catch (Exception e)
             {
                 data.ErrorMessage = e.Message;
             }
-
-
-            if (data.IsAcctValid && data.IsTweetValid)
+            
+            if (data.IsAcctValid && data.IsTweetValid && fediverseUserValidation != null)
             {
                 try
                 {
-                    await _migrationService.MigrateAccountAsync(id, tweetid, handle, true);
+                    await _migrationService.MigrateAccountAsync(fediverseUserValidation, id);
+                    await _migrationService.TriggerRemoteMigrationAsync(id, tweetid, handle);
                     data.MigrationSuccess = true;
                 }
                 catch (Exception e)
@@ -86,12 +88,12 @@ namespace BirdsiteLive.Controllers
         [Route("/migration/{id}/{tweetid}/{handle}")]
         public async Task<IActionResult> RemoteMigrate(string id, string tweetid, string handle)
         {
-            var isAcctValid = await _migrationService.ValidateFediverseAcctAsync(handle);
+            var fediverseUserValidation = await _migrationService.ValidateFediverseAcctAsync(handle);
             var isTweetValid = _migrationService.ValidateTweet(id, tweetid);
 
-            if (isAcctValid && isTweetValid)
+            if (fediverseUserValidation.IsValid && isTweetValid)
             {
-                await _migrationService.MigrateAccountAsync(id, tweetid, handle, false);
+                await _migrationService.MigrateAccountAsync(fediverseUserValidation, id);
                 return Ok();
             }
 

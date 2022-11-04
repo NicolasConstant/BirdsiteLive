@@ -4,19 +4,30 @@ using BirdsiteLive.Twitter;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using BirdsiteLive.ActivityPub;
+using BirdsiteLive.ActivityPub.Models;
+using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.ActivityPub.Converters;
+using BirdsiteLive.Common.Settings;
 
 namespace BirdsiteLive.Domain
 {
     public class MigrationService
     {
+        private readonly InstanceSettings _instanceSettings;
         private readonly ITwitterTweetsService _twitterTweetsService;
         private readonly IActivityPubService _activityPubService;
+        private readonly ITwitterUserDal _twitterUserDal;
+        private readonly IFollowersDal _followersDal;
 
         #region Ctor
-        public MigrationService(ITwitterTweetsService twitterTweetsService, IActivityPubService activityPubService)
+        public MigrationService(ITwitterTweetsService twitterTweetsService, IActivityPubService activityPubService, ITwitterUserDal twitterUserDal, IFollowersDal followersDal, InstanceSettings instanceSettings)
         {
             _twitterTweetsService = twitterTweetsService;
             _activityPubService = activityPubService;
+            _twitterUserDal = twitterUserDal;
+            _followersDal = followersDal;
+            _instanceSettings = instanceSettings;
         }
         #endregion
 
@@ -33,8 +44,14 @@ namespace BirdsiteLive.Domain
             var castedTweetId = ExtractedTweetId(tweetId);
             var tweet = _twitterTweetsService.GetTweet(castedTweetId);
 
-            if (tweet == null) throw new Exception("Tweet not found");
-            if (!tweet.MessageContent.Contains(code)) throw new Exception("Tweet don't have migration code");
+            if (tweet == null)
+                throw new Exception("Tweet not found");
+
+            if (tweet.CreatorName.Trim().ToLowerInvariant() != acct.Trim().ToLowerInvariant()) 
+                throw new Exception($"Tweet not published by @{acct}");
+
+            if (!tweet.MessageContent.Contains(code)) 
+                throw new Exception("Tweet don't have migration code");
 
             return true;
         }
@@ -52,25 +69,81 @@ namespace BirdsiteLive.Domain
             throw new ArgumentException("Unvalid Tweet ID");
         }
 
-        public async Task<bool> ValidateFediverseAcctAsync(string fediverseAcct)
+        public async Task<ValidatedFediverseUser> ValidateFediverseAcctAsync(string fediverseAcct)
         {
             if (string.IsNullOrWhiteSpace(fediverseAcct))
                 throw new ArgumentException("Please provide Fediverse account");
 
-            if( !fediverseAcct.Contains('@') || fediverseAcct.Trim('@').Split('@').Length != 2)
+            if( !fediverseAcct.Contains('@') || !fediverseAcct.StartsWith("@") || fediverseAcct.Trim('@').Split('@').Length != 2)
                 throw new ArgumentException("Please provide valid Fediverse handle");
 
             var objectId = await _activityPubService.GetUserIdAsync(fediverseAcct);
             var user = await _activityPubService.GetUser(objectId);
 
-            if(user != null) return true;
+            var result = new ValidatedFediverseUser
+            {
+                FediverseAcct = fediverseAcct,
+                ObjectId = objectId,
+                User = user,
+                IsValid = user != null
+            };
 
-            return false;
+            return result;
         }
 
-        public async Task MigrateAccountAsync(string acct, string tweetId, string fediverseAcct, bool triggerRemoteMigration)
+        public async Task MigrateAccountAsync(ValidatedFediverseUser validatedUser, string acct)
         {
-            throw new NotImplementedException("Migration not implemented");
+            // Apply moved to
+            var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(acct);
+            twitterAccount.MovedTo = validatedUser.ObjectId;
+            twitterAccount.MovedToAcct = validatedUser.FediverseAcct;
+            await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
+            
+            // Notify Followers
+            var t = Task.Run(async () =>
+            {
+                var followers = await _followersDal.GetFollowersAsync(twitterAccount.Id);
+                foreach (var follower in followers)
+                {
+                    try
+                    {
+                        var noteId = Guid.NewGuid().ToString();
+                        var actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, acct);
+                        var noteUrl = UrlFactory.GetNoteUrl(_instanceSettings.Domain, acct, noteId);
+
+                        var to = validatedUser.ObjectId;
+                        var cc = new string[0];
+
+                        var note = new Note
+                        {
+                            id = noteId,
+
+                            published = DateTime.UtcNow.ToString("s") + "Z",
+                            url = noteUrl,
+                            attributedTo = actorUrl,
+
+                            to = new[] { to },
+                            cc = cc,
+
+                            content = $@"<p>[MIRROR SERVICE NOTIFICATION]<br/>
+                                    This bot has been disabled by it's original owner.<br/>
+                                    It has been redirected to {validatedUser.FediverseAcct}.
+                                    </p>"
+                        };
+
+                        await _activityPubService.PostNewNoteActivity(note, acct, Guid.NewGuid().ToString(), follower.Host, follower.InboxRoute);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+            });
+        }
+
+        public async Task TriggerRemoteMigrationAsync(string id, string tweetid, string handle)
+        {
+            //TODO
         }
 
         private byte[] GetHash(string inputString)
@@ -87,5 +160,13 @@ namespace BirdsiteLive.Domain
 
             return sb.ToString();
         }
+    }
+
+    public class ValidatedFediverseUser
+    {
+        public string FediverseAcct { get; set; }
+        public string ObjectId { get; set; }
+        public Actor User { get; set; }
+        public bool IsValid { get; set; }
     }
 }
