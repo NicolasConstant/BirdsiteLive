@@ -87,7 +87,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var updatedLastSyncId = 1550L;
             var now = DateTime.Now;
             var errors = 15;
-            await dal.UpdateTwitterUserAsync(result.Id, updatedLastTweetId, updatedLastSyncId, errors, now);
+            await dal.UpdateTwitterUserAsync(result.Id, updatedLastTweetId, updatedLastSyncId, errors, now, null, null);
 
             result = await dal.GetTwitterUserAsync(acct);
 
@@ -96,6 +96,8 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             Assert.AreEqual(updatedLastSyncId, result.LastTweetSynchronizedForAllFollowersId);
             Assert.AreEqual(errors, result.FetchingErrorCount);
             Assert.IsTrue(Math.Abs((now.ToUniversalTime() - result.LastSync).Milliseconds) < 100);
+            Assert.AreEqual(null, result.MovedTo);
+            Assert.AreEqual(null, result.MovedToAcct);
         }
 
         [TestMethod]
@@ -167,7 +169,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         public async Task Update_NoId()
         {
             var dal = new TwitterUserPostgresDal(_settings);
-            await dal.UpdateTwitterUserAsync(default, default, default, default, DateTime.UtcNow);
+            await dal.UpdateTwitterUserAsync(default, default, default, default, DateTime.UtcNow, null, null);
         }
 
         [TestMethod]
@@ -175,7 +177,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         public async Task Update_NoLastTweetPostedId()
         {
             var dal = new TwitterUserPostgresDal(_settings);
-            await dal.UpdateTwitterUserAsync(12, default, default, default, DateTime.UtcNow);
+            await dal.UpdateTwitterUserAsync(12, default, default, default, DateTime.UtcNow, null, null);
         }
 
         [TestMethod]
@@ -183,7 +185,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         public async Task Update_NoLastTweetSynchronizedForAllFollowersId()
         {
             var dal = new TwitterUserPostgresDal(_settings);
-            await dal.UpdateTwitterUserAsync(12, 9556, default, default, DateTime.UtcNow);
+            await dal.UpdateTwitterUserAsync(12, 9556, default, default, DateTime.UtcNow, null, null);
         }
 
         [TestMethod]
@@ -191,7 +193,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         public async Task Update_NoLastSync()
         {
             var dal = new TwitterUserPostgresDal(_settings);
-            await dal.UpdateTwitterUserAsync(12, 9556, 65, default, default);
+            await dal.UpdateTwitterUserAsync(12, 9556, 65, default, default, null, null);
         }
 
         [TestMethod]
@@ -318,7 +320,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             {
                 var user = allUsers[i];
                 var date = i % 2 == 0 ? oldest : newest;
-                await dal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, 0, date);
+                await dal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, 0, date, null, null);
             }
 
             var result = await dal.GetAllTwitterUsersAsync(10);
@@ -382,7 +384,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
                 if (i == 0 || i == 2 || i == 3)
                 {
                     var t = await dal.GetTwitterUserAsync(acct);
-                    await dal.UpdateTwitterUserAsync(t.Id ,1L,2L, 50+i*2, DateTime.Now);
+                    await dal.UpdateTwitterUserAsync(t.Id ,1L,2L, 50+i*2, DateTime.Now, null, null);
                 }
             }
 

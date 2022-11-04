@@ -12,6 +12,9 @@ namespace BirdsiteLive.DAL.Models
 
         public DateTime LastSync { get; set; }
 
-        public int FetchingErrorCount { get; set; } //TODO: update DAL
+        public int FetchingErrorCount { get; set; }
+
+        public string MovedTo { get; set; }
+        public string MovedToAcct { get; set; }
     }
 }

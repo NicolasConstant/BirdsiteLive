@@ -90,6 +90,7 @@ namespace BirdsiteLive.Domain
                 summary = description,
                 url = actorUrl,
                 manuallyApprovesFollowers = twitterUser.Protected,
+                discoverable = false,
                 publicKey = new PublicKey()
                 {
                     id = $"{actorUrl}#main-key",
