@@ -95,10 +95,17 @@ namespace BirdsiteLive.Domain
         {
             // Apply moved to
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(acct);
-            twitterAccount.MovedTo = validatedUser.ObjectId;
-            twitterAccount.MovedToAcct = validatedUser.FediverseAcct;
-            await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
-            
+            if (twitterAccount == null)
+            {
+                await _twitterUserDal.CreateTwitterUserAsync(acct, -1, validatedUser.ObjectId, validatedUser.FediverseAcct);
+            }
+            else
+            {
+                twitterAccount.MovedTo = validatedUser.ObjectId;
+                twitterAccount.MovedToAcct = validatedUser.FediverseAcct;
+                await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
+            }
+
             // Notify Followers
             var t = Task.Run(async () =>
             {
