@@ -121,17 +121,14 @@ sudo service nginx restart
 <virtualHost *:443>
         servername {your-domain-name.com}
         
-        Alias /.well-known /usr/share/letsencrypt/.well-known
-        
-        ProxyPass /.well-known !
         ProxyPass / http://localhost:5000/ Keepalive=On
         RequestHeader set Host "birdsite.falkensweb.com"
         ProxyPassReverse / https://birdsite.falkensweb.com
 
-       SSLEngine On
-       SSLCertificateFile /etc/letsencrypt/live/{your-domain-name.com}/cert.pem 
-       SSLCertificateKeyFile /etc/letsencrypt/live/{your-domain-name.com}/privkey.pem
-       SSLCertificateChainFile /etc/letsencrypt/live/{your-domain-name.com}/chain.pem
+        SSLEngine On
+        SSLCertificateFile /etc/letsencrypt/live/{your-domain-name.com}/cert.pem 
+        SSLCertificateKeyFile /etc/letsencrypt/live/{your-domain-name.com}/privkey.pem
+        SSLCertificateChainFile /etc/letsencrypt/live/{your-domain-name.com}/chain.pem
 </virtualHost>
 ```
 
