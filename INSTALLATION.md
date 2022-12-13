@@ -119,7 +119,7 @@ sudo certbot --nginx -d {your-domain-name.com}
 
 Make sure you're redirecting all traffic to https when asked.
 
-Finally check that the auto-revewal will work as espected:
+Finally check that the auto-renewal will work as espected:
 
 ```
 sudo certbot renew --dry-run
