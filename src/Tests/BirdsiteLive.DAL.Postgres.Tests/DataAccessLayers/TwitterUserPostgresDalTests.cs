@@ -154,6 +154,35 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         }
 
         [TestMethod]
+        public async Task CreateUpdateAndGetDeletedUser()
+        {
+            var acct = "myid";
+            var lastTweetId = 1548L;
+
+            var dal = new TwitterUserPostgresDal(_settings);
+
+            await dal.CreateTwitterUserAsync(acct, lastTweetId);
+            var result = await dal.GetTwitterUserAsync(acct);
+
+            var updatedLastTweetId = 1600L;
+            var updatedLastSyncId = 1550L;
+            var now = DateTime.Now;
+            var errors = 15;
+            await dal.UpdateTwitterUserAsync(result.Id, updatedLastTweetId, updatedLastSyncId, errors, now, null, null, true);
+
+            result = await dal.GetTwitterUserAsync(acct);
+
+            Assert.AreEqual(acct, result.Acct);
+            Assert.AreEqual(updatedLastTweetId, result.LastTweetPostedId);
+            Assert.AreEqual(updatedLastSyncId, result.LastTweetSynchronizedForAllFollowersId);
+            Assert.AreEqual(errors, result.FetchingErrorCount);
+            Assert.IsTrue(Math.Abs((now.ToUniversalTime() - result.LastSync).Milliseconds) < 100);
+            Assert.AreEqual(null, result.MovedTo);
+            Assert.AreEqual(null, result.MovedToAcct);
+            Assert.AreEqual(true, result.Deleted);
+        }
+
+        [TestMethod]
         public async Task CreateUpdate2AndGetUser()
         {
             var acct = "myid";

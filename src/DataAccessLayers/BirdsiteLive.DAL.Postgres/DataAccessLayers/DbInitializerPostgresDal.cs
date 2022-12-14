@@ -180,6 +180,9 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
                 var addMovedToAcct = $@"ALTER TABLE {_settings.TwitterUserTableName} ADD movedToAcct VARCHAR(305)";
                 await _tools.ExecuteRequestAsync(addMovedToAcct);
+
+                var addDeletedToAcct = $@"ALTER TABLE {_settings.TwitterUserTableName} ADD deleted BOOLEAN";
+                await _tools.ExecuteRequestAsync(addDeletedToAcct);
             }
             else
             {
