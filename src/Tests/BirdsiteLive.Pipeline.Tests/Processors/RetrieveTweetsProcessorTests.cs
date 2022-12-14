@@ -66,7 +66,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                     It.Is<int>(y => y == 0),
                     It.IsAny<DateTime>(),
                     It.Is<string>(y => y == null),
-                    It.Is<string>(y => y == null)
+                    It.Is<string>(y => y == null),
+                    It.Is<bool>(y => y == false)
                 ))
                 .Returns(Task.CompletedTask);
 

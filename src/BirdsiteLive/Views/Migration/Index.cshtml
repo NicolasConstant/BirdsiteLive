@@ -11,7 +11,7 @@
         </div>
     }
 
-    <h1 class="display-4 migration__title">Migrate @@@ViewData.Model.Acct</h1>
+    <h1 class="display-4 migration__title">Migrate @@@ViewData.Model.Acct mirror to my Fediverse account</h1>
 
     @if (!ViewData.Model.IsAcctProvided && !ViewData.Model.IsTweetProvided)
     {
@@ -21,16 +21,17 @@
 
         <h2 class="display-4 migration__subtitle">What will migration do?</h2>
 
-        <p>Migration will transfer the followers to the provided account.<br/>
-            After a week, the account will be deleted. It will also be blacklisted so that it can't be recreated.</p>
+        <p>
+            Migration will notify followers of the migration of the mirror account to your fediverse account and will be disabled after that.<br />
+        </p>
     }
 
     <h2 class="display-4 migration__subtitle">Start the migration!</h2>
 
-    <p>Please copy and post this string in a Tweet (the string must be untampered, but you can write anything you want before or after it):</p>
+    <p>Please copy and post this string in a public Tweet (the string must be untampered, but you can write anything you want before or after it):</p>
 
-    <input type="text" name="textbox" value="@ViewData.Model.MigrationCode" onclick="this.select()" class="form-control" readonly/>
-    <br/>
+    <input type="text" name="textbox" value="@ViewData.Model.MigrationCode" onclick="this.select()" class="form-control" readonly />
+    <br />
 
     <h2 class="display-4 migration__subtitle">Provide migration information:</h2>
     <form method="POST">
@@ -49,4 +50,10 @@
         </div>
         <button type="submit" class="btn btn-primary">Migrate!</button>
     </form>
+    <br />
+    <br />
+    <br />
+    <div class="user-owner">
+        <a href="/migration/delete/@ViewData.Model.Acct">I don't have a fediverse account and I'd like to delete this mirror.</a>
+    </div>
 </div>

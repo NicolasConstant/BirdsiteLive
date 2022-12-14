@@ -9,6 +9,8 @@ using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.DAL.Models;
+using BirdsiteLive.Domain.Enum;
 
 namespace BirdsiteLive.Domain
 {
@@ -37,9 +39,21 @@ namespace BirdsiteLive.Domain
             return $"[[BirdsiteLIVE-MigrationCode|{hash.Substring(0, 10)}]]";
         }
 
-        public bool ValidateTweet(string acct, string tweetId)
+        public string GetDeletionCode(string acct)
         {
-            var code = GetMigrationCode(acct);
+            var hash = GetHashString(acct);
+            return $"[[BirdsiteLIVE-DeletionCode|{hash.Substring(0, 10)}]]";
+        }
+
+        public bool ValidateTweet(string acct, string tweetId, MigrationTypeEnum type)
+        {
+            string code;
+            if (type == MigrationTypeEnum.Migration)
+                code = GetMigrationCode(acct);
+            else if (type == MigrationTypeEnum.Deletion)
+                code = GetDeletionCode(acct);
+            else
+                throw new NotImplementedException();
 
             var castedTweetId = ExtractedTweetId(tweetId);
             var tweet = _twitterTweetsService.GetTweet(castedTweetId);
@@ -47,10 +61,10 @@ namespace BirdsiteLive.Domain
             if (tweet == null)
                 throw new Exception("Tweet not found");
 
-            if (tweet.CreatorName.Trim().ToLowerInvariant() != acct.Trim().ToLowerInvariant()) 
+            if (tweet.CreatorName.Trim().ToLowerInvariant() != acct.Trim().ToLowerInvariant())
                 throw new Exception($"Tweet not published by @{acct}");
 
-            if (!tweet.MessageContent.Contains(code)) 
+            if (!tweet.MessageContent.Contains(code))
                 throw new Exception("Tweet don't have migration code");
 
             return true;
@@ -74,7 +88,7 @@ namespace BirdsiteLive.Domain
             if (string.IsNullOrWhiteSpace(fediverseAcct))
                 throw new ArgumentException("Please provide Fediverse account");
 
-            if( !fediverseAcct.Contains('@') || !fediverseAcct.StartsWith("@") || fediverseAcct.Trim('@').Split('@').Length != 2)
+            if (!fediverseAcct.Contains('@') || !fediverseAcct.StartsWith("@") || fediverseAcct.Trim('@').Split('@').Length != 2)
                 throw new ArgumentException("Please provide valid Fediverse handle");
 
             var objectId = await _activityPubService.GetUserIdAsync(fediverseAcct);
@@ -98,15 +112,23 @@ namespace BirdsiteLive.Domain
             if (twitterAccount == null)
             {
                 await _twitterUserDal.CreateTwitterUserAsync(acct, -1, validatedUser.ObjectId, validatedUser.FediverseAcct);
-            }
-            else
-            {
-                twitterAccount.MovedTo = validatedUser.ObjectId;
-                twitterAccount.MovedToAcct = validatedUser.FediverseAcct;
-                await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
+                twitterAccount = await _twitterUserDal.GetTwitterUserAsync(acct);
             }
 
+            twitterAccount.MovedTo = validatedUser.ObjectId;
+            twitterAccount.MovedToAcct = validatedUser.FediverseAcct;
+            await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
+
             // Notify Followers
+            var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>
+                                    This bot has been disabled by it's original owner.<br/>
+                                    It has been redirected to {validatedUser.FediverseAcct}.
+                                    </p>";
+            NotifyFollowers(acct, twitterAccount, message);
+        }
+
+        private void NotifyFollowers(string acct, SyncTwitterUser twitterAccount, string message)
+        {
             var t = Task.Run(async () =>
             {
                 var followers = await _followersDal.GetFollowersAsync(twitterAccount.Id);
@@ -118,7 +140,8 @@ namespace BirdsiteLive.Domain
                         var actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, acct);
                         var noteUrl = UrlFactory.GetNoteUrl(_instanceSettings.Domain, acct, noteId);
 
-                        var to = validatedUser.ObjectId;
+                        //var to = validatedUser.ObjectId;
+                        var to = follower.ActorId;
                         var cc = new string[0];
 
                         var note = new Note
@@ -132,13 +155,11 @@ namespace BirdsiteLive.Domain
                             to = new[] { to },
                             cc = cc,
 
-                            content = $@"<p>[MIRROR SERVICE NOTIFICATION]<br/>
-                                    This bot has been disabled by it's original owner.<br/>
-                                    It has been redirected to {validatedUser.FediverseAcct}.
-                                    </p>"
+                            content = message
                         };
 
-                        await _activityPubService.PostNewNoteActivity(note, acct, Guid.NewGuid().ToString(), follower.Host, follower.InboxRoute);
+                        await _activityPubService.PostNewNoteActivity(note, acct, Guid.NewGuid().ToString(), follower.Host,
+                            follower.InboxRoute);
                     }
                     catch (Exception e)
                     {
@@ -148,7 +169,33 @@ namespace BirdsiteLive.Domain
             });
         }
 
+        public async Task DeleteAccountAsync(string acct)
+        {
+            // Apply moved to
+            var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(acct);
+            if (twitterAccount == null)
+            {
+                await _twitterUserDal.CreateTwitterUserAsync(acct, -1);
+                twitterAccount = await _twitterUserDal.GetTwitterUserAsync(acct);
+            }
+
+            twitterAccount.Deleted = true;
+            await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
+
+
+            // Notify Followers
+            var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>
+                                    This bot has been deleted by it's original owner.<br/>
+                                    </p>";
+            NotifyFollowers(acct, twitterAccount, message);
+        }
+
         public async Task TriggerRemoteMigrationAsync(string id, string tweetid, string handle)
+        {
+            //TODO
+        }
+
+        public async Task TriggerRemoteDeleteAsync(string id, string tweetid)
         {
             //TODO
         }

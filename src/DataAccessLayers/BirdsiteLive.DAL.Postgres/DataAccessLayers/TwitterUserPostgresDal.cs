@@ -119,14 +119,14 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
-        public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId, int fetchingErrorCount, DateTime lastSync, string movedTo, string movedToAcct)
+        public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId, int fetchingErrorCount, DateTime lastSync, string movedTo, string movedToAcct, bool deleted)
         {
             if(id == default) throw new ArgumentException("id");
             if(lastTweetPostedId == default) throw new ArgumentException("lastTweetPostedId");
             if(lastTweetSynchronizedForAllFollowersId == default) throw new ArgumentException("lastTweetSynchronizedForAllFollowersId");
             if(lastSync == default) throw new ArgumentException("lastSync");
 
-            var query = $"UPDATE {_settings.TwitterUserTableName} SET lastTweetPostedId = @lastTweetPostedId, lastTweetSynchronizedForAllFollowersId = @lastTweetSynchronizedForAllFollowersId, fetchingErrorCount = @fetchingErrorCount, lastSync = @lastSync, movedTo = @movedTo, movedToAcct = @movedToAcct WHERE id = @id";
+            var query = $"UPDATE {_settings.TwitterUserTableName} SET lastTweetPostedId = @lastTweetPostedId, lastTweetSynchronizedForAllFollowersId = @lastTweetSynchronizedForAllFollowersId, fetchingErrorCount = @fetchingErrorCount, lastSync = @lastSync, movedTo = @movedTo, movedToAcct = @movedToAcct, deleted = @deleted WHERE id = @id";
 
             using (var dbConnection = Connection)
             {
@@ -140,14 +140,15 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                     fetchingErrorCount, 
                     lastSync = lastSync.ToUniversalTime(),
                     movedTo,
-                    movedToAcct
+                    movedToAcct,
+                    deleted
                 });
             }
         }
 
         public async Task UpdateTwitterUserAsync(SyncTwitterUser user)
         {
-            await UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, user.LastSync, user.MovedTo, user.MovedToAcct);
+            await UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, user.LastSync, user.MovedTo, user.MovedToAcct, user.Deleted);
         }
 
         public async Task DeleteTwitterUserAsync(string acct)
