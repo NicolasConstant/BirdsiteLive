@@ -116,7 +116,7 @@ namespace BirdsiteLive.Controllers
                 {
                     if (isSaturated) return new ObjectResult("Too Many Requests") { StatusCode = 429 };
                     if (notFound) return NotFound();
-                    if (dbUser != null && dbUser.Deleted) return NotFound();
+                    if (dbUser != null && dbUser.Deleted) return new ObjectResult("Gone") { StatusCode = 410 };
                     var apUser = _userService.GetUser(user, dbUser);
                     var jsonApUser = JsonConvert.SerializeObject(apUser);
                     return Content(jsonApUser, "application/activity+json; charset=utf-8");
