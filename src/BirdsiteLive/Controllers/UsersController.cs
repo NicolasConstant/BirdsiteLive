@@ -11,6 +11,8 @@ using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Models;
 using BirdsiteLive.Tools;
@@ -28,13 +30,14 @@ namespace BirdsiteLive.Controllers
     {
         private readonly ITwitterUserService _twitterUserService;
         private readonly ITwitterTweetsService _twitterTweetService;
+        private readonly ITwitterUserDal _twitterUserDal;
         private readonly IUserService _userService;
         private readonly IStatusService _statusService;
         private readonly InstanceSettings _instanceSettings;
         private readonly ILogger<UsersController> _logger;
 
         #region Ctor
-        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService, ILogger<UsersController> logger)
+        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService, ILogger<UsersController> logger, ITwitterUserDal twitterUserDal)
         {
             _twitterUserService = twitterUserService;
             _userService = userService;
@@ -42,6 +45,7 @@ namespace BirdsiteLive.Controllers
             _instanceSettings = instanceSettings;
             _twitterTweetService = twitterTweetService;
             _logger = logger;
+            _twitterUserDal = twitterUserDal;
         }
         #endregion
 
@@ -60,7 +64,7 @@ namespace BirdsiteLive.Controllers
         [Route("/@{id}")]
         [Route("/users/{id}")]
         [Route("/users/{id}/remote_follow")]
-        public IActionResult Index(string id)
+        public async Task<IActionResult> Index(string id)
         {
             _logger.LogTrace("User Index: {Id}", id);
 
@@ -102,6 +106,7 @@ namespace BirdsiteLive.Controllers
             }
 
             //var isSaturated = _twitterUserService.IsUserApiRateLimited();
+            var dbUser = await _twitterUserDal.GetTwitterUserAsync(id);
 
             var acceptHeaders = Request.Headers["Accept"];
             if (acceptHeaders.Any())
@@ -111,7 +116,8 @@ namespace BirdsiteLive.Controllers
                 {
                     if (isSaturated) return new ObjectResult("Too Many Requests") { StatusCode = 429 };
                     if (notFound) return NotFound();
-                    var apUser = _userService.GetUser(user);
+                    if (dbUser != null && dbUser.Deleted) return NotFound();
+                    var apUser = _userService.GetUser(user, dbUser);
                     var jsonApUser = JsonConvert.SerializeObject(apUser);
                     return Content(jsonApUser, "application/activity+json; charset=utf-8");
                 }
@@ -128,8 +134,12 @@ namespace BirdsiteLive.Controllers
                 Url = user.Url,
                 ProfileImageUrl = user.ProfileImageUrl,
                 Protected = user.Protected,
+                
+                InstanceHandle = $"@{user.Acct.ToLowerInvariant()}@{_instanceSettings.Domain}",
 
-                InstanceHandle = $"@{user.Acct.ToLowerInvariant()}@{_instanceSettings.Domain}"
+                MovedTo = dbUser?.MovedTo,
+                MovedToAcct = dbUser?.MovedToAcct,
+                Deleted = dbUser?.Deleted ?? false,
             };
             return View(displayableUser);
         }

@@ -11,6 +11,7 @@ using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
+using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain.BusinessUseCases;
 using BirdsiteLive.Domain.Repository;
 using BirdsiteLive.Domain.Statistics;
@@ -24,7 +25,7 @@ namespace BirdsiteLive.Domain
 {
     public interface IUserService
     {
-        Actor GetUser(TwitterUser twitterUser);
+        Actor GetUser(TwitterUser twitterUser, SyncTwitterUser dbTwitterUser);
         Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity, string body);
         Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity, string body);
 
@@ -64,7 +65,7 @@ namespace BirdsiteLive.Domain
         }
         #endregion
 
-        public Actor GetUser(TwitterUser twitterUser)
+        public Actor GetUser(TwitterUser twitterUser, SyncTwitterUser dbTwitterUser)
         {
             var actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, twitterUser.Acct);
             var acct = twitterUser.Acct.ToLowerInvariant();
@@ -112,7 +113,7 @@ namespace BirdsiteLive.Domain
                     new UserAttachment
                     {
                         type = "PropertyValue",
-                        name = "Official",
+                        name = "Official Account",
                         value = $"<a href=\"https://twitter.com/{acct}\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">twitter.com/{acct}</span></a>"
                     },
                     new UserAttachment
@@ -120,12 +121,19 @@ namespace BirdsiteLive.Domain
                         type = "PropertyValue",
                         name = "Disclaimer",
                         value = "This is an automatically created and managed mirror profile from Twitter. While it reflects exactly the content of the original account, it doesn't provide support for interactions and replies. It is an equivalent view from other 3rd party Twitter client apps and uses the same technical means to provide it."
+                    },
+                    new UserAttachment
+                    {
+                        type = "PropertyValue",
+                        name = "Take control of the account",
+                        value = $"<a href=\"https://{_instanceSettings.Domain}/migrate/move/{acct}\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">{_instanceSettings.Domain}</span></a>"
                     }
                 },
                 endpoints = new EndPoints
                 {
                     sharedInbox = $"https://{_instanceSettings.Domain}/inbox"
-                }
+                },
+                movedTo = dbTwitterUser?.MovedTo
             };
             return user;
         }
