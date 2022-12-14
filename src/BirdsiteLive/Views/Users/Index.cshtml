@@ -40,13 +40,13 @@
     else if (ViewData.Model.Deleted)
     {
         <div class="alert alert-danger" role="alert">
-            This account has been deleted by it's Twitter owner.
+            This account has been deleted by its Twitter owner.
         </div>
     }
     else if (!string.IsNullOrEmpty(ViewData.Model.MovedTo))
     {
         <div class="alert alert-danger" role="alert">
-            This account has been migrated by it's Twitter owner and has be disabled.<br/>
+            This account has been migrated by its Twitter owner and has been disabled.<br/>
             You can follow this user at <a href="@ViewData.Model.MovedTo">@ViewData.Model.MovedToAcct</a>.
         </div>
     }
