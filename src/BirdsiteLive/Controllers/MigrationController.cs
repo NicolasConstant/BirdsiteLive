@@ -53,7 +53,7 @@ namespace BirdsiteLive.Controllers
         public async Task<IActionResult> MigrateMove(string id, string tweetid, string handle)
         {
             var migrationCode = _migrationService.GetMigrationCode(id);
-            
+
             var data = new MigrationData()
             {
                 Acct = id,
@@ -80,12 +80,12 @@ namespace BirdsiteLive.Controllers
             {
                 data.ErrorMessage = e.Message;
             }
-            
+
             if (data.IsAcctValid && data.IsTweetValid && fediverseUserValidation != null)
             {
                 try
                 {
-                    await _migrationService.MigrateAccountAsync(fediverseUserValidation, id);
+                    await _migrationService.MigrateAccountAsync(fediverseUserValidation, id, true);
                     await _migrationService.TriggerRemoteMigrationAsync(id, tweetid, handle);
                     data.MigrationSuccess = true;
                 }
@@ -129,7 +129,7 @@ namespace BirdsiteLive.Controllers
             {
                 try
                 {
-                    await _migrationService.DeleteAccountAsync(id);
+                    await _migrationService.DeleteAccountAsync(id, true);
                     await _migrationService.TriggerRemoteDeleteAsync(id, tweetid);
                     data.MigrationSuccess = true;
                 }
@@ -148,34 +148,42 @@ namespace BirdsiteLive.Controllers
         public async Task<IActionResult> RemoteMigrateMove(string id, string tweetid, string handle)
         {
             var fediverseUserValidation = await _migrationService.ValidateFediverseAcctAsync(handle);
-            var isTweetValid = _migrationService.ValidateTweet(id, tweetid, MigrationTypeEnum.Deletion);
+            var isTweetValid = _migrationService.ValidateTweet(id, tweetid, MigrationTypeEnum.Migration);
 
             if (fediverseUserValidation.IsValid && isTweetValid)
             {
-                await _migrationService.MigrateAccountAsync(fediverseUserValidation, id);
+                await _migrationService.MigrateAccountAsync(fediverseUserValidation, id, false);
                 return Ok();
             }
 
-            return StatusCode(500);
+            return StatusCode(400);
         }
 
         [HttpPost]
         [Route("/migration/delete/{id}/{tweetid}/{handle}")]
-        public async Task<IActionResult> RemoteDeleteMove(string id, string tweetid, string handle)
+        public async Task<IActionResult> RemoteMigrateDelete(string id, string tweetid)
         {
-            throw new NotImplementedException();
+            var isTweetValid = _migrationService.ValidateTweet(id, tweetid, MigrationTypeEnum.Deletion);
+
+            if (isTweetValid)
+            {
+                await _migrationService.DeleteAccountAsync(id, true);
+                return Ok();
+            }
+
+            return StatusCode(400);
         }
     }
 
-    
+
 
     public class MigrationData
     {
         public string Acct { get; set; }
-        
+
         public string FediverseAccount { get; set; }
         public string TweetId { get; set; }
-        
+
         public string MigrationCode { get; set; }
 
         public bool IsTweetProvided { get; set; }
