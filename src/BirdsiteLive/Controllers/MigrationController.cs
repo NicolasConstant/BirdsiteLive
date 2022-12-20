@@ -85,7 +85,7 @@ namespace BirdsiteLive.Controllers
             {
                 try
                 {
-                    await _migrationService.MigrateAccountAsync(fediverseUserValidation, id, true);
+                    await _migrationService.MigrateAccountAsync(fediverseUserValidation, id);
                     await _migrationService.TriggerRemoteMigrationAsync(id, tweetid, handle);
                     data.MigrationSuccess = true;
                 }
@@ -129,7 +129,7 @@ namespace BirdsiteLive.Controllers
             {
                 try
                 {
-                    await _migrationService.DeleteAccountAsync(id, true);
+                    await _migrationService.DeleteAccountAsync(id);
                     await _migrationService.TriggerRemoteDeleteAsync(id, tweetid);
                     data.MigrationSuccess = true;
                 }
@@ -152,7 +152,7 @@ namespace BirdsiteLive.Controllers
 
             if (fediverseUserValidation.IsValid && isTweetValid)
             {
-                await _migrationService.MigrateAccountAsync(fediverseUserValidation, id, false);
+                await _migrationService.MigrateAccountAsync(fediverseUserValidation, id);
                 return Ok();
             }
 
@@ -167,7 +167,7 @@ namespace BirdsiteLive.Controllers
 
             if (isTweetValid)
             {
-                await _migrationService.DeleteAccountAsync(id, true);
+                await _migrationService.DeleteAccountAsync(id);
                 return Ok();
             }
 

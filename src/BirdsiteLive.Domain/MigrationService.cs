@@ -105,7 +105,7 @@ namespace BirdsiteLive.Domain
             return result;
         }
 
-        public async Task MigrateAccountAsync(ValidatedFediverseUser validatedUser, string acct, bool notify)
+        public async Task MigrateAccountAsync(ValidatedFediverseUser validatedUser, string acct)
         {
             // Apply moved to
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(acct);
@@ -120,14 +120,11 @@ namespace BirdsiteLive.Domain
             await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
 
             // Notify Followers
-            if (notify)
-            {
-                var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>
+            var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>
                                     This bot has been disabled by it's original owner.<br/>
                                     It has been redirected to {validatedUser.FediverseAcct}.
                                     </p>";
-                NotifyFollowers(acct, twitterAccount, message);
-            }
+            NotifyFollowers(acct, twitterAccount, message);
         }
 
         private void NotifyFollowers(string acct, SyncTwitterUser twitterAccount, string message)
@@ -172,7 +169,7 @@ namespace BirdsiteLive.Domain
             });
         }
 
-        public async Task DeleteAccountAsync(string acct, bool notify)
+        public async Task DeleteAccountAsync(string acct)
         {
             // Apply moved to
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(acct);
@@ -184,16 +181,12 @@ namespace BirdsiteLive.Domain
 
             twitterAccount.Deleted = true;
             await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
-
-
+            
             // Notify Followers
-            if (notify)
-            {
-                var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>
+            var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>
                                     This bot has been deleted by it's original owner.<br/>
                                     </p>";
-                NotifyFollowers(acct, twitterAccount, message);
-            }
+            NotifyFollowers(acct, twitterAccount, message);
         }
 
         public async Task TriggerRemoteMigrationAsync(string id, string tweetid, string handle)
