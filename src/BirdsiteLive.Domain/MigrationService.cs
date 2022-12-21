@@ -121,7 +121,7 @@ namespace BirdsiteLive.Domain
 
             // Notify Followers
             var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>
-                                    This bot has been disabled by it's original owner.<br/>
+                                    This bot has been disabled by its original owner.<br/>
                                     It has been redirected to {validatedUser.FediverseAcct}.
                                     </p>";
             NotifyFollowers(acct, twitterAccount, message);
@@ -171,7 +171,7 @@ namespace BirdsiteLive.Domain
 
         public async Task DeleteAccountAsync(string acct)
         {
-            // Apply moved to
+            // Apply deleted state
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(acct);
             if (twitterAccount == null)
             {
@@ -181,12 +181,52 @@ namespace BirdsiteLive.Domain
 
             twitterAccount.Deleted = true;
             await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
-            
+
             // Notify Followers
             var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>
-                                    This bot has been deleted by it's original owner.<br/>
+                                    This bot has been deleted by its original owner.<br/>
                                     </p>";
             NotifyFollowers(acct, twitterAccount, message);
+
+            // Delete remote accounts
+            DeleteRemoteAccounts(acct);
+        }
+
+        private void DeleteRemoteAccounts(string acct)
+        {
+            var t = Task.Run(async () =>
+            {
+                var allUsers = await _followersDal.GetAllFollowersAsync();
+
+                var followersWtSharedInbox = allUsers
+                    .Where(x => !string.IsNullOrWhiteSpace(x.SharedInboxRoute))
+                    .GroupBy(x => x.Host)
+                    .ToList();
+                foreach (var followerGroup in followersWtSharedInbox)
+                {
+                    var host = followerGroup.First().Host;
+                    var sharedInbox = followerGroup.First().SharedInboxRoute;
+
+                    var t1 = Task.Run(async () =>
+                    {
+                        await _activityPubService.DeleteUserAsync(acct, host, sharedInbox);
+                    });
+                }
+
+                var followerWtInbox = allUsers
+                    .Where(x => !string.IsNullOrWhiteSpace(x.SharedInboxRoute))
+                    .ToList();
+                foreach (var followerGroup in followerWtInbox)
+                {
+                    var host = followerGroup.Host;
+                    var sharedInbox = followerGroup.InboxRoute;
+
+                    var t1 = Task.Run(async () =>
+                    {
+                        await _activityPubService.DeleteUserAsync(acct, host, sharedInbox);
+                    });
+                }
+            });
         }
 
         public async Task TriggerRemoteMigrationAsync(string id, string tweetid, string handle)
