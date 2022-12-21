@@ -125,6 +125,17 @@ namespace BirdsiteLive.Controllers
             await _userService.SendRejectFollowAsync(activityFollow, "mastodon.technology");
             return View("Index");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> PostDeleteUser()
+        {
+            var userName = "mastodon";
+            var host = "ioc.exchange";
+            var inbox = "/inbox";
+
+            await _activityPubService.DeleteUserAsync(userName, host, inbox);
+            return View("Index");
+        }
     }
     #endif
 
