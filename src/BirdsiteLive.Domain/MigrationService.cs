@@ -117,6 +117,7 @@ namespace BirdsiteLive.Domain
 
             twitterAccount.MovedTo = validatedUser.ObjectId;
             twitterAccount.MovedToAcct = validatedUser.FediverseAcct;
+            twitterAccount.LastSync = DateTime.UtcNow;
             await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
 
             // Notify Followers
@@ -180,6 +181,7 @@ namespace BirdsiteLive.Domain
             }
 
             twitterAccount.Deleted = true;
+            twitterAccount.LastSync = DateTime.UtcNow;
             await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
 
             // Notify Followers

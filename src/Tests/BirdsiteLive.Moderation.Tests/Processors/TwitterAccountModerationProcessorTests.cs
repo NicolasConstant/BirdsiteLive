@@ -48,7 +48,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
             #region Mocks
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
-                .Setup(x => x.GetAllTwitterUsersAsync())
+                .Setup(x => x.GetAllTwitterUsersAsync(It.Is<bool>(y => y == false)))
                 .ReturnsAsync(allUsers.ToArray());
 
             var moderationRepositoryMock = new Mock<IModerationRepository>(MockBehavior.Strict);
@@ -87,7 +87,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
             #region Mocks
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
-                .Setup(x => x.GetAllTwitterUsersAsync())
+                .Setup(x => x.GetAllTwitterUsersAsync(It.Is<bool>(y => y == false)))
                 .ReturnsAsync(allUsers.ToArray());
 
             var moderationRepositoryMock = new Mock<IModerationRepository>(MockBehavior.Strict);
@@ -130,7 +130,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
             #region Mocks
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
-                .Setup(x => x.GetAllTwitterUsersAsync())
+                .Setup(x => x.GetAllTwitterUsersAsync(It.Is<bool>(y => y == false)))
                 .ReturnsAsync(allUsers.ToArray());
 
             var moderationRepositoryMock = new Mock<IModerationRepository>(MockBehavior.Strict);
@@ -173,7 +173,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
             #region Mocks
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
-                .Setup(x => x.GetAllTwitterUsersAsync())
+                .Setup(x => x.GetAllTwitterUsersAsync(It.Is<bool>(y => y == false)))
                 .ReturnsAsync(allUsers.ToArray());
 
             var moderationRepositoryMock = new Mock<IModerationRepository>(MockBehavior.Strict);

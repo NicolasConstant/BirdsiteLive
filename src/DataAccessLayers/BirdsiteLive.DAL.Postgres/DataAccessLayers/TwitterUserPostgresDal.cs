@@ -69,7 +69,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task<int> GetTwitterUsersCountAsync()
         {
-            var query = $"SELECT COUNT(*) FROM {_settings.TwitterUserTableName} WHERE (movedTo = '') IS NOT FALSE";
+            var query = $"SELECT COUNT(*) FROM {_settings.TwitterUserTableName} WHERE (movedTo = '') IS NOT FALSE AND deleted IS NOT TRUE";
 
             using (var dbConnection = Connection)
             {
@@ -82,7 +82,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task<int> GetFailingTwitterUsersCountAsync()
         {
-            var query = $"SELECT COUNT(*) FROM {_settings.TwitterUserTableName} WHERE fetchingErrorCount > 0 AND (movedTo = '') IS NOT FALSE";
+            var query = $"SELECT COUNT(*) FROM {_settings.TwitterUserTableName} WHERE fetchingErrorCount > 0 AND (movedTo = '') IS NOT FALSE AND deleted IS NOT TRUE";
 
             using (var dbConnection = Connection)
             {
@@ -93,9 +93,10 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
-        public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync(int maxNumber)
+        public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync(int maxNumber, bool retrieveDisabledUser)
         {
-            var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE (movedTo = '') IS NOT FALSE ORDER BY lastSync ASC NULLS FIRST LIMIT @maxNumber";
+            var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE (movedTo = '') IS NOT FALSE AND deleted IS NOT TRUE ORDER BY lastSync ASC NULLS FIRST LIMIT @maxNumber";
+            if (retrieveDisabledUser) query = $"SELECT * FROM {_settings.TwitterUserTableName} ORDER BY lastSync ASC NULLS FIRST LIMIT @maxNumber";
 
             using (var dbConnection = Connection)
             {
@@ -106,9 +107,10 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
-        public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync()
+        public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync(bool retrieveDisabledUser)
         {
-            var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE (movedTo = '') IS NOT FALSE";
+            var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE (movedTo = '') IS NOT FALSE AND deleted IS NOT TRUE";
+            if(retrieveDisabledUser) query = $"SELECT * FROM {_settings.TwitterUserTableName}";
 
             using (var dbConnection = Connection)
             {

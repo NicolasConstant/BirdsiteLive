@@ -10,8 +10,8 @@ namespace BirdsiteLive.DAL.Contracts
             string movedToAcct = null);
         Task<SyncTwitterUser> GetTwitterUserAsync(string acct);
         Task<SyncTwitterUser> GetTwitterUserAsync(int id);
-        Task<SyncTwitterUser[]> GetAllTwitterUsersAsync(int maxNumber);
-        Task<SyncTwitterUser[]> GetAllTwitterUsersAsync();
+        Task<SyncTwitterUser[]> GetAllTwitterUsersAsync(int maxNumber, bool retrieveDisabledUser);
+        Task<SyncTwitterUser[]> GetAllTwitterUsersAsync(bool retrieveDisabledUser);
         Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId, int fetchingErrorCount, DateTime lastSync, string movedTo, string movedToAcct, bool deleted);
         Task UpdateTwitterUserAsync(SyncTwitterUser user);
         Task DeleteTwitterUserAsync(string acct);
