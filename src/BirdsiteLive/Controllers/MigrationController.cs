@@ -6,17 +6,20 @@ using System.Threading.Tasks;
 using Npgsql.TypeHandlers;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Domain.Enum;
+using BirdsiteLive.DAL.Contracts;
 
 namespace BirdsiteLive.Controllers
 {
     public class MigrationController : Controller
     {
         private readonly MigrationService _migrationService;
-
+        private readonly ITwitterUserDal _twitterUserDal;
+        
         #region Ctor
-        public MigrationController(MigrationService migrationService)
+        public MigrationController(MigrationService migrationService, ITwitterUserDal twitterUserDal)
         {
             _migrationService = migrationService;
+            _twitterUserDal = twitterUserDal;
         }
         #endregion
 
@@ -53,7 +56,6 @@ namespace BirdsiteLive.Controllers
         public async Task<IActionResult> MigrateMove(string id, string tweetid, string handle)
         {
             var migrationCode = _migrationService.GetMigrationCode(id);
-
             var data = new MigrationData()
             {
                 Acct = id,
@@ -65,9 +67,22 @@ namespace BirdsiteLive.Controllers
                 TweetId = tweetid,
                 FediverseAccount = handle
             };
-
             ValidatedFediverseUser fediverseUserValidation = null;
 
+            //Verify can be migrated 
+            var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
+            if (twitterAccount.Deleted)
+            {
+                data.ErrorMessage = "This account has been deleted, it can't be migrated";
+                return View("Index", data);
+            }
+            if (!string.IsNullOrWhiteSpace(twitterAccount.MovedTo) || !string.IsNullOrWhiteSpace(twitterAccount.MovedToAcct))
+            {
+                data.ErrorMessage = "This account has been moved already, it can't be migrated again";
+                return View("Index", data);
+            }
+
+            // Start migration
             try
             {
                 fediverseUserValidation = await _migrationService.ValidateFediverseAcctAsync(handle);
@@ -114,7 +129,16 @@ namespace BirdsiteLive.Controllers
 
                 TweetId = tweetid
             };
+            
+            //Verify can be deleted 
+            var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
+            if (twitterAccount.Deleted)
+            {
+                data.ErrorMessage = "This account has been deleted, it can't be deleted again";
+                return View("Index", data);
+            }
 
+            // Start deletion
             try
             {
                 var isTweetValid = _migrationService.ValidateTweet(id, tweetid, MigrationTypeEnum.Migration);
@@ -147,6 +171,14 @@ namespace BirdsiteLive.Controllers
         [Route("/migration/move/{id}/{tweetid}/{handle}")]
         public async Task<IActionResult> RemoteMigrateMove(string id, string tweetid, string handle)
         {
+            //Verify can be migrated 
+            var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
+            if (twitterAccount.Deleted 
+                || !string.IsNullOrWhiteSpace(twitterAccount.MovedTo) 
+                || !string.IsNullOrWhiteSpace(twitterAccount.MovedToAcct))
+                return Ok();
+
+            // Start migration
             var fediverseUserValidation = await _migrationService.ValidateFediverseAcctAsync(handle);
             var isTweetValid = _migrationService.ValidateTweet(id, tweetid, MigrationTypeEnum.Migration);
 
@@ -163,6 +195,11 @@ namespace BirdsiteLive.Controllers
         [Route("/migration/delete/{id}/{tweetid}/{handle}")]
         public async Task<IActionResult> RemoteMigrateDelete(string id, string tweetid)
         {
+            //Verify can be deleted 
+            var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
+            if (twitterAccount.Deleted) return Ok();
+
+            // Start deletion
             var isTweetValid = _migrationService.ValidateTweet(id, tweetid, MigrationTypeEnum.Deletion);
 
             if (isTweetValid)
