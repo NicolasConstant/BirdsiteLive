@@ -29,7 +29,7 @@ namespace BirdsiteLive.Twitter.Extractors
                 IsThread = tweet.InReplyToUserId != null && tweet.InReplyToUserId == tweet.CreatedBy.Id,
                 IsRetweet = tweet.IsRetweet || tweet.QuotedStatusId != null,
                 RetweetUrl = ExtractRetweetUrl(tweet),
-                CreatorName = tweet.CreatedBy.Name
+                CreatorName = tweet.CreatedBy.UserIdentifier.ScreenName
             };
 
             return extractedTweet;

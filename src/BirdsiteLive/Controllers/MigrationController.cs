@@ -71,12 +71,14 @@ namespace BirdsiteLive.Controllers
 
             //Verify can be migrated 
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
-            if (twitterAccount.Deleted)
+            if (twitterAccount != null && twitterAccount.Deleted)
             {
                 data.ErrorMessage = "This account has been deleted, it can't be migrated";
                 return View("Index", data);
             }
-            if (!string.IsNullOrWhiteSpace(twitterAccount.MovedTo) || !string.IsNullOrWhiteSpace(twitterAccount.MovedToAcct))
+            if (twitterAccount != null && 
+                (!string.IsNullOrWhiteSpace(twitterAccount.MovedTo) 
+                 || !string.IsNullOrWhiteSpace(twitterAccount.MovedToAcct)))
             {
                 data.ErrorMessage = "This account has been moved already, it can't be migrated again";
                 return View("Index", data);
@@ -118,12 +120,12 @@ namespace BirdsiteLive.Controllers
         [Route("/migration/delete/{id}")]
         public async Task<IActionResult> MigrateDelete(string id, string tweetid)
         {
-            var migrationCode = _migrationService.GetMigrationCode(id);
+            var deletionCode = _migrationService.GetDeletionCode(id);
 
             var data = new MigrationData()
             {
                 Acct = id,
-                MigrationCode = migrationCode,
+                MigrationCode = deletionCode,
 
                 IsTweetProvided = !string.IsNullOrWhiteSpace(tweetid),
 
@@ -132,16 +134,16 @@ namespace BirdsiteLive.Controllers
             
             //Verify can be deleted 
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
-            if (twitterAccount.Deleted)
+            if (twitterAccount != null && twitterAccount.Deleted)
             {
                 data.ErrorMessage = "This account has been deleted, it can't be deleted again";
-                return View("Index", data);
+                return View("Delete", data);
             }
 
             // Start deletion
             try
             {
-                var isTweetValid = _migrationService.ValidateTweet(id, tweetid, MigrationTypeEnum.Migration);
+                var isTweetValid = _migrationService.ValidateTweet(id, tweetid, MigrationTypeEnum.Deletion);
                 data.IsTweetValid = isTweetValid;
             }
             catch (Exception e)
@@ -164,7 +166,7 @@ namespace BirdsiteLive.Controllers
                 }
             }
 
-            return View("Index", data);
+            return View("Delete", data);
         }
 
         [HttpPost]

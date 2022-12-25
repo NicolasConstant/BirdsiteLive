@@ -65,13 +65,22 @@ namespace BirdsiteLive.Domain
                 throw new Exception($"Tweet not published by @{acct}");
 
             if (!tweet.MessageContent.Contains(code))
-                throw new Exception("Tweet don't have migration code");
+            {
+                var message = "Tweet don't have migration code";
+                if (type == MigrationTypeEnum.Deletion)
+                    message = "Tweet don't have deletion code";
+
+                throw new Exception(message);
+            }
 
             return true;
         }
 
         private long ExtractedTweetId(string tweetId)
         {
+            if (string.IsNullOrWhiteSpace(tweetId))
+                throw new ArgumentException("No provided Tweet ID");
+
             long castedId;
             if (long.TryParse(tweetId, out castedId))
                 return castedId;
