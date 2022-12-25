@@ -10,6 +10,13 @@
             @ViewData.Model.ErrorMessage
         </div>
     }
+    
+    @if (ViewData.Model.MigrationSuccess)
+    {
+        <div class="alert alert-success" role="alert">
+            The mirror has been successfully migrated 
+        </div>
+    }
 
     <h1 class="display-4 migration__title">Migrate @@@ViewData.Model.Acct mirror to my Fediverse account</h1>
 

@@ -10,6 +10,13 @@
             @ViewData.Model.ErrorMessage
         </div>
     }
+    
+    @if (ViewData.Model.MigrationSuccess)
+    {
+        <div class="alert alert-success" role="alert">
+            The mirror has been successfully deleted
+        </div>
+    }
 
     <h1 class="display-4 migration__title">Delete @@@ViewData.Model.Acct mirror</h1>
 
