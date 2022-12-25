@@ -192,7 +192,7 @@ namespace BirdsiteLive.Controllers
         }
 
         [HttpPost]
-        [Route("/migration/delete/{id}/{tweetid}/{handle}")]
+        [Route("/migration/delete/{id}/{tweetid}")]
         public async Task<IActionResult> RemoteMigrateDelete(string id, string tweetid)
         {
             //Verify can be deleted 
