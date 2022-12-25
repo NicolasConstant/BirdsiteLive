@@ -60,10 +60,9 @@ namespace BirdsiteLive.Controllers
             }
             return View("UserNotFound");
         }
-
+        
         [Route("/@{id}")]
         [Route("/users/{id}")]
-        [Route("/users/{id}/remote_follow")]
         public async Task<IActionResult> Index(string id)
         {
             _logger.LogTrace("User Index: {Id}", id);
@@ -142,6 +141,12 @@ namespace BirdsiteLive.Controllers
                 Deleted = dbUser?.Deleted ?? false,
             };
             return View(displayableUser);
+        }
+        
+        [Route("/users/{id}/remote_follow")]
+        public async Task<IActionResult> IndexRemoteFollow(string id)
+        {
+            return Redirect($"/users/{id}");
         }
 
         [Route("/@{id}/{statusId}")]
