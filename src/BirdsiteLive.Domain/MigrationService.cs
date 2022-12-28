@@ -14,6 +14,7 @@ using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain.Enum;
 using System.Net.Http;
 using BirdsiteLive.Common.Regexes;
+using Microsoft.Extensions.Logging;
 
 namespace BirdsiteLive.Domain
 {
@@ -26,9 +27,10 @@ namespace BirdsiteLive.Domain
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly IFollowersDal _followersDal;
         private readonly IHttpClientFactory _httpClientFactory;
-        
+        private readonly ILogger<MigrationService> _logger;
+
         #region Ctor
-        public MigrationService(ITwitterTweetsService twitterTweetsService, IActivityPubService activityPubService, ITwitterUserDal twitterUserDal, IFollowersDal followersDal, InstanceSettings instanceSettings, ITheFedInfoService theFedInfoService, IHttpClientFactory httpClientFactory)
+        public MigrationService(ITwitterTweetsService twitterTweetsService, IActivityPubService activityPubService, ITwitterUserDal twitterUserDal, IFollowersDal followersDal, InstanceSettings instanceSettings, ITheFedInfoService theFedInfoService, IHttpClientFactory httpClientFactory, ILogger<MigrationService> logger)
         {
             _twitterTweetsService = twitterTweetsService;
             _activityPubService = activityPubService;
@@ -37,6 +39,7 @@ namespace BirdsiteLive.Domain
             _instanceSettings = instanceSettings;
             _theFedInfoService = theFedInfoService;
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
         #endregion
 
@@ -187,7 +190,7 @@ namespace BirdsiteLive.Domain
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        _logger.LogError(e, e.Message);
                     }
                 }
             });
@@ -232,7 +235,14 @@ namespace BirdsiteLive.Domain
 
                     var t1 = Task.Run(async () =>
                     {
-                        await _activityPubService.DeleteUserAsync(acct, host, sharedInbox);
+                        try
+                        {
+                            await _activityPubService.DeleteUserAsync(acct, host, sharedInbox);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, e.Message);
+                        }
                     });
                 }
 
@@ -246,7 +256,14 @@ namespace BirdsiteLive.Domain
 
                     var t1 = Task.Run(async () =>
                     {
-                        await _activityPubService.DeleteUserAsync(acct, host, sharedInbox);
+                        try
+                        {
+                            await _activityPubService.DeleteUserAsync(acct, host, sharedInbox);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, e.Message);
+                        }
                     });
                 }
             });
@@ -287,13 +304,13 @@ namespace BirdsiteLive.Domain
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        _logger.LogError(e, e.Message);
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.LogError(e, e.Message);
             }
         }
 
