@@ -51,15 +51,24 @@ namespace BirdsiteLive.Domain
 
             foreach (var instanceInfo in qlData.Data.Nodes)
             {
-                var rawVersion = instanceInfo.Version.Split('+').FirstOrDefault();
-                var version = Version.Parse(rawVersion);
-
-                var instance = new BslInstanceInfo
+                try
                 {
-                    Host = instanceInfo.Host,
-                    Version = version
-                };
-                results.Add(instance);
+                    var rawVersion = instanceInfo.Version.Split('+').First();
+                    if (string.IsNullOrWhiteSpace(rawVersion)) continue;
+                    var version = Version.Parse(rawVersion);
+                    if(version <= new Version(0,1,0)) continue;
+
+                    var instance = new BslInstanceInfo
+                    {
+                        Host = instanceInfo.Host,
+                        Version = version
+                    };
+                    results.Add(instance);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
 
             return results;
