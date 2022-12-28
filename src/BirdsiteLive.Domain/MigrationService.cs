@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BirdsiteLive.Twitter;
 using System.Security.Cryptography;
@@ -11,25 +12,31 @@ using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain.Enum;
+using System.Net.Http;
+using BirdsiteLive.Common.Regexes;
 
 namespace BirdsiteLive.Domain
 {
     public class MigrationService
     {
         private readonly InstanceSettings _instanceSettings;
+        private readonly ITheFedInfoService _theFedInfoService;
         private readonly ITwitterTweetsService _twitterTweetsService;
         private readonly IActivityPubService _activityPubService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly IFollowersDal _followersDal;
-
+        private readonly IHttpClientFactory _httpClientFactory;
+        
         #region Ctor
-        public MigrationService(ITwitterTweetsService twitterTweetsService, IActivityPubService activityPubService, ITwitterUserDal twitterUserDal, IFollowersDal followersDal, InstanceSettings instanceSettings)
+        public MigrationService(ITwitterTweetsService twitterTweetsService, IActivityPubService activityPubService, ITwitterUserDal twitterUserDal, IFollowersDal followersDal, InstanceSettings instanceSettings, ITheFedInfoService theFedInfoService, IHttpClientFactory httpClientFactory)
         {
             _twitterTweetsService = twitterTweetsService;
             _activityPubService = activityPubService;
             _twitterUserDal = twitterUserDal;
             _followersDal = followersDal;
             _instanceSettings = instanceSettings;
+            _theFedInfoService = theFedInfoService;
+            _httpClientFactory = httpClientFactory;
         }
         #endregion
 
@@ -63,7 +70,7 @@ namespace BirdsiteLive.Domain
 
             if (tweet.CreatorName.Trim().ToLowerInvariant() != acct.Trim().ToLowerInvariant())
                 throw new Exception($"Tweet not published by @{acct}");
-            
+
             if (!tweet.MessageContent.Contains(code))
             {
                 var message = "Tweet don't have migration code";
@@ -245,14 +252,58 @@ namespace BirdsiteLive.Domain
             });
         }
 
-        public async Task TriggerRemoteMigrationAsync(string id, string tweetid, string handle)
+        public async Task TriggerRemoteMigrationAsync(string id, string tweetIdStg, string handle)
         {
-            //TODO
+            var url = $"https://{{0}}/migration/move/{{1}}/{{2}}/{handle}";
+            await ProcessRemoteMigrationAsync(id, tweetIdStg, url);
+
         }
 
-        public async Task TriggerRemoteDeleteAsync(string id, string tweetid)
+        public async Task TriggerRemoteDeleteAsync(string id, string tweetIdStg)
         {
-            //TODO
+            var url = $"https://{{0}}/migration/delete/{{1}}/{{2}}";
+            await ProcessRemoteMigrationAsync(id, tweetIdStg, url);
+        }
+
+        private async Task ProcessRemoteMigrationAsync(string id, string tweetIdStg, string urlPattern)
+        {
+            try
+            {
+                var instances = await RetrieveCompatibleBslInstancesAsync();
+                var tweetId = ExtractedTweetId(tweetIdStg);
+
+                foreach (var instance in instances)
+                {
+                    try
+                    {
+                        var host = instance.Host;
+                        if(!UrlRegexes.Domain.IsMatch(host)) continue;
+
+                        var url = string.Format(urlPattern, host, id, tweetId);
+
+                        var client = _httpClientFactory.CreateClient();
+                        var result = await client.PostAsync(url, null);
+                        result.EnsureSuccessStatusCode();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        private async Task<List<BslInstanceInfo>> RetrieveCompatibleBslInstancesAsync()
+        {
+            var instances = await _theFedInfoService.GetBslInstanceListAsync();
+            var filteredInstances = instances
+                .Where(x => x.Version >= new Version(0, 21, 0))
+                .ToList();
+            return filteredInstances;
         }
 
         private byte[] GetHash(string inputString)

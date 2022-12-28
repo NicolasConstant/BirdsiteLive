@@ -104,7 +104,7 @@ namespace BirdsiteLive.Controllers
                 try
                 {
                     await _migrationService.MigrateAccountAsync(fediverseUserValidation, id);
-                    await _migrationService.TriggerRemoteMigrationAsync(id, tweetid, handle);
+                    _migrationService.TriggerRemoteMigrationAsync(id, tweetid, handle);
                     data.MigrationSuccess = true;
                 }
                 catch (Exception e)
@@ -157,7 +157,7 @@ namespace BirdsiteLive.Controllers
                 try
                 {
                     await _migrationService.DeleteAccountAsync(id);
-                    await _migrationService.TriggerRemoteDeleteAsync(id, tweetid);
+                    _migrationService.TriggerRemoteDeleteAsync(id, tweetid);
                     data.MigrationSuccess = true;
                 }
                 catch (Exception e)
