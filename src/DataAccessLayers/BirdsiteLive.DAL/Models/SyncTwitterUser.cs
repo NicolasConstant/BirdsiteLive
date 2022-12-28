@@ -17,6 +17,6 @@ namespace BirdsiteLive.DAL.Models
         public string MovedTo { get; set; }
         public string MovedToAcct { get; set; }
 
-        public bool Deleted { get; set; } //TODO: update DAL
+        public bool Deleted { get; set; }
     }
 }
