@@ -63,7 +63,7 @@ namespace BirdsiteLive.Domain
 
             if (tweet.CreatorName.Trim().ToLowerInvariant() != acct.Trim().ToLowerInvariant())
                 throw new Exception($"Tweet not published by @{acct}");
-
+            
             if (!tweet.MessageContent.Contains(code))
             {
                 var message = "Tweet don't have migration code";
@@ -130,10 +130,7 @@ namespace BirdsiteLive.Domain
             await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
 
             // Notify Followers
-            var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>
-                                    This bot has been disabled by its original owner.<br/>
-                                    It has been redirected to {validatedUser.FediverseAcct}.
-                                    </p>";
+            var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>This bot has been disabled by its original owner.<br/>It has been redirected to {validatedUser.FediverseAcct}.</p>";
             NotifyFollowers(acct, twitterAccount, message);
         }
 
@@ -156,7 +153,7 @@ namespace BirdsiteLive.Domain
 
                         var note = new Note
                         {
-                            id = noteId,
+                            id = noteUrl,
 
                             published = DateTime.UtcNow.ToString("s") + "Z",
                             url = noteUrl,
@@ -165,11 +162,21 @@ namespace BirdsiteLive.Domain
                             to = new[] { to },
                             cc = cc,
 
-                            content = message
+                            content = message,
+                            tag = new Tag[]{
+                                new Tag()
+                                {
+                                    type = "Mention",
+                                    href = follower.ActorId,
+                                    name = $"@{follower.Acct}@{follower.Host}"
+                                }
+                            },
                         };
 
-                        await _activityPubService.PostNewNoteActivity(note, acct, Guid.NewGuid().ToString(), follower.Host,
-                            follower.InboxRoute);
+                        if (!string.IsNullOrWhiteSpace(follower.SharedInboxRoute))
+                            await _activityPubService.PostNewNoteActivity(note, acct, noteId, follower.Host, follower.SharedInboxRoute);
+                        else
+                            await _activityPubService.PostNewNoteActivity(note, acct, noteId, follower.Host, follower.InboxRoute);
                     }
                     catch (Exception e)
                     {
@@ -194,9 +201,7 @@ namespace BirdsiteLive.Domain
             await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
 
             // Notify Followers
-            var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>
-                                    This bot has been deleted by its original owner.<br/>
-                                    </p>";
+            var message = $@"<p>[BSL MIRROR SERVICE NOTIFICATION]<br/>This bot has been deleted by its original owner.<br/></p>";
             NotifyFollowers(acct, twitterAccount, message);
 
             // Delete remote accounts
