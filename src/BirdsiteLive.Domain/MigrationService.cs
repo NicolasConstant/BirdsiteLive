@@ -302,6 +302,9 @@ namespace BirdsiteLive.Domain
             var instances = await _theFedInfoService.GetBslInstanceListAsync();
             var filteredInstances = instances
                 .Where(x => x.Version >= new Version(0, 21, 0))
+                .Where(x => string.Compare(x.Host, 
+                    _instanceSettings.Domain, 
+                    StringComparison.InvariantCultureIgnoreCase) != 0)
                 .ToList();
             return filteredInstances;
         }
