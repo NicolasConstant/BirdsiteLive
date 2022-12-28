@@ -29,7 +29,7 @@ namespace BirdsiteLive.Moderation.Processors
         {
             if (type == ModerationTypeEnum.None) return;
             
-            var twitterUsers = await _twitterUserDal.GetAllTwitterUsersAsync();
+            var twitterUsers = await _twitterUserDal.GetAllTwitterUsersAsync(false);
 
             foreach (var user in twitterUsers)
             {

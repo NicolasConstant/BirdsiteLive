@@ -1,0 +1,66 @@
+﻿@model BirdsiteLive.Controllers.MigrationData
+@{
+    ViewData["Title"] = "Migration";
+}
+
+<div class="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto">
+    @if (!string.IsNullOrWhiteSpace(ViewData.Model.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewData.Model.ErrorMessage
+        </div>
+    }
+    
+    @if (ViewData.Model.MigrationSuccess)
+    {
+        <div class="alert alert-success" role="alert">
+            The mirror has been successfully migrated 
+        </div>
+    }
+
+    <h1 class="display-4 migration__title">Migrate @@@ViewData.Model.Acct mirror to my Fediverse account</h1>
+
+    @if (!ViewData.Model.IsAcctProvided && !ViewData.Model.IsTweetProvided)
+    {
+        <h2 class="display-4 migration__subtitle">What is needed?</h2>
+
+        <p>You'll need a Fediverse account and access to the Twitter account to provide proof of ownership.</p>
+
+        <h2 class="display-4 migration__subtitle">What will migration do?</h2>
+
+        <p>
+            Migration will notify followers of the migration of the mirror account to your fediverse account and will be disabled after that.<br />
+        </p>
+    }
+
+    <h2 class="display-4 migration__subtitle">Start the migration!</h2>
+
+    <p>Please copy and post this string in a public Tweet (the string must be untampered, but you can write anything you want before or after it):</p>
+
+    <input type="text" name="textbox" value="@ViewData.Model.MigrationCode" onclick="this.select()" class="form-control" readonly />
+    <br />
+
+    <h2 class="display-4 migration__subtitle">Provide migration information:</h2>
+    <form method="POST">
+        @*<div class="form-group">
+        <label for="exampleInputEmail1">Email address</label>
+        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        </div>*@
+        <div class="form-group">
+            <label for="handle">Fediverse target account</label>
+            <input type="text" class="form-control" id="handle" name="handle" autocomplete="off" placeholder="@Html.Raw("@username@domain.ext")" value="@ViewData.Model.FediverseAccount">
+        </div>
+        <div class="form-group">
+            <label for="tweetid">Tweet URL</label>
+            <input type="text" class="form-control" id="tweetid" name="tweetid" autocomplete="off" placeholder="https://twitter.com/<username>/status/<tweet id>" value="@ViewData.Model.TweetId">
+        </div>
+        <button type="submit" class="btn btn-primary">Migrate!</button>
+    </form>
+    <br />
+    <br />
+    <br />
+    <div class="user-owner">
+        <a href="/migration/delete/@ViewData.Model.Acct">I don't have a fediverse account and I'd like to delete this mirror.</a>
+    </div>
+</div>

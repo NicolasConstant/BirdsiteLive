@@ -48,7 +48,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 var lastPostedTweet = userWithTweetsToSync.Tweets.Select(x => x.Id).Max();
                 var minimumSync = followingSyncStatuses.Min();
                 var now = DateTime.UtcNow;
-                await _twitterUserDal.UpdateTwitterUserAsync(userId, lastPostedTweet, minimumSync, userWithTweetsToSync.User.FetchingErrorCount, now);
+                await _twitterUserDal.UpdateTwitterUserAsync(userId, lastPostedTweet, minimumSync, userWithTweetsToSync.User.FetchingErrorCount, now, userWithTweetsToSync.User.MovedTo, userWithTweetsToSync.User.MovedToAcct, userWithTweetsToSync.User.Deleted);
             }
             catch (Exception e)
             {
