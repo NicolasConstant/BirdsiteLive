@@ -49,12 +49,12 @@ namespace BirdsiteLive.Pipeline.Processors
                 {
                     var tweetId = tweets.Last().Id;
                     var now = DateTime.UtcNow;
-                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, user.FetchingErrorCount, now);
+                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, user.FetchingErrorCount, now, user.MovedTo, user.MovedToAcct, user.Deleted);
                 }
                 else
                 {
                     var now = DateTime.UtcNow;
-                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now);
+                    await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now, user.MovedTo, user.MovedToAcct, user.Deleted);
                 }
             }
 

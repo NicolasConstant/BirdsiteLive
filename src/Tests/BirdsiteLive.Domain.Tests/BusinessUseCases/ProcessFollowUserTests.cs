@@ -77,7 +77,9 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
             twitterUserDalMock
                 .Setup(x => x.CreateTwitterUserAsync(
                     It.Is<string>(y => y == twitterName),
-                    It.Is<long>(y => y == -1)))
+                    It.Is<long>(y => y == -1),
+                    It.Is<string>(y => y == null),
+                    It.Is<string>(y => y == null)))
                 .Returns(Task.CompletedTask);
             #endregion
 

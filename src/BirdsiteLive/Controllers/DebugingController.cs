@@ -59,17 +59,22 @@ namespace BirdsiteLive.Controllers
         [HttpPost]
         public async Task<IActionResult> PostNote()
         {
-            var username = "gra";
+            var username = "twitter";
             var actor = $"https://{_instanceSettings.Domain}/users/{username}";
-            var targetHost = "mastodon.technology";
-            var target = $"{targetHost}/users/testtest";
-            var inbox = $"/users/testtest/inbox";
+            var targetHost = "ioc.exchange";
+            var target = $"https://{targetHost}/users/test";
+            //var inbox = $"/users/testtest/inbox";
+            var inbox = $"/inbox";
 
             var noteGuid = Guid.NewGuid();
             var noteId = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{noteGuid}";
             var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{noteGuid}";
 
             var to = $"{actor}/followers";
+            to = target;
+
+            var cc = new[] { "https://www.w3.org/ns/activitystreams#Public" };
+            cc = new string[0];
 
             var now = DateTime.UtcNow;
             var nowString = now.ToString("s") + "Z";
@@ -82,7 +87,7 @@ namespace BirdsiteLive.Controllers
                 actor = actor,
                 published = nowString,
                 to = new[] { to },
-                //cc = new [] { "https://www.w3.org/ns/activitystreams#Public" },
+                cc = cc,
                 apObject = new Note()
                 {
                     id = noteId,
@@ -94,7 +99,8 @@ namespace BirdsiteLive.Controllers
 
                     // Unlisted
                     to = new[] { to },
-                    cc = new[] { "https://www.w3.org/ns/activitystreams#Public" },
+                    cc = cc,
+                    //cc = new[] { "https://www.w3.org/ns/activitystreams#Public" },
 
                     //// Public
                     //to = new[] { "https://www.w3.org/ns/activitystreams#Public" },
@@ -102,8 +108,16 @@ namespace BirdsiteLive.Controllers
 
                     sensitive = false,
                     content = "<p>TEST PUBLIC</p>",
+                    //content = "<p><span class=\"h-card\"><a href=\"https://ioc.exchange/users/test\" class=\"u-url mention\">@<span>test</span></a></span> test</p>",
                     attachment = new Attachment[0],
-                    tag = new Tag[0]
+                    tag = new Tag[]{
+                        new Tag()
+                        {
+                            type = "Mention",
+                            href = target,
+                            name = "@test@ioc.exchange"
+                        }
+                    },
                 }
             };
 
@@ -123,6 +137,17 @@ namespace BirdsiteLive.Controllers
             };
 
             await _userService.SendRejectFollowAsync(activityFollow, "mastodon.technology");
+            return View("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostDeleteUser()
+        {
+            var userName = "twitter";
+            var host = "ioc.exchange";
+            var inbox = "/inbox";
+
+            await _activityPubService.DeleteUserAsync(userName, host, inbox);
             return View("Index");
         }
     }

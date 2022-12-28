@@ -37,6 +37,19 @@
             This account is protected, BirdsiteLIVE cannot fetch their tweets and will not provide follow support until it is unprotected again.
         </div>
     }
+    else if (ViewData.Model.Deleted)
+    {
+        <div class="alert alert-danger" role="alert">
+            This mirror has been deleted by its Twitter owner.
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(ViewData.Model.MovedTo))
+    {
+        <div class="alert alert-danger" role="alert">
+            This account has been migrated by its Twitter owner and has been disabled.<br />
+            You can follow this user at <a href="@ViewData.Model.MovedTo">@ViewData.Model.MovedToAcct</a>.
+        </div>
+    }
     else
     {
         <div>
@@ -45,4 +58,8 @@
             <input type="text" name="textbox" value="@ViewData.Model.InstanceHandle" onclick="this.select()" class="form-control" readonly />
         </div>
     }
+
+    <div class="user-owner">
+        <a href="/migration/move/@ViewData.Model.Acct">I'm the owner of this account and I would like to take control of this mirror.</a>
+    </div>
 </div>

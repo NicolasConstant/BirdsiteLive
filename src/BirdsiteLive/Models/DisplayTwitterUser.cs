@@ -10,5 +10,9 @@
         public bool Protected { get; set; }
 
         public string InstanceHandle { get; set; }
+
+        public string MovedTo { get; set; }
+        public string MovedToAcct { get; set; }
+        public bool Deleted { get; set; }
     }
 }

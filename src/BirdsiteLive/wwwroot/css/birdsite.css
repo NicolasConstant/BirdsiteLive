@@ -71,3 +71,18 @@
     margin-left: 60px;
     /*font-weight: bold;*/
 }
+
+.user-owner {
+    font-size: .8em;
+    padding-top: 20px;
+}
+
+/** Migration **/
+
+.migration__title {
+    font-size: 1.8em;
+}
+
+.migration__subtitle {
+    font-size: 1.4em;
+}

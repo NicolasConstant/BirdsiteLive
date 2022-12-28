@@ -39,7 +39,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 try
                 {
                     var maxUsersNumber = await _maxUsersNumberProvider.GetMaxUsersNumberAsync();
-                    var users = await _twitterUserDal.GetAllTwitterUsersAsync(maxUsersNumber);
+                    var users = await _twitterUserDal.GetAllTwitterUsersAsync(maxUsersNumber, false);
 
                     var userCount = users.Any() ? users.Length : 1;
                     var splitNumber = (int) Math.Ceiling(userCount / 15d);
