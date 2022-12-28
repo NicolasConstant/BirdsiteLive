@@ -8,6 +8,7 @@ using BirdsiteLive.Domain;
 using BirdsiteLive.Domain.Enum;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Models;
+using System.Reflection.Metadata;
 
 namespace BirdsiteLive.Controllers
 {
@@ -174,6 +175,11 @@ namespace BirdsiteLive.Controllers
         [Route("/migration/move/{id}/{tweetid}/{handle}")]
         public async Task<IActionResult> RemoteMigrateMove(string id, string tweetid, string handle)
         {
+            //Check inputs 
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(tweetid) ||
+                string.IsNullOrWhiteSpace(handle))
+                return StatusCode(422);
+
             //Verify can be migrated 
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
             if (twitterAccount != null && (twitterAccount.Deleted 
@@ -198,6 +204,10 @@ namespace BirdsiteLive.Controllers
         [Route("/migration/delete/{id}/{tweetid}")]
         public async Task<IActionResult> RemoteMigrateDelete(string id, string tweetid)
         {
+            //Check inputs 
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(tweetid))
+                return StatusCode(422);
+
             //Verify can be deleted 
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
             if (twitterAccount != null && twitterAccount.Deleted) return Ok();
