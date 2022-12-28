@@ -124,7 +124,7 @@ namespace BirdsiteLive.Domain
                 twitterAccount = await _twitterUserDal.GetTwitterUserAsync(acct);
             }
 
-            twitterAccount.MovedTo = validatedUser.ObjectId;
+            twitterAccount.MovedTo = validatedUser.User.id;
             twitterAccount.MovedToAcct = validatedUser.FediverseAcct;
             twitterAccount.LastSync = DateTime.UtcNow;
             await _twitterUserDal.UpdateTwitterUserAsync(twitterAccount);
