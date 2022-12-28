@@ -88,7 +88,7 @@ namespace BirdsiteLive.Domain
                 preferredUsername = acct,
                 name = twitterUser.Name,
                 inbox = $"{actorUrl}/inbox",
-                summary = "[THIS IS A TWITTER MIRRORED ACCOUNT]<br/><br/>" + description,
+                summary = "[UNOFFICIAL MIRROR: This is a view of Twitter using ActivityPub]<br/><br/>" + description,
                 url = actorUrl,
                 manuallyApprovesFollowers = twitterUser.Protected,
                 discoverable = false,
@@ -125,7 +125,7 @@ namespace BirdsiteLive.Domain
                     new UserAttachment
                     {
                         type = "PropertyValue",
-                        name = "Take control of the account",
+                        name = "Take control of this account",
                         value = $"<a href=\"https://{_instanceSettings.Domain}/migration/move/{acct}\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\">MANAGE</a>"
                     }
                 },
