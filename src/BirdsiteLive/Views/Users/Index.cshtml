@@ -31,13 +31,7 @@
     <br />
     <br />
 
-    @if (ViewData.Model.Protected)
-    {
-        <div class="alert alert-danger" role="alert">
-            This account is protected, BirdsiteLIVE cannot fetch their tweets and will not provide follow support until it is unprotected again.
-        </div>
-    }
-    else if (ViewData.Model.Deleted)
+    @if (ViewData.Model.Deleted)
     {
         <div class="alert alert-danger" role="alert">
             This mirror has been deleted by its Twitter owner.
@@ -48,6 +42,12 @@
         <div class="alert alert-danger" role="alert">
             This account has been migrated by its Twitter owner and has been disabled.<br />
             You can follow this user at <a href="@ViewData.Model.MovedTo">@ViewData.Model.MovedToAcct</a>.
+        </div>
+    }
+    else if (ViewData.Model.Protected)
+    {
+        <div class="alert alert-danger" role="alert">
+            This account is protected, BirdsiteLIVE cannot fetch their tweets and will not provide follow support until it is unprotected again.
         </div>
     }
     else

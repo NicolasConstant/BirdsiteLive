@@ -7,6 +7,8 @@ using Npgsql.TypeHandlers;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Domain.Enum;
 using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.Models;
+using System.Reflection.Metadata;
 
 namespace BirdsiteLive.Controllers
 {
@@ -76,8 +78,8 @@ namespace BirdsiteLive.Controllers
                 data.ErrorMessage = "This account has been deleted, it can't be migrated";
                 return View("Index", data);
             }
-            if (twitterAccount != null && 
-                (!string.IsNullOrWhiteSpace(twitterAccount.MovedTo) 
+            if (twitterAccount != null &&
+                (!string.IsNullOrWhiteSpace(twitterAccount.MovedTo)
                  || !string.IsNullOrWhiteSpace(twitterAccount.MovedToAcct)))
             {
                 data.ErrorMessage = "This account has been moved already, it can't be migrated again";
@@ -103,7 +105,7 @@ namespace BirdsiteLive.Controllers
                 try
                 {
                     await _migrationService.MigrateAccountAsync(fediverseUserValidation, id);
-                    await _migrationService.TriggerRemoteMigrationAsync(id, tweetid, handle);
+                    _migrationService.TriggerRemoteMigrationAsync(id, tweetid, handle);
                     data.MigrationSuccess = true;
                 }
                 catch (Exception e)
@@ -131,7 +133,7 @@ namespace BirdsiteLive.Controllers
 
                 TweetId = tweetid
             };
-            
+
             //Verify can be deleted 
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
             if (twitterAccount != null && twitterAccount.Deleted)
@@ -156,7 +158,7 @@ namespace BirdsiteLive.Controllers
                 try
                 {
                     await _migrationService.DeleteAccountAsync(id);
-                    await _migrationService.TriggerRemoteDeleteAsync(id, tweetid);
+                    _migrationService.TriggerRemoteDeleteAsync(id, tweetid);
                     data.MigrationSuccess = true;
                 }
                 catch (Exception e)
@@ -173,11 +175,16 @@ namespace BirdsiteLive.Controllers
         [Route("/migration/move/{id}/{tweetid}/{handle}")]
         public async Task<IActionResult> RemoteMigrateMove(string id, string tweetid, string handle)
         {
+            //Check inputs 
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(tweetid) ||
+                string.IsNullOrWhiteSpace(handle))
+                return StatusCode(422);
+
             //Verify can be migrated 
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
-            if (twitterAccount.Deleted 
+            if (twitterAccount != null && (twitterAccount.Deleted 
                 || !string.IsNullOrWhiteSpace(twitterAccount.MovedTo) 
-                || !string.IsNullOrWhiteSpace(twitterAccount.MovedToAcct))
+                || !string.IsNullOrWhiteSpace(twitterAccount.MovedToAcct)))
                 return Ok();
 
             // Start migration
@@ -197,9 +204,13 @@ namespace BirdsiteLive.Controllers
         [Route("/migration/delete/{id}/{tweetid}")]
         public async Task<IActionResult> RemoteMigrateDelete(string id, string tweetid)
         {
+            //Check inputs 
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(tweetid))
+                return StatusCode(422);
+
             //Verify can be deleted 
             var twitterAccount = await _twitterUserDal.GetTwitterUserAsync(id);
-            if (twitterAccount.Deleted) return Ok();
+            if (twitterAccount != null && twitterAccount.Deleted) return Ok();
 
             // Start deletion
             var isTweetValid = _migrationService.ValidateTweet(id, tweetid, MigrationTypeEnum.Deletion);
@@ -212,26 +223,5 @@ namespace BirdsiteLive.Controllers
 
             return StatusCode(400);
         }
-    }
-
-
-
-    public class MigrationData
-    {
-        public string Acct { get; set; }
-
-        public string FediverseAccount { get; set; }
-        public string TweetId { get; set; }
-
-        public string MigrationCode { get; set; }
-
-        public bool IsTweetProvided { get; set; }
-        public bool IsAcctProvided { get; set; }
-
-        public bool IsTweetValid { get; set; }
-        public bool IsAcctValid { get; set; }
-
-        public string ErrorMessage { get; set; }
-        public bool MigrationSuccess { get; set; }
     }
 }
