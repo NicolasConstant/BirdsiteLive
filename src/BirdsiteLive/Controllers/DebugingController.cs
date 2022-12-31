@@ -56,6 +56,35 @@ namespace BirdsiteLive.Controllers
             return View("Index");
         }
 
+        private static string _noteId;
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteNote()
+        {
+            var username = "twitter";
+            var actor = $"https://{_instanceSettings.Domain}/users/{username}";
+            var targetHost = "ioc.exchange";
+            var target = $"https://{targetHost}/users/test";
+            var inbox = $"/inbox";
+
+            var delete = new ActivityDelete
+            {
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{_noteId}#delete",
+                type = "Delete",
+                actor = actor,
+                to = new[] { "https://www.w3.org/ns/activitystreams#Public" },
+                apObject = new Tombstone
+                {
+                    id = _noteId,
+                    atomUrl = _noteId
+                }
+            };
+            
+            await _activityPubService.PostDataAsync(delete, targetHost, actor, inbox);
+            return View("Index");
+        }
+
         [HttpPost]
         public async Task<IActionResult> PostNote()
         {
@@ -69,6 +98,8 @@ namespace BirdsiteLive.Controllers
             var noteGuid = Guid.NewGuid();
             var noteId = $"https://{_instanceSettings.Domain}/users/{username}/statuses/{noteGuid}";
             var noteUrl = $"https://{_instanceSettings.Domain}/@{username}/{noteGuid}";
+
+            _noteId = noteId;
 
             var to = $"{actor}/followers";
             to = target;
