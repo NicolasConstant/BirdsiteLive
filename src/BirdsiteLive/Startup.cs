@@ -8,6 +8,7 @@ using BirdsiteLive.Common.Structs;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Postgres.DataAccessLayers;
 using BirdsiteLive.DAL.Postgres.Settings;
+using BirdsiteLive.Middlewares;
 using BirdsiteLive.Models;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Tools;
@@ -18,6 +19,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace BirdsiteLive
 {
@@ -131,6 +133,9 @@ namespace BirdsiteLive
             app.UseRouting();
 
             app.UseAuthorization();
+
+            var instanceSettings = Configuration.GetSection("Instance").Get<InstanceSettings>();
+            app.UseMiddleware<IpWhitelistingMiddleware>(instanceSettings);
 
             app.UseEndpoints(endpoints =>
             {
