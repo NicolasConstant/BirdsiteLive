@@ -186,6 +186,32 @@ services:
 +       command: --interval 300
 ```
 
+## IP Whitelisting
+
+If you want to use the IP Whitelisting functionality (see related [variable](https://github.com/NicolasConstant/BirdsiteLive/blob/master/VARIABLES.md)) and you are using the nginx reverse proxy set as before, please add the following: 
+
+```
+sudo nano /etc/nginx/sites-enabled/{your-domain-name.com}
+```
+
+``` diff
+server {
+    listen        80;
+    server_name   {your-domain-name.com};
+    location / {
+        proxy_pass         http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade $http_upgrade;
+        proxy_set_header   Connection keep-alive;
+        proxy_set_header   Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
++       proxy_set_header   X-Real-IP $remote_addr;
+    }
+}
+```
+
 ## More options 
 
 You can find more options available [here](https://github.com/NicolasConstant/BirdsiteLive/blob/master/VARIABLES.md)
