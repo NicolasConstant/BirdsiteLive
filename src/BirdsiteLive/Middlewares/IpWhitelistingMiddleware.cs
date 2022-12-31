@@ -1,4 +1,5 @@
 ﻿using BirdsiteLive.Common.Settings;
+using BirdsiteLive.Domain.Tools;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace BirdsiteLive.Middlewares
         {
             if (!string.IsNullOrWhiteSpace(instanceSettings.IpWhiteListing))
             {
-                var ips = instanceSettings.IpWhiteListing.Split(';');
+                var ips = PatternsParser.Parse(instanceSettings.IpWhiteListing);
                 _safelist = new byte[ips.Length][];
                 for (var i = 0; i < ips.Length; i++)
                 {
@@ -37,7 +38,6 @@ namespace BirdsiteLive.Middlewares
 
         public async Task Invoke(HttpContext context)
         {
-            //if (context.Request.Method != HttpMethod.Get.Method)
             if (_ipWhitelistingSet)
             {
                 var remoteIp = context.Connection.RemoteIpAddress;
