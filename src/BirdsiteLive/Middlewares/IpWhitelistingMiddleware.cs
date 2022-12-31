@@ -41,6 +41,14 @@ namespace BirdsiteLive.Middlewares
             if (_ipWhitelistingSet)
             {
                 var remoteIp = context.Connection.RemoteIpAddress;
+
+                var forwardedIp = context.Request.Headers.FirstOrDefault(x => x.Key == "X-Real-IP").Value.ToString();
+                if (!string.IsNullOrWhiteSpace(forwardedIp))
+                {
+                    _logger.LogDebug("Redirected IP address detected");
+                    remoteIp = IPAddress.Parse(forwardedIp);
+                }
+
                 _logger.LogDebug("Request from Remote IP address: {RemoteIp}", remoteIp);
 
                 var bytes = remoteIp.GetAddressBytes();
