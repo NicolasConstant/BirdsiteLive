@@ -17,5 +17,6 @@
 
         public int UserCacheCapacity { get; set; }
         public string IpWhiteListing { get; set; }
+        public bool EnableXRealIpHeader { get; set; }
     }
 }

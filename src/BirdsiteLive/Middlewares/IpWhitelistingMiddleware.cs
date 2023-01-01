@@ -13,6 +13,7 @@ namespace BirdsiteLive.Middlewares
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<IpWhitelistingMiddleware> _logger;
+        private readonly InstanceSettings _instanceSettings;
         private readonly byte[][] _safelist;
         private readonly bool _ipWhitelistingSet;
 
@@ -34,6 +35,7 @@ namespace BirdsiteLive.Middlewares
 
             _next = next;
             _logger = logger;
+            _instanceSettings = instanceSettings;
         }
 
         public async Task Invoke(HttpContext context)
@@ -42,11 +44,15 @@ namespace BirdsiteLive.Middlewares
             {
                 var remoteIp = context.Connection.RemoteIpAddress;
 
-                var forwardedIp = context.Request.Headers.FirstOrDefault(x => x.Key == "X-Real-IP").Value.ToString();
-                if (!string.IsNullOrWhiteSpace(forwardedIp))
+                if (_instanceSettings.EnableXRealIpHeader)
                 {
-                    _logger.LogDebug("Redirected IP address detected");
-                    remoteIp = IPAddress.Parse(forwardedIp);
+                    var forwardedIp = context.Request.Headers.FirstOrDefault(x => x.Key == "X-Real-IP").Value
+                        .ToString();
+                    if (!string.IsNullOrWhiteSpace(forwardedIp))
+                    {
+                        _logger.LogDebug("Redirected IP address detected");
+                        remoteIp = IPAddress.Parse(forwardedIp);
+                    }
                 }
 
                 _logger.LogDebug("Request from Remote IP address: {RemoteIp}", remoteIp);
