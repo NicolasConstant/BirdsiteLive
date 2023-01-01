@@ -52,6 +52,7 @@ If both whitelisting and blacklisting are set, only the whitelisting will be act
 * `Instance:FailingFollowerCleanUpThreshold` (default: 30000) set the max allowed errors from a Follower (Fediverse) Account before auto-removal. (often due to account suppression, instance issues, etc)
 * `Instance:UserCacheCapacity` (default: 10000) set the caching limit of the Twitter User retrieval. Must be higher than the number of synchronized accounts on the instance.
 * `Instance:IpWhiteListing` IP Whitelisting (separated by `;`), prevent usage of the instance from other IPs than those provided (if provided).
+* `Instance:EnableXRealIpHeader` (default: false) Enable support of X-Real-IP Header to get the remote IP (useful when using reverse proxy).
 
 # Docker Compose full example
 

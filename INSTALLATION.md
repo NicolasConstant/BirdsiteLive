@@ -212,6 +212,44 @@ server {
 }
 ```
 
+And edit the docker-compose file as follow: 
+
+```diff
+version: "3"
+
+networks:
+    birdsitelivenetwork:
+        external: false
+
+services:
+    server:
+        image: nicolasconstant/birdsitelive:latest
+        restart: always
+        container_name: birdsitelive
+        environment:
+            - Instance:Domain=domain.name
+            - Instance:AdminEmail=name@domain.ext
++           - Instance:IpWhiteListing=127.0.0.1;127.0.0.2
++           - Instance:EnableXRealIpHeader=true
+            - Db:Type=postgres
+            - Db:Host=db
+            - Db:Name=birdsitelive
+            - Db:User=birdsitelive
+            - Db:Password=birdsitelive
+            - Twitter:ConsumerKey=twitter.api.key
+            - Twitter:ConsumerSecret=twitter.api.key
+        networks:
+            - birdsitelivenetwork
+        ports:
+            - "5000:80"
+        depends_on:
+            - db
+
+    db:
+        image: postgres:9.6
+        [...]
+```
+
 ## More options 
 
 You can find more options available [here](https://github.com/NicolasConstant/BirdsiteLive/blob/master/VARIABLES.md)
