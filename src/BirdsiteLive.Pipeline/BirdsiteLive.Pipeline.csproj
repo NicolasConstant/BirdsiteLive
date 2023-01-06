@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Processors\TweetsCleanUp\" />
+    <Folder Include="Processors\TweetsCleanUp\Base\" />
     <Folder Include="Tools\" />
   </ItemGroup>
 

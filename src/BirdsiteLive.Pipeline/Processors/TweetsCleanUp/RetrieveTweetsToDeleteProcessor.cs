@@ -3,20 +3,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Pipeline.Contracts.TweetsCleanUp;
 using BirdsiteLive.Pipeline.Models;
+using BirdsiteLive.Pipeline.Processors.TweetsCleanUp.Base;
 
 namespace BirdsiteLive.Pipeline.Processors.TweetsCleanUp
 {
-    public class RetrieveTweetsToDeleteProcessor : IRetrieveTweetsToDeleteProcessor
+    public class RetrieveTweetsToDeleteProcessor : RetentionBase, IRetrieveTweetsToDeleteProcessor
     {
         private readonly ISyncTweetsPostgresDal _syncTweetsPostgresDal;
+        private readonly InstanceSettings _instanceSettings;
 
         #region Ctor
-        public RetrieveTweetsToDeleteProcessor(ISyncTweetsPostgresDal syncTweetsPostgresDal)
+        public RetrieveTweetsToDeleteProcessor(ISyncTweetsPostgresDal syncTweetsPostgresDal, InstanceSettings instanceSettings)
         {
             _syncTweetsPostgresDal = syncTweetsPostgresDal;
+            _instanceSettings = instanceSettings;
         }
         #endregion
 
@@ -29,7 +33,9 @@ namespace BirdsiteLive.Pipeline.Processors.TweetsCleanUp
                 ct.ThrowIfCancellationRequested();
 
                 var now = DateTime.UtcNow;
-                var from = now.AddDays(-20);
+
+               
+                var from = now.AddDays(-GetRetentionTime(_instanceSettings));
                 var dbBrowsingEnded = false;
                 var lastId = -1L;
 
