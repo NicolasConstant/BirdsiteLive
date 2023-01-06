@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using BirdsiteLive.Pipeline.Models;
 
-namespace BirdsiteLive.Pipeline.Contracts
+namespace BirdsiteLive.Pipeline.Contracts.Federation
 {
     public interface ISaveProgressionProcessor
     {

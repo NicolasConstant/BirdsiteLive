@@ -7,7 +7,7 @@ using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Moderation.Actions;
 using BirdsiteLive.Pipeline.Models;
-using BirdsiteLive.Pipeline.Processors;
+using BirdsiteLive.Pipeline.Processors.Federation;
 using BirdsiteLive.Pipeline.Processors.SubTasks;
 using BirdsiteLive.Twitter.Models;
 using Microsoft.Extensions.Logging;

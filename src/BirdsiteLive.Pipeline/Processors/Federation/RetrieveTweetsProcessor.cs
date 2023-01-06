@@ -5,14 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
-using BirdsiteLive.Pipeline.Contracts;
+using BirdsiteLive.Pipeline.Contracts.Federation;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
 using Microsoft.Extensions.Logging;
 using Tweetinvi.Models;
 
-namespace BirdsiteLive.Pipeline.Processors
+namespace BirdsiteLive.Pipeline.Processors.Federation
 {
     public class RetrieveTweetsProcessor : IRetrieveTweetsProcessor
     {
@@ -64,7 +64,7 @@ namespace BirdsiteLive.Pipeline.Processors
         private ExtractedTweet[] RetrieveNewTweets(SyncTwitterUser user)
         {
             var tweets = new ExtractedTweet[0];
-            
+
             try
             {
                 if (user.LastTweetPostedId == -1)

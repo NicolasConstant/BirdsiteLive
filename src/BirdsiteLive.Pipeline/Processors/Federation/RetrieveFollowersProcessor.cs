@@ -2,10 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
-using BirdsiteLive.Pipeline.Contracts;
+using BirdsiteLive.Pipeline.Contracts.Federation;
 using BirdsiteLive.Pipeline.Models;
 
-namespace BirdsiteLive.Pipeline.Processors
+namespace BirdsiteLive.Pipeline.Processors.Federation
 {
     public class RetrieveFollowersProcessor : IRetrieveFollowersProcessor
     {

@@ -6,7 +6,7 @@ using System.Threading.Tasks.Dataflow;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
-using BirdsiteLive.Pipeline.Processors;
+using BirdsiteLive.Pipeline.Processors.Federation;
 using BirdsiteLive.Pipeline.Tools;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

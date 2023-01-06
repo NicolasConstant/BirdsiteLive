@@ -2,7 +2,7 @@
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Moderation.Actions;
 using BirdsiteLive.Pipeline.Models;
-using BirdsiteLive.Pipeline.Processors;
+using BirdsiteLive.Pipeline.Processors.Federation;
 using BirdsiteLive.Twitter.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using BirdsiteLive.DAL.Models;
 
-namespace BirdsiteLive.Pipeline.Contracts
+namespace BirdsiteLive.Pipeline.Contracts.Federation
 {
     public interface IRetrieveTwitterUsersProcessor
     {

@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Moderation.Actions;
-using BirdsiteLive.Pipeline.Contracts;
+using BirdsiteLive.Pipeline.Contracts.Federation;
 using BirdsiteLive.Pipeline.Models;
 using Microsoft.Extensions.Logging;
 
-namespace BirdsiteLive.Pipeline.Processors
+namespace BirdsiteLive.Pipeline.Processors.Federation
 {
     public class SaveProgressionProcessor : ISaveProgressionProcessor
     {
@@ -36,13 +36,13 @@ namespace BirdsiteLive.Pipeline.Processors
                     await UpdateUserSyncDateAsync(userWithTweetsToSync.User);
                     return;
                 }
-                if(userWithTweetsToSync.Followers.Length == 0)
+                if (userWithTweetsToSync.Followers.Length == 0)
                 {
                     _logger.LogInformation("No Followers found for {User}", userWithTweetsToSync.User.Acct);
                     await _removeTwitterAccountAction.ProcessAsync(userWithTweetsToSync.User);
                     return;
                 }
-            
+
                 var userId = userWithTweetsToSync.User.Id;
                 var followingSyncStatuses = userWithTweetsToSync.Followers.Select(x => x.FollowingsSyncStatus[userId]).ToList();
                 var lastPostedTweet = userWithTweetsToSync.Tweets.Select(x => x.Id).Max();

@@ -7,18 +7,18 @@ using BirdsiteLive.Common.Extensions;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
-using BirdsiteLive.Pipeline.Contracts;
+using BirdsiteLive.Pipeline.Contracts.Federation;
 using BirdsiteLive.Pipeline.Tools;
 using Microsoft.Extensions.Logging;
 
-namespace BirdsiteLive.Pipeline.Processors
+namespace BirdsiteLive.Pipeline.Processors.Federation
 {
     public class RetrieveTwitterUsersProcessor : IRetrieveTwitterUsersProcessor
     {
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly IMaxUsersNumberProvider _maxUsersNumberProvider;
         private readonly ILogger<RetrieveTwitterUsersProcessor> _logger;
-        
+
         public int WaitFactor = 1000 * 60; //1 min
 
         #region Ctor
@@ -42,7 +42,7 @@ namespace BirdsiteLive.Pipeline.Processors
                     var users = await _twitterUserDal.GetAllTwitterUsersAsync(maxUsersNumber, false);
 
                     var userCount = users.Any() ? users.Length : 1;
-                    var splitNumber = (int) Math.Ceiling(userCount / 15d);
+                    var splitNumber = (int)Math.Ceiling(userCount / 15d);
                     var splitUsers = users.Split(splitNumber).ToList();
 
                     foreach (var u in splitUsers)

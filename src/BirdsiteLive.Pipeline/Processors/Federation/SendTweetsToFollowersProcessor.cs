@@ -10,7 +10,7 @@ using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Moderation.Actions;
-using BirdsiteLive.Pipeline.Contracts;
+using BirdsiteLive.Pipeline.Contracts.Federation;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Pipeline.Processors.SubTasks;
 using BirdsiteLive.Twitter;
@@ -18,7 +18,7 @@ using BirdsiteLive.Twitter.Models;
 using Microsoft.Extensions.Logging;
 using Tweetinvi.Models;
 
-namespace BirdsiteLive.Pipeline.Processors
+namespace BirdsiteLive.Pipeline.Processors.Federation
 {
     public class SendTweetsToFollowersProcessor : ISendTweetsToFollowersProcessor
     {
@@ -83,7 +83,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 }
             }
         }
-        
+
         private async Task ProcessFollowersWithInboxAsync(ExtractedTweet[] tweets, List<Follower> followerWtInbox, SyncTwitterUser user)
         {
             foreach (var follower in followerWtInbox)
@@ -114,7 +114,7 @@ namespace BirdsiteLive.Pipeline.Processors
         {
             follower.PostingErrorCount++;
 
-            if (follower.PostingErrorCount > _instanceSettings.FailingFollowerCleanUpThreshold 
+            if (follower.PostingErrorCount > _instanceSettings.FailingFollowerCleanUpThreshold
                 && _instanceSettings.FailingFollowerCleanUpThreshold > 0
                 || follower.PostingErrorCount > 2147483600)
             {

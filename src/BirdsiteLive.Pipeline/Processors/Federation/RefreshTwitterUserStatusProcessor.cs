@@ -6,12 +6,12 @@ using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Moderation.Actions;
-using BirdsiteLive.Pipeline.Contracts;
+using BirdsiteLive.Pipeline.Contracts.Federation;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
 
-namespace BirdsiteLive.Pipeline.Processors
+namespace BirdsiteLive.Pipeline.Processors.Federation
 {
     public class RefreshTwitterUserStatusProcessor : IRefreshTwitterUserStatusProcessor
     {
