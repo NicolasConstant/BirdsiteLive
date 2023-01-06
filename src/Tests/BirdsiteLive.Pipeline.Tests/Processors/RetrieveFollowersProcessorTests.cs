@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Pipeline.Models;
-using BirdsiteLive.Pipeline.Processors;
+using BirdsiteLive.Pipeline.Processors.Federation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
