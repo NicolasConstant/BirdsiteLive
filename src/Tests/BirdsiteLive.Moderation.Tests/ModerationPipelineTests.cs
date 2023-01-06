@@ -46,21 +46,21 @@ namespace BirdsiteLive.Moderation.Tests
             var moderationRepositoryMock = new Mock<IModerationRepository>(MockBehavior.Strict);
             moderationRepositoryMock
                 .Setup(x => x.GetModerationType(ModerationEntityTypeEnum.Follower))
-                .Returns(ModerationTypeEnum.WhiteListing);
+                .Returns(ModerationTypeEnum.AllowListing);
             moderationRepositoryMock
                 .Setup(x => x.GetModerationType(ModerationEntityTypeEnum.TwitterAccount))
-                .Returns(ModerationTypeEnum.BlackListing);
+                .Returns(ModerationTypeEnum.BlockListing);
 
             var followerModerationProcessorMock = new Mock<IFollowerModerationProcessor>(MockBehavior.Strict);
             followerModerationProcessorMock
                 .Setup(x => x.ProcessAsync(
-                    It.Is<ModerationTypeEnum>(y => y == ModerationTypeEnum.WhiteListing)))
+                    It.Is<ModerationTypeEnum>(y => y == ModerationTypeEnum.AllowListing)))
                 .Returns(Task.CompletedTask);
 
             var twitterAccountModerationProcessorMock = new Mock<ITwitterAccountModerationProcessor>(MockBehavior.Strict);
             twitterAccountModerationProcessorMock
                 .Setup(x => x.ProcessAsync(
-                    It.Is<ModerationTypeEnum>(y => y == ModerationTypeEnum.BlackListing)))
+                    It.Is<ModerationTypeEnum>(y => y == ModerationTypeEnum.BlockListing)))
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<ModerationPipeline>>(MockBehavior.Strict);

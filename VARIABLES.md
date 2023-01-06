@@ -2,7 +2,7 @@
 
 You can configure some of BirdsiteLIVE's settings via environment variables (those are optionnals):
 
-## Blacklisting & Whitelisting
+## Blocklisting & Allowlisting
 
 ### Fediverse users and instances 
 
@@ -12,14 +12,14 @@ Here are the supported patterns to describe Fediverse users and/or instances:
 * `instance.ext` to describe an instance under a domain name
 * `*.instance.ext` to describe instances from all subdomains of a domain name (this doesn't include the instance.ext, if you want both you need to add both)
 
-You can whitelist or blacklist fediverses users by settings the followings variables with the above patterns separated by `;`: 
+You can allowlist or blocklist fediverses users by settings the followings variables with the above patterns separated by `;`: 
 
-* `Moderation:FollowersWhiteListing` Fediverse Whitelisting
-* `Moderation:FollowersBlackListing` Fediverse Blacklisting
+* `Moderation:FollowersAllowListing` Fediverse Allowlisting
+* `Moderation:FollowersBlockListing` Fediverse Blocklisting
 
-If the whitelisting is set, only given patterns can follow twitter accounts on the instance. 
-If blacklisted, the given patterns can't follow twitter accounts on the instance.
-If both whitelisting and blacklisting are set, only the whitelisting will be active.
+If the allowlisting is set, only given patterns can follow twitter accounts on the instance. 
+If blocklisted, the given patterns can't follow twitter accounts on the instance.
+If both allowlisting and blocklisting are set, only the allowlisting will be active.
 
 ### Twitter users
 
@@ -27,14 +27,14 @@ Here is the supported pattern to describe Twitter users:
 
 * `twitter_handle` to describe a Twitter user
 
-You can whitelist or blacklist twitter users by settings the followings variables with the above pattern separated by `;`: 
+You can allowlist or blocklist twitter users by settings the followings variables with the above pattern separated by `;`: 
 
-* `Moderation:TwitterAccountsWhiteListing` Twitter Whitelisting
-* `Moderation:TwitterAccountsBlackListing` Twitter Blacklisting
+* `Moderation:TwitterAccountsAllowListing` Twitter Allowlisting
+* `Moderation:TwitterAccountsBlockListing` Twitter Blocklisting
 
-If the whitelisting is set, only given patterns can be followed on the instance. 
-If blacklisted, the given patterns can't be followed on the instance.
-If both whitelisting and blacklisting are set, only the whitelisting will be active.
+If the allowlisting is set, only given patterns can be followed on the instance. 
+If blocklisted, the given patterns can't be followed on the instance.
+If both allowlisting and blocklisting are set, only the allowlisting will be active.
 
 ## Logging
 
@@ -76,8 +76,8 @@ services:
             - Db:Password=birdsitelive
             - Twitter:ConsumerKey=twitter.api.key
             - Twitter:ConsumerSecret=twitter.api.key
-+           - Moderation:FollowersWhiteListing=@me@my-instance.ca;friend-instance.com;*.friend-instance.com
-+           - Moderation:TwitterAccountsBlackListing=douchebag;jerk_88;theRealIdiot
++           - Moderation:FollowersAllowListing=@me@my-instance.ca;friend-instance.com;*.friend-instance.com
++           - Moderation:TwitterAccountsBlockListing=douchebag;jerk_88;theRealIdiot
 +           - Instance:Name=MyTwitterRelay
 +           - Instance:ResolveMentionsInProfiles=false
 +           - Instance:PublishReplies=true
@@ -85,7 +85,7 @@ services:
 +           - Instance:SensitiveTwitterAccounts=archillect
         networks:
         [...]
-
+~~~~
     db:
         image: postgres:9.6
         [...]

@@ -161,8 +161,8 @@ namespace BirdsiteLive.Domain
             {
                 var followerStatus = _moderationRepository.CheckStatus(ModerationEntityTypeEnum.Follower, $"@{followerUserName}@{followerHost}");
                 
-                if(followerModPolicy == ModerationTypeEnum.WhiteListing && followerStatus != ModeratedTypeEnum.WhiteListed || 
-                   followerModPolicy == ModerationTypeEnum.BlackListing && followerStatus == ModeratedTypeEnum.BlackListed)
+                if(followerModPolicy == ModerationTypeEnum.AllowListing && followerStatus != ModeratedTypeEnum.AllowListed || 
+                   followerModPolicy == ModerationTypeEnum.BlockListing && followerStatus == ModeratedTypeEnum.BlockListed)
                     return await SendRejectFollowAsync(activity, followerHost);
             }
 
@@ -171,8 +171,8 @@ namespace BirdsiteLive.Domain
             if (twitterAccountModPolicy != ModerationTypeEnum.None)
             {
                 var twitterUserStatus = _moderationRepository.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, twitterUser);
-                if (twitterAccountModPolicy == ModerationTypeEnum.WhiteListing && twitterUserStatus != ModeratedTypeEnum.WhiteListed ||
-                    twitterAccountModPolicy == ModerationTypeEnum.BlackListing && twitterUserStatus == ModeratedTypeEnum.BlackListed)
+                if (twitterAccountModPolicy == ModerationTypeEnum.AllowListing && twitterUserStatus != ModeratedTypeEnum.AllowListed ||
+                    twitterAccountModPolicy == ModerationTypeEnum.BlockListing && twitterUserStatus == ModeratedTypeEnum.BlockListed)
                     return await SendRejectFollowAsync(activity, followerHost);
             }
 

@@ -15,10 +15,10 @@ namespace BirdsiteLive.Domain.Repository
 
     public class ModerationRepository : IModerationRepository
     {
-        private readonly Regex[] _followersWhiteListing;
-        private readonly Regex[] _followersBlackListing;
-        private readonly Regex[] _twitterAccountsWhiteListing;
-        private readonly Regex[] _twitterAccountsBlackListing;
+        private readonly Regex[] _followersAllowListing;
+        private readonly Regex[] _followersBlockListing;
+        private readonly Regex[] _twitterAccountsAllowListing;
+        private readonly Regex[] _twitterAccountsBlockListing;
 
         private readonly Dictionary<ModerationEntityTypeEnum, ModerationTypeEnum> _modMode =
             new Dictionary<ModerationEntityTypeEnum, ModerationTypeEnum>();
@@ -26,37 +26,37 @@ namespace BirdsiteLive.Domain.Repository
         #region Ctor
         public ModerationRepository(ModerationSettings settings)
         {
-            var parsedFollowersWhiteListing = PatternsParser.Parse(settings.FollowersWhiteListing);
-            var parsedFollowersBlackListing = PatternsParser.Parse(settings.FollowersBlackListing);
-            var parsedTwitterAccountsWhiteListing = PatternsParser.Parse(settings.TwitterAccountsWhiteListing);
-            var parsedTwitterAccountsBlackListing = PatternsParser.Parse(settings.TwitterAccountsBlackListing);
+            var parsedFollowersAllowListing = PatternsParser.Parse(settings.FollowersAllowListing);
+            var parsedFollowersBlockListing = PatternsParser.Parse(settings.FollowersBlockListing);
+            var parsedTwitterAccountsAllowListing = PatternsParser.Parse(settings.TwitterAccountsAllowListing);
+            var parsedTwitterAccountsBlockListing = PatternsParser.Parse(settings.TwitterAccountsBlockListing);
 
-            _followersWhiteListing = parsedFollowersWhiteListing
+            _followersAllowListing = parsedFollowersAllowListing
                 .Select(x => ModerationRegexParser.Parse(ModerationEntityTypeEnum.Follower, x))
                 .ToArray();
-            _followersBlackListing = parsedFollowersBlackListing
+            _followersBlockListing = parsedFollowersBlockListing
                 .Select(x => ModerationRegexParser.Parse(ModerationEntityTypeEnum.Follower, x))
                 .ToArray();
-            _twitterAccountsWhiteListing = parsedTwitterAccountsWhiteListing
+            _twitterAccountsAllowListing = parsedTwitterAccountsAllowListing
                 .Select(x => ModerationRegexParser.Parse(ModerationEntityTypeEnum.TwitterAccount, x))
                 .ToArray();
-            _twitterAccountsBlackListing = parsedTwitterAccountsBlackListing
+            _twitterAccountsBlockListing = parsedTwitterAccountsBlockListing
                 .Select(x => ModerationRegexParser.Parse(ModerationEntityTypeEnum.TwitterAccount, x))
                 .ToArray();
 
             // Set Follower moderation politic
-            if (_followersWhiteListing.Any())
-                _modMode.Add(ModerationEntityTypeEnum.Follower, ModerationTypeEnum.WhiteListing);
-            else if (_followersBlackListing.Any())
-                _modMode.Add(ModerationEntityTypeEnum.Follower, ModerationTypeEnum.BlackListing);
+            if (_followersAllowListing.Any())
+                _modMode.Add(ModerationEntityTypeEnum.Follower, ModerationTypeEnum.AllowListing);
+            else if (_followersBlockListing.Any())
+                _modMode.Add(ModerationEntityTypeEnum.Follower, ModerationTypeEnum.BlockListing);
             else
                 _modMode.Add(ModerationEntityTypeEnum.Follower, ModerationTypeEnum.None);
 
             // Set Twitter account moderation politic
-            if (_twitterAccountsWhiteListing.Any())
-                _modMode.Add(ModerationEntityTypeEnum.TwitterAccount, ModerationTypeEnum.WhiteListing);
-            else if (_twitterAccountsBlackListing.Any())
-                _modMode.Add(ModerationEntityTypeEnum.TwitterAccount, ModerationTypeEnum.BlackListing);
+            if (_twitterAccountsAllowListing.Any())
+                _modMode.Add(ModerationEntityTypeEnum.TwitterAccount, ModerationTypeEnum.AllowListing);
+            else if (_twitterAccountsBlockListing.Any())
+                _modMode.Add(ModerationEntityTypeEnum.TwitterAccount, ModerationTypeEnum.BlockListing);
             else
                 _modMode.Add(ModerationEntityTypeEnum.TwitterAccount, ModerationTypeEnum.None);
         }
@@ -90,13 +90,13 @@ namespace BirdsiteLive.Domain.Repository
             {
                 case ModerationTypeEnum.None:
                     return ModeratedTypeEnum.None;
-                case ModerationTypeEnum.BlackListing:
-                    if (_followersBlackListing.Any(x => x.IsMatch(entity)))
-                        return ModeratedTypeEnum.BlackListed;
+                case ModerationTypeEnum.BlockListing:
+                    if (_followersBlockListing.Any(x => x.IsMatch(entity)))
+                        return ModeratedTypeEnum.BlockListed;
                     return ModeratedTypeEnum.None;
-                case ModerationTypeEnum.WhiteListing:
-                    if (_followersWhiteListing.Any(x => x.IsMatch(entity)))
-                        return ModeratedTypeEnum.WhiteListed;
+                case ModerationTypeEnum.AllowListing:
+                    if (_followersAllowListing.Any(x => x.IsMatch(entity)))
+                        return ModeratedTypeEnum.AllowListed;
                     return ModeratedTypeEnum.None;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -111,13 +111,13 @@ namespace BirdsiteLive.Domain.Repository
             {
                 case ModerationTypeEnum.None:
                     return ModeratedTypeEnum.None;
-                case ModerationTypeEnum.BlackListing:
-                    if (_twitterAccountsBlackListing.Any(x => x.IsMatch(entity)))
-                        return ModeratedTypeEnum.BlackListed;
+                case ModerationTypeEnum.BlockListing:
+                    if (_twitterAccountsBlockListing.Any(x => x.IsMatch(entity)))
+                        return ModeratedTypeEnum.BlockListed;
                     return ModeratedTypeEnum.None;
-                case ModerationTypeEnum.WhiteListing:
-                    if (_twitterAccountsWhiteListing.Any(x => x.IsMatch(entity)))
-                        return ModeratedTypeEnum.WhiteListed;
+                case ModerationTypeEnum.AllowListing:
+                    if (_twitterAccountsAllowListing.Any(x => x.IsMatch(entity)))
+                        return ModeratedTypeEnum.AllowListed;
                     return ModeratedTypeEnum.None;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -135,14 +135,14 @@ namespace BirdsiteLive.Domain.Repository
     public enum ModerationTypeEnum
     {
         None = 0,
-        BlackListing = 1,
-        WhiteListing = 2
+        BlockListing = 1,
+        AllowListing = 2
     }
 
     public enum ModeratedTypeEnum
     {
         None = 0,
-        BlackListed = 1,
-        WhiteListed = 2
+        BlockListed = 1,
+        AllowListed = 2
     }
 }

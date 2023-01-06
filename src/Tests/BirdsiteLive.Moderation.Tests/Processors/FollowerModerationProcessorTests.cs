@@ -34,7 +34,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
         }
 
         [TestMethod]
-        public async Task ProcessAsync_WhiteListing_WhiteListed()
+        public async Task ProcessAsync_AllowListing_AllowListed()
         {
             #region Stubs
             var allFollowers = new List<Follower>
@@ -58,13 +58,13 @@ namespace BirdsiteLive.Moderation.Tests.Processors
                 .Setup(x => x.CheckStatus(
                     It.Is<ModerationEntityTypeEnum>(y => y == ModerationEntityTypeEnum.Follower),
                     It.Is<string>(y => y == "@acct@host")))
-                .Returns(ModeratedTypeEnum.WhiteListed);
+                .Returns(ModeratedTypeEnum.AllowListed);
 
             var removeFollowerActionMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
             var processor = new FollowerModerationProcessor(followersDalMock.Object, moderationRepositoryMock.Object, removeFollowerActionMock.Object);
-            await processor.ProcessAsync(ModerationTypeEnum.WhiteListing);
+            await processor.ProcessAsync(ModerationTypeEnum.AllowListing);
 
             #region Validations
             followersDalMock.VerifyAll();
@@ -74,7 +74,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
         }
 
         [TestMethod]
-        public async Task ProcessAsync_WhiteListing_NotWhiteListed()
+        public async Task ProcessAsync_AllowListing_NotAllowListed()
         {
             #region Stubs
             var allFollowers = new List<Follower>
@@ -108,7 +108,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
             #endregion
 
             var processor = new FollowerModerationProcessor(followersDalMock.Object, moderationRepositoryMock.Object, removeFollowerActionMock.Object);
-            await processor.ProcessAsync(ModerationTypeEnum.WhiteListing);
+            await processor.ProcessAsync(ModerationTypeEnum.AllowListing);
 
             #region Validations
             followersDalMock.VerifyAll();
@@ -118,7 +118,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
         }
 
         [TestMethod]
-        public async Task ProcessAsync_BlackListing_BlackListed()
+        public async Task ProcessAsync_BlockListing_BlockListed()
         {
             #region Stubs
             var allFollowers = new List<Follower>
@@ -142,7 +142,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
                 .Setup(x => x.CheckStatus(
                     It.Is<ModerationEntityTypeEnum>(y => y == ModerationEntityTypeEnum.Follower),
                     It.Is<string>(y => y == "@acct@host")))
-                .Returns(ModeratedTypeEnum.BlackListed);
+                .Returns(ModeratedTypeEnum.BlockListed);
 
             var removeFollowerActionMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             removeFollowerActionMock
@@ -152,7 +152,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
             #endregion
 
             var processor = new FollowerModerationProcessor(followersDalMock.Object, moderationRepositoryMock.Object, removeFollowerActionMock.Object);
-            await processor.ProcessAsync(ModerationTypeEnum.BlackListing);
+            await processor.ProcessAsync(ModerationTypeEnum.BlockListing);
 
             #region Validations
             followersDalMock.VerifyAll();
@@ -162,7 +162,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
         }
 
         [TestMethod]
-        public async Task ProcessAsync_BlackListing_NotBlackListed()
+        public async Task ProcessAsync_BlockListing_NotBlockListed()
         {
             #region Stubs
             var allFollowers = new List<Follower>
@@ -192,7 +192,7 @@ namespace BirdsiteLive.Moderation.Tests.Processors
             #endregion
 
             var processor = new FollowerModerationProcessor(followersDalMock.Object, moderationRepositoryMock.Object, removeFollowerActionMock.Object);
-            await processor.ProcessAsync(ModerationTypeEnum.BlackListing);
+            await processor.ProcessAsync(ModerationTypeEnum.BlockListing);
 
             #region Validations
             followersDalMock.VerifyAll();

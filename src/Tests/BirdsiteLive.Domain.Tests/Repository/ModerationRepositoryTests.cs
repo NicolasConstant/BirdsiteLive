@@ -9,30 +9,30 @@ namespace BirdsiteLive.Domain.Tests.Repository
     {
         #region GetModerationType
         [TestMethod]
-        public void GetModerationType_Follower_WhiteListing_Test()
+        public void GetModerationType_Follower_AllowListing_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersWhiteListing = "@me@domain.ext"
+                FollowersAllowListing = "@me@domain.ext"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModerationTypeEnum.WhiteListing ,repo.GetModerationType(ModerationEntityTypeEnum.Follower));
+            Assert.AreEqual(ModerationTypeEnum.AllowListing ,repo.GetModerationType(ModerationEntityTypeEnum.Follower));
             Assert.AreEqual(ModerationTypeEnum.None, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
             #endregion
         }
 
         [TestMethod]
-        public void GetModerationType_TwitterAccount_WhiteListing_Test()
+        public void GetModerationType_TwitterAccount_AllowListing_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                TwitterAccountsWhiteListing = "@me@domain.ext"
+                TwitterAccountsAllowListing = "@me@domain.ext"
             };
             #endregion
 
@@ -40,54 +40,54 @@ namespace BirdsiteLive.Domain.Tests.Repository
 
             #region Validations
             Assert.AreEqual(ModerationTypeEnum.None, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
-            Assert.AreEqual(ModerationTypeEnum.WhiteListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
+            Assert.AreEqual(ModerationTypeEnum.AllowListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
             #endregion
         }
 
         [TestMethod]
-        public void GetModerationType_FollowerTwitterAccount_WhiteListing_Test()
+        public void GetModerationType_FollowerTwitterAccount_AllowListing_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersWhiteListing = "@me@domain.ext",
-                TwitterAccountsWhiteListing = "@me@domain.ext"
+                FollowersAllowListing = "@me@domain.ext",
+                TwitterAccountsAllowListing = "@me@domain.ext"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModerationTypeEnum.WhiteListing, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
-            Assert.AreEqual(ModerationTypeEnum.WhiteListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
+            Assert.AreEqual(ModerationTypeEnum.AllowListing, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
+            Assert.AreEqual(ModerationTypeEnum.AllowListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
             #endregion
         }
 
         [TestMethod]
-        public void GetModerationType_Follower_BlackListing_Test()
+        public void GetModerationType_Follower_BlockListing_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersBlackListing = "@me@domain.ext"
+                FollowersBlockListing = "@me@domain.ext"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModerationTypeEnum.BlackListing, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
+            Assert.AreEqual(ModerationTypeEnum.BlockListing, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
             Assert.AreEqual(ModerationTypeEnum.None, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
             #endregion
         }
 
         [TestMethod]
-        public void GetModerationType_TwitterAccount_BlackListing_Test()
+        public void GetModerationType_TwitterAccount_BlockListing_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                TwitterAccountsBlackListing = "@me@domain.ext"
+                TwitterAccountsBlockListing = "@me@domain.ext"
             };
             #endregion
 
@@ -95,26 +95,26 @@ namespace BirdsiteLive.Domain.Tests.Repository
 
             #region Validations
             Assert.AreEqual(ModerationTypeEnum.None, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
-            Assert.AreEqual(ModerationTypeEnum.BlackListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
+            Assert.AreEqual(ModerationTypeEnum.BlockListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
             #endregion
         }
 
         [TestMethod]
-        public void GetModerationType_FollowerTwitterAccount_BlackListing_Test()
+        public void GetModerationType_FollowerTwitterAccount_BlockListing_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersBlackListing = "@me@domain.ext",
-                TwitterAccountsBlackListing = "@me@domain.ext"
+                FollowersBlockListing = "@me@domain.ext",
+                TwitterAccountsBlockListing = "@me@domain.ext"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModerationTypeEnum.BlackListing, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
-            Assert.AreEqual(ModerationTypeEnum.BlackListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
+            Assert.AreEqual(ModerationTypeEnum.BlockListing, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
+            Assert.AreEqual(ModerationTypeEnum.BlockListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
             #endregion
         }
 
@@ -124,15 +124,15 @@ namespace BirdsiteLive.Domain.Tests.Repository
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersBlackListing = "@me@domain.ext",
-                FollowersWhiteListing = "@me@domain.ext",
+                FollowersBlockListing = "@me@domain.ext",
+                FollowersAllowListing = "@me@domain.ext",
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModerationTypeEnum.WhiteListing, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
+            Assert.AreEqual(ModerationTypeEnum.AllowListing, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
             Assert.AreEqual(ModerationTypeEnum.None, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
             #endregion
         }
@@ -143,8 +143,8 @@ namespace BirdsiteLive.Domain.Tests.Repository
             #region Stubs
             var settings = new ModerationSettings
             {
-                TwitterAccountsBlackListing = "@me@domain.ext",
-                TwitterAccountsWhiteListing = "@me@domain.ext"
+                TwitterAccountsBlockListing = "@me@domain.ext",
+                TwitterAccountsAllowListing = "@me@domain.ext"
             };
             #endregion
 
@@ -152,7 +152,7 @@ namespace BirdsiteLive.Domain.Tests.Repository
 
             #region Validations
             Assert.AreEqual(ModerationTypeEnum.None, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
-            Assert.AreEqual(ModerationTypeEnum.WhiteListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
+            Assert.AreEqual(ModerationTypeEnum.AllowListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
             #endregion
         }
 
@@ -162,130 +162,130 @@ namespace BirdsiteLive.Domain.Tests.Repository
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersBlackListing = "@me@domain.ext",
-                FollowersWhiteListing = "@me@domain.ext",
-                TwitterAccountsBlackListing = "@me@domain.ext",
-                TwitterAccountsWhiteListing = "@me@domain.ext"
+                FollowersBlockListing = "@me@domain.ext",
+                FollowersAllowListing = "@me@domain.ext",
+                TwitterAccountsBlockListing = "@me@domain.ext",
+                TwitterAccountsAllowListing = "@me@domain.ext"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModerationTypeEnum.WhiteListing, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
-            Assert.AreEqual(ModerationTypeEnum.WhiteListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
+            Assert.AreEqual(ModerationTypeEnum.AllowListing, repo.GetModerationType(ModerationEntityTypeEnum.Follower));
+            Assert.AreEqual(ModerationTypeEnum.AllowListing, repo.GetModerationType(ModerationEntityTypeEnum.TwitterAccount));
             #endregion
         }
         #endregion
 
         #region CheckStatus
         [TestMethod]
-        public void CheckStatus_Follower_WhiteListing_Test()
+        public void CheckStatus_Follower_AllowListing_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersWhiteListing = "@me@domain.ext"
+                FollowersAllowListing = "@me@domain.ext"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModeratedTypeEnum.WhiteListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me@domain.ext"));
+            Assert.AreEqual(ModeratedTypeEnum.AllowListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me@domain.ext"));
             Assert.AreEqual(ModeratedTypeEnum.None, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me2@domain.ext"));
             #endregion
         }
 
         [TestMethod]
-        public void CheckStatus_Follower_WhiteListing_Instance_Test()
+        public void CheckStatus_Follower_AllowListing_Instance_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersWhiteListing = "domain.ext"
+                FollowersAllowListing = "domain.ext"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModeratedTypeEnum.WhiteListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me@domain.ext"));
-            Assert.AreEqual(ModeratedTypeEnum.WhiteListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me2@domain.ext"));
+            Assert.AreEqual(ModeratedTypeEnum.AllowListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me@domain.ext"));
+            Assert.AreEqual(ModeratedTypeEnum.AllowListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me2@domain.ext"));
             Assert.AreEqual(ModeratedTypeEnum.None, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me2@domain2.ext"));
             #endregion
         }
 
         [TestMethod]
-        public void CheckStatus_Follower_WhiteListing_SubDomain_Test()
+        public void CheckStatus_Follower_AllowListing_SubDomain_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersWhiteListing = "*.domain.ext"
+                FollowersAllowListing = "*.domain.ext"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModeratedTypeEnum.WhiteListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me@s.domain.ext"));
-            Assert.AreEqual(ModeratedTypeEnum.WhiteListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me2@s2.domain.ext"));
+            Assert.AreEqual(ModeratedTypeEnum.AllowListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me@s.domain.ext"));
+            Assert.AreEqual(ModeratedTypeEnum.AllowListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me2@s2.domain.ext"));
             Assert.AreEqual(ModeratedTypeEnum.None, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me2@domain.ext"));
             Assert.AreEqual(ModeratedTypeEnum.None, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me2@domain2.ext"));
             #endregion
         }
 
         [TestMethod]
-        public void CheckStatus_TwitterAccount_WhiteListing_Test()
+        public void CheckStatus_TwitterAccount_AllowListing_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                TwitterAccountsWhiteListing = "handle"
+                TwitterAccountsAllowListing = "handle"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModeratedTypeEnum.WhiteListed, repo.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, "handle"));
+            Assert.AreEqual(ModeratedTypeEnum.AllowListed, repo.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, "handle"));
             Assert.AreEqual(ModeratedTypeEnum.None, repo.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, "handle2"));
             #endregion
         }
 
         [TestMethod]
-        public void CheckStatus_Follower_BlackListing_Test()
+        public void CheckStatus_Follower_BlockListing_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersBlackListing = "@me@domain.ext"
+                FollowersBlockListing = "@me@domain.ext"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModeratedTypeEnum.BlackListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me@domain.ext"));
+            Assert.AreEqual(ModeratedTypeEnum.BlockListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me@domain.ext"));
             Assert.AreEqual(ModeratedTypeEnum.None, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me2@domain.ext"));
             #endregion
         }
 
         [TestMethod]
-        public void CheckStatus_TwitterAccount_BlackListing_Test()
+        public void CheckStatus_TwitterAccount_BlockListing_Test()
         {
             #region Stubs
             var settings = new ModerationSettings
             {
-                TwitterAccountsBlackListing = "handle"
+                TwitterAccountsBlockListing = "handle"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModeratedTypeEnum.BlackListed, repo.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, "handle"));
+            Assert.AreEqual(ModeratedTypeEnum.BlockListed, repo.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, "handle"));
             Assert.AreEqual(ModeratedTypeEnum.None, repo.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, "handle2"));
             #endregion
         }
@@ -296,15 +296,15 @@ namespace BirdsiteLive.Domain.Tests.Repository
             #region Stubs
             var settings = new ModerationSettings
             {
-                FollowersWhiteListing = "@me@domain.ext",
-                FollowersBlackListing = "@me@domain.ext"
+                FollowersAllowListing = "@me@domain.ext",
+                FollowersBlockListing = "@me@domain.ext"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModeratedTypeEnum.WhiteListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me@domain.ext"));
+            Assert.AreEqual(ModeratedTypeEnum.AllowListed, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me@domain.ext"));
             Assert.AreEqual(ModeratedTypeEnum.None, repo.CheckStatus(ModerationEntityTypeEnum.Follower, "@me2@domain.ext"));
             #endregion
         }
@@ -315,15 +315,15 @@ namespace BirdsiteLive.Domain.Tests.Repository
             #region Stubs
             var settings = new ModerationSettings
             {
-                TwitterAccountsWhiteListing = "handle",
-                TwitterAccountsBlackListing = "handle"
+                TwitterAccountsAllowListing = "handle",
+                TwitterAccountsBlockListing = "handle"
             };
             #endregion
 
             var repo = new ModerationRepository(settings);
 
             #region Validations
-            Assert.AreEqual(ModeratedTypeEnum.WhiteListed, repo.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, "handle"));
+            Assert.AreEqual(ModeratedTypeEnum.AllowListed, repo.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, "handle"));
             Assert.AreEqual(ModeratedTypeEnum.None, repo.CheckStatus(ModerationEntityTypeEnum.TwitterAccount, "handle2"));
             #endregion
         }

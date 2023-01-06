@@ -1,0 +1,27 @@
+﻿@using BirdsiteLive.Domain.Repository
+@model BirdsiteLive.Controllers.ModerationStatus
+@{
+    ViewData["Title"] = "Allowlisting";
+}
+
+<div class="col-12 col-sm-12 col-md-10 col-lg-8 mx-auto">
+    <h2>Allowlisting</h2>
+
+    @if (Model.Followers == ModerationTypeEnum.AllowListing)
+    {
+        <p><br />This node is allowlisting some instances and/or Fediverse users.<br /><br /></p>
+    }
+
+    @if (Model.TwitterAccounts == ModerationTypeEnum.AllowListing)
+    {
+        <p><br />This node is allowlisting some twitter users.<br /><br /></p>
+    }
+
+    @if (Model.Followers != ModerationTypeEnum.AllowListing && Model.TwitterAccounts != ModerationTypeEnum.AllowListing)
+    {
+        <p><br />This node is not using an allowlist.<br /><br /></p>
+    }
+
+    @*<h2>FAQ</h2>
+    <p>TODO</p>*@
+</div>

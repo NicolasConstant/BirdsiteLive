@@ -33,17 +33,17 @@ namespace BirdsiteLive.Component
 
             var viewModel = new NodeInfoViewModel
             {
-                BlacklistingEnabled = followerPolicy == ModerationTypeEnum.BlackListing ||
-                                      twitterAccountPolicy == ModerationTypeEnum.BlackListing,
-                WhitelistingEnabled = followerPolicy == ModerationTypeEnum.WhiteListing ||
-                                      twitterAccountPolicy == ModerationTypeEnum.WhiteListing,
+                BlocklistingEnabled = followerPolicy == ModerationTypeEnum.BlockListing ||
+                                      twitterAccountPolicy == ModerationTypeEnum.BlockListing,
+                AllowlistingEnabled = followerPolicy == ModerationTypeEnum.AllowListing ||
+                                      twitterAccountPolicy == ModerationTypeEnum.AllowListing,
                 InstanceSaturation = statistics.Saturation
             };
             
             //viewModel = new NodeInfoViewModel
             //{
-            //    BlacklistingEnabled = false,
-            //    WhitelistingEnabled = false,
+            //    BlocklistingEnabled = false,
+            //    AllowlistingEnabled = false,
             //    InstanceSaturation = 175
             //};
             return View(viewModel);
@@ -52,8 +52,8 @@ namespace BirdsiteLive.Component
 
     public class NodeInfoViewModel
     {
-        public bool BlacklistingEnabled { get; set; }
-        public bool WhitelistingEnabled { get; set; }
+        public bool BlocklistingEnabled { get; set; }
+        public bool AllowlistingEnabled { get; set; }
         public int InstanceSaturation { get; set; }
     }
 }
