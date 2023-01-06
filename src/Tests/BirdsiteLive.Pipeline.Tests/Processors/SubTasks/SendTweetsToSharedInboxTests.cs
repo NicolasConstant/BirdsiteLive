@@ -115,7 +115,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 .Setup(x => x.SaveTweetAsync(
                     It.Is<SyncTweet>(y => y.Acct == twitterHandle
                                           && y.TweetId == tweetId
-                                          && y.Inbox == $"https://{host}{inbox}"
+                                          && y.Inbox == inbox
+                                          && y.Host == host
                                           && y.PublishedAt != default)))
                 .ReturnsAsync(-1);
             #endregion
@@ -321,7 +322,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 .Setup(x => x.SaveTweetAsync(
                     It.Is<SyncTweet>(y => y.Acct == twitterHandle
                                           && y.TweetId == tweetId
-                                          && y.Inbox == $"https://{host}{inbox}"
+                                          && y.Inbox == inbox
+                                          && y.Host == host
                                           && y.PublishedAt != default)))
                 .ReturnsAsync(-1);
             #endregion
@@ -434,7 +436,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 .Setup(x => x.SaveTweetAsync(
                     It.Is<SyncTweet>(y => y.Acct == twitterHandle
                                           && y.TweetId == tweetId
-                                          && y.Inbox == $"https://{host}{inbox}"
+                                          && y.Inbox == inbox
+                                          && y.Host == host
                                           && y.PublishedAt != default)))
                 .ReturnsAsync(-1);
             #endregion
@@ -550,7 +553,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     .Setup(x => x.SaveTweetAsync(
                         It.Is<SyncTweet>(y => y.Acct == twitterHandle
                                               && y.TweetId == tweetId
-                                              && y.Inbox == $"https://{host}{inbox}"
+                                              && y.Inbox == inbox
+                                              && y.Host == host
                                               && y.PublishedAt != default)))
                     .ReturnsAsync(-1);
             }
@@ -673,7 +677,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     .Setup(x => x.SaveTweetAsync(
                         It.Is<SyncTweet>(y => y.Acct == twitterHandle
                                               && y.TweetId == tweetId2
-                                              && y.Inbox == $"https://{host}{inbox}"
+                                              && y.Inbox == inbox
+                                              && y.Host == host
                                               && y.PublishedAt != default)))
                     .ReturnsAsync(-1);
             #endregion

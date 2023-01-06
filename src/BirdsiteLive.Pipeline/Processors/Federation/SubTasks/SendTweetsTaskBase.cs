@@ -18,13 +18,13 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
 
         protected async Task SaveSyncTweetAsync(string acct, long tweetId, string host, string inbox)
         {
-            var inboxUrl = $"https://{host}/{inbox.Trim('/')}";
             var tweet = new SyncTweet
             {
                 Acct = acct,
                 TweetId = tweetId,
                 PublishedAt = DateTime.UtcNow,
-                Inbox = inboxUrl
+                Inbox = inbox,
+                Host = host
             };
             await _syncTweetsPostgresDal.SaveTweetAsync(tweet);
         }
