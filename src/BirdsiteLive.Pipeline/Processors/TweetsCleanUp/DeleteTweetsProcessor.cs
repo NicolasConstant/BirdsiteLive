@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,7 +32,16 @@ namespace BirdsiteLive.Pipeline.Processors.TweetsCleanUp
             }
             catch (HttpRequestException e)
             {
-                //TODO check code under .NET 5
+                var code = e.StatusCode;
+                if (code is HttpStatusCode.Gone or HttpStatusCode.NotFound)
+                {
+                    _logger.LogInformation("Tweet already deleted");
+                    tweet.DeleteSuccessful = true;
+                }
+                else
+                {
+                    _logger.LogError(e.Message, e);
+                }
             }
             catch (Exception e)
             {
