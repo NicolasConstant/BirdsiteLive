@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Npgsql.TypeHandlers;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Domain.Enum;
 using BirdsiteLive.DAL.Contracts;
