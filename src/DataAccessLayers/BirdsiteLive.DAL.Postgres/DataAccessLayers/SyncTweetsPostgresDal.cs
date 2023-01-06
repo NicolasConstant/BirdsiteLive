@@ -22,21 +22,26 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         {
             if (tweet.PublishedAt == default) throw new ArgumentException("publishedAt");
             if (tweet.TweetId == default) throw new ArgumentException("tweetId");
+            if (string.IsNullOrWhiteSpace(tweet.Acct)) throw new ArgumentException("acct");
+            if (string.IsNullOrWhiteSpace(tweet.Inbox)) throw new ArgumentException("inbox");
+            if (string.IsNullOrWhiteSpace(tweet.Host)) throw new ArgumentException("host");
 
             var acct = tweet.Acct.ToLowerInvariant().Trim();
             var inbox = tweet.Inbox.ToLowerInvariant().Trim();
+            var host = tweet.Host.ToLowerInvariant().Trim();
 
             using (var dbConnection = Connection)
             {
                 dbConnection.Open();
 
                 return (await dbConnection.QueryAsync<long>(
-                    $"INSERT INTO {_settings.SynchronizedTweetsTableName} (acct,tweetId,inbox,publishedAt) VALUES(@acct,@tweetId,@inbox,@publishedAt) RETURNING id",
+                    $"INSERT INTO {_settings.SynchronizedTweetsTableName} (acct,tweetId,inbox,host,publishedAt) VALUES(@acct,@tweetId,@inbox,@host,@publishedAt) RETURNING id",
                     new
                     {
                         acct,
                         tweetId = tweet.TweetId,
                         inbox,
+                        host,
                         publishedAt = tweet.PublishedAt.ToUniversalTime()
                     })).First();
             }

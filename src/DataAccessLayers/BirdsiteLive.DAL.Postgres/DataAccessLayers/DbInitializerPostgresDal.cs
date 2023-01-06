@@ -195,6 +195,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                     acct VARCHAR(50) NOT NULL,
                     tweetId BIGINT NOT NULL,
                     inbox VARCHAR(2048) NOT NULL,
+                    host VARCHAR(253) NOT NULL,
                     publishedAt TIMESTAMP (2) WITHOUT TIME ZONE NOT NULL,
 
                     UNIQUE (acct, tweetId, inbox)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BirdsiteLive.DAL.Postgres.DataAccessLayers;
 using BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers.Base;
@@ -33,7 +34,8 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             {
                 Acct = "test",
                 PublishedAt = DateTime.UtcNow,
-                Inbox = "https://instance.ext/inbox",
+                Inbox = "/inbox",
+                Host = "instance.ext",
                 TweetId = 4567889
             };
 
@@ -47,6 +49,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             Assert.IsTrue(result.Id > 0);
             Assert.AreEqual(tweet.Acct, result.Acct);
             Assert.AreEqual(tweet.Inbox, result.Inbox);
+            Assert.AreEqual(tweet.Host, result.Host);
             Assert.AreEqual(tweet.TweetId, result.TweetId);
             Assert.IsTrue(Math.Abs((tweet.PublishedAt - result.PublishedAt).Seconds) < 5);
         }
@@ -58,7 +61,8 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             {
                 Acct = "test",
                 PublishedAt = DateTime.UtcNow,
-                Inbox = "https://instance.ext/inbox",
+                Inbox = "/inbox",
+                Host = "instance.ext",
                 TweetId = 4567889
             };
 
@@ -77,15 +81,19 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var now = DateTime.UtcNow;
             var dal = new SyncTweetsPostgresDal(_settings);
 
+            var allData = new List<SyncTweet>();
+
             for (var i = 0; i < 100; i++)
             {
                 var tweet = new SyncTweet
                 {
                     Acct = "test",
                     PublishedAt = now.AddDays(-10 - i),
-                    Inbox = "https://instance.ext/inbox",
+                    Inbox = "/inbox",
+                    Host = "instance.ext",
                     TweetId = 4567889 + i
                 };
+                allData.Add(tweet);
                 await dal.SaveTweetAsync(tweet);
             }
 
@@ -100,6 +108,13 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
                 Assert.IsTrue(res.PublishedAt < date);
                 Assert.IsTrue(res.Id > 10);
                 Assert.IsTrue(res.Id < 25);
+
+                var original = allData.First(x => x.Acct == res.Acct && x.TweetId == res.TweetId);
+                Assert.AreEqual(original.Acct, res.Acct);
+                Assert.AreEqual(original.Inbox, res.Inbox);
+                Assert.AreEqual(original.Host, res.Host);
+                Assert.AreEqual(original.TweetId, res.TweetId);
+                Assert.IsTrue(Math.Abs((original.PublishedAt - res.PublishedAt).Seconds) < 5);
             }
         }
 
@@ -115,7 +130,8 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
                 {
                     Acct = "test",
                     PublishedAt = now.AddDays(-10 - i),
-                    Inbox = "https://instance.ext/inbox",
+                    Inbox = "/inbox",
+                    Host = "instance.ext",
                     TweetId = 4567889 + i
                 };
                 await dal.SaveTweetAsync(tweet);
@@ -140,7 +156,8 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
                 {
                     Acct = "test",
                     PublishedAt = now.AddDays(-10 - i),
-                    Inbox = "https://instance.ext/inbox",
+                    Inbox = "/inbox",
+                    Host = "instance.ext",
                     TweetId = 4567889 + i
                 };
                 await dal.SaveTweetAsync(tweet);
