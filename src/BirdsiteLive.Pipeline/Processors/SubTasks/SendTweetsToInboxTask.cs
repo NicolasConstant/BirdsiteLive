@@ -17,17 +17,16 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
         Task ExecuteAsync(IEnumerable<ExtractedTweet> tweets, Follower follower, SyncTwitterUser user);
     }
 
-    public class SendTweetsToInboxTask : ISendTweetsToInboxTask
+    public class SendTweetsToInboxTask : SendTweetsTaskBase, ISendTweetsToInboxTask
     {
         private readonly IActivityPubService _activityPubService;
         private readonly IStatusService _statusService;
         private readonly IFollowersDal _followersDal;
         private readonly InstanceSettings _settings;
         private readonly ILogger<SendTweetsToInboxTask> _logger;
-
-
+        
         #region Ctor
-        public SendTweetsToInboxTask(IActivityPubService activityPubService, IStatusService statusService, IFollowersDal followersDal, InstanceSettings settings, ILogger<SendTweetsToInboxTask> logger)
+        public SendTweetsToInboxTask(IActivityPubService activityPubService, IStatusService statusService, IFollowersDal followersDal, InstanceSettings settings, ILogger<SendTweetsToInboxTask> logger, ISyncTweetsPostgresDal syncTweetsPostgresDal): base(syncTweetsPostgresDal)
         {
             _activityPubService = activityPubService;
             _statusService = statusService;
@@ -61,6 +60,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                         {
                             var note = _statusService.GetStatus(user.Acct, tweet);
                             await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), follower.Host, inbox);
+                            await SaveSyncTweetAsync(user.Acct, tweet.Id, follower.Host, inbox);
                         }
                     }
                     catch (ArgumentException e)

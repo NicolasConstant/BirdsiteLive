@@ -109,15 +109,25 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
+
+            var syncTweetDalMock = new Mock<ISyncTweetsPostgresDal>(MockBehavior.Strict);
+            syncTweetDalMock
+                .Setup(x => x.SaveTweetAsync(
+                    It.Is<SyncTweet>(y => y.Acct == twitterHandle
+                                          && y.TweetId == tweetId
+                                          && y.Inbox == $"https://{host}{inbox}"
+                                          && y.PublishedAt != default)))
+                .ReturnsAsync(-1);
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object, syncTweetDalMock.Object);
             await task.ExecuteAsync(tweets.ToArray(), twitterUser, host, followers.ToArray());
 
             #region Validations
             activityPubService.VerifyAll();
             statusServiceMock.VerifyAll();
             followersDalMock.VerifyAll();
+            syncTweetDalMock.VerifyAll();
             #endregion
         }
 
@@ -199,15 +209,18 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
+
+            var syncTweetDalMock = new Mock<ISyncTweetsPostgresDal>(MockBehavior.Strict);
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object, syncTweetDalMock.Object);
             await task.ExecuteAsync(tweets.ToArray(), twitterUser, host, followers.ToArray());
 
             #region Validations
             activityPubService.VerifyAll();
             statusServiceMock.VerifyAll();
             followersDalMock.VerifyAll();
+            syncTweetDalMock.VerifyAll();
             #endregion
         }
 
@@ -302,15 +315,25 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
+
+            var syncTweetDalMock = new Mock<ISyncTweetsPostgresDal>(MockBehavior.Strict);
+            syncTweetDalMock
+                .Setup(x => x.SaveTweetAsync(
+                    It.Is<SyncTweet>(y => y.Acct == twitterHandle
+                                          && y.TweetId == tweetId
+                                          && y.Inbox == $"https://{host}{inbox}"
+                                          && y.PublishedAt != default)))
+                .ReturnsAsync(-1);
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object, syncTweetDalMock.Object);
             await task.ExecuteAsync(tweets.ToArray(), twitterUser, host, followers.ToArray());
 
             #region Validations
             activityPubService.VerifyAll();
             statusServiceMock.VerifyAll();
             followersDalMock.VerifyAll();
+            syncTweetDalMock.VerifyAll();
             #endregion
         }
 
@@ -405,15 +428,25 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
+
+            var syncTweetDalMock = new Mock<ISyncTweetsPostgresDal>(MockBehavior.Strict);
+            syncTweetDalMock
+                .Setup(x => x.SaveTweetAsync(
+                    It.Is<SyncTweet>(y => y.Acct == twitterHandle
+                                          && y.TweetId == tweetId
+                                          && y.Inbox == $"https://{host}{inbox}"
+                                          && y.PublishedAt != default)))
+                .ReturnsAsync(-1);
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object, syncTweetDalMock.Object);
             await task.ExecuteAsync(tweets.ToArray(), twitterUser, host, followers.ToArray());
 
             #region Validations
             activityPubService.VerifyAll();
             statusServiceMock.VerifyAll();
             followersDalMock.VerifyAll();
+            syncTweetDalMock.VerifyAll();
             #endregion
         }
 
@@ -509,15 +542,28 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
+
+            var syncTweetDalMock = new Mock<ISyncTweetsPostgresDal>(MockBehavior.Strict);
+            foreach (var tweetId in new[] { tweetId2, tweetId3 })
+            {
+                syncTweetDalMock
+                    .Setup(x => x.SaveTweetAsync(
+                        It.Is<SyncTweet>(y => y.Acct == twitterHandle
+                                              && y.TweetId == tweetId
+                                              && y.Inbox == $"https://{host}{inbox}"
+                                              && y.PublishedAt != default)))
+                    .ReturnsAsync(-1);
+            }
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object, syncTweetDalMock.Object);
             await task.ExecuteAsync(tweets.ToArray(), twitterUser, host, followers.ToArray());
 
             #region Validations
             activityPubService.VerifyAll();
             statusServiceMock.VerifyAll();
             followersDalMock.VerifyAll();
+            syncTweetDalMock.VerifyAll();
             #endregion
         }
 
@@ -621,9 +667,18 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
+
+            var syncTweetDalMock = new Mock<ISyncTweetsPostgresDal>(MockBehavior.Strict);
+            syncTweetDalMock
+                    .Setup(x => x.SaveTweetAsync(
+                        It.Is<SyncTweet>(y => y.Acct == twitterHandle
+                                              && y.TweetId == tweetId2
+                                              && y.Inbox == $"https://{host}{inbox}"
+                                              && y.PublishedAt != default)))
+                    .ReturnsAsync(-1);
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object, syncTweetDalMock.Object);
 
             try
             {
@@ -635,6 +690,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 activityPubService.VerifyAll();
                 statusServiceMock.VerifyAll();
                 followersDalMock.VerifyAll();
+                syncTweetDalMock.VerifyAll();
                 #endregion
             }
         }
@@ -720,15 +776,18 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
+
+            var syncTweetDalMock = new Mock<ISyncTweetsPostgresDal>(MockBehavior.Strict);
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object, syncTweetDalMock.Object);
             await task.ExecuteAsync(tweets.ToArray(), twitterUser, host, followers.ToArray());
 
             #region Validations
             activityPubService.VerifyAll();
             statusServiceMock.VerifyAll();
             followersDalMock.VerifyAll();
+            syncTweetDalMock.VerifyAll();
             #endregion
         }
 
@@ -800,9 +859,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
+
+            var syncTweetDalMock = new Mock<ISyncTweetsPostgresDal>(MockBehavior.Strict);
             #endregion
 
-            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object);
+            var task = new SendTweetsToSharedInboxTask(activityPubService.Object, statusServiceMock.Object, followersDalMock.Object, settings, loggerMock.Object, syncTweetDalMock.Object);
 
             try
             {
@@ -815,6 +876,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 activityPubService.VerifyAll();
                 statusServiceMock.VerifyAll();
                 followersDalMock.VerifyAll();
+                syncTweetDalMock.VerifyAll();
                 #endregion
             }
         }

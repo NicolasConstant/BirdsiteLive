@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
@@ -16,7 +17,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
         Task ExecuteAsync(ExtractedTweet[] tweets, SyncTwitterUser user, string host, Follower[] followersPerInstance);
     }
 
-    public class SendTweetsToSharedInboxTask : ISendTweetsToSharedInboxTask
+    public class SendTweetsToSharedInboxTask : SendTweetsTaskBase, ISendTweetsToSharedInboxTask
     {
         private readonly IStatusService _statusService;
         private readonly IActivityPubService _activityPubService;
@@ -25,7 +26,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
         private readonly ILogger<SendTweetsToSharedInboxTask> _logger;
 
         #region Ctor
-        public SendTweetsToSharedInboxTask(IActivityPubService activityPubService, IStatusService statusService, IFollowersDal followersDal, InstanceSettings settings, ILogger<SendTweetsToSharedInboxTask> logger)
+        public SendTweetsToSharedInboxTask(IActivityPubService activityPubService, IStatusService statusService, IFollowersDal followersDal, InstanceSettings settings, ILogger<SendTweetsToSharedInboxTask> logger, ISyncTweetsPostgresDal syncTweetsPostgresDal): base(syncTweetsPostgresDal)
         {
             _activityPubService = activityPubService;
             _statusService = statusService;
@@ -61,6 +62,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                         {
                             var note = _statusService.GetStatus(user.Acct, tweet);
                             await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), host, inbox);
+                            await SaveSyncTweetAsync(user.Acct, tweet.Id, host, inbox);
                         }
                     }
                     catch (ArgumentException e)
