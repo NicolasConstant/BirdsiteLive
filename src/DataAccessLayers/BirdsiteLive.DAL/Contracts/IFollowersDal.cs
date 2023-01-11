@@ -7,6 +7,7 @@ namespace BirdsiteLive.DAL.Contracts
     public interface IFollowersDal
     {
         Task<Follower> GetFollowerAsync(string acct, string host);
+        Task<Follower> GetFollowerAsync(string actorId);
         Task CreateFollowerAsync(string acct, string host, string inboxRoute, string sharedInboxRoute, string actorId, int[] followings = null,
             Dictionary<int, long> followingSyncStatus = null);
         Task<Follower[]> GetFollowersAsync(int followedUserId);

@@ -9,6 +9,7 @@ namespace BirdsiteLive.Domain.BusinessUseCases
     {
         Task ExecuteAsync(Follower follower);
         Task ExecuteAsync(string followerUsername, string followerDomain);
+        Task ExecuteAsync(string actorId);
     }
     
     public class ProcessDeleteUser : IProcessDeleteUser
@@ -28,6 +29,15 @@ namespace BirdsiteLive.Domain.BusinessUseCases
         {
             // Get Follower and Twitter Users
             var follower = await _followersDal.GetFollowerAsync(followerUsername, followerDomain);
+            if (follower == null) return;
+
+            await ExecuteAsync(follower);
+        }
+
+        public async Task ExecuteAsync(string actorId)
+        {
+            // Get Follower and Twitter Users
+            var follower = await _followersDal.GetFollowerAsync(actorId);
             if (follower == null) return;
 
             await ExecuteAsync(follower);

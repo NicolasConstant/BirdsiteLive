@@ -280,15 +280,21 @@ namespace BirdsiteLive.Domain
         public async Task<bool> DeleteRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders,
             ActivityDelete activity, string body)
         {
-            // Validate
-            var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders, body);
-            if (!sigValidation.SignatureIsValidated) return false;
+            if (activity.apObject is string apObject)
+            {
+                if (!string.Equals(activity.actor.Trim(), apObject.Trim(), StringComparison.InvariantCultureIgnoreCase)) return true;
 
-            // Remove user and followings
-            var followerUserName = SigValidationResultExtractor.GetUserName(sigValidation);
-            var followerHost = SigValidationResultExtractor.GetHost(sigValidation);
+                try
+                {
+                    // Validate
+                    var sigValidation = await ValidateSignature(activity.actor, signature, method, path, queryString, requestHeaders, body);
+                    if (!sigValidation.SignatureIsValidated) return false;
+                }
+                catch (FollowerIsGoneException){}
 
-            await _processDeleteUser.ExecuteAsync(followerUserName, followerHost);
+                // Remove user and followings
+                await _processDeleteUser.ExecuteAsync(activity.actor.Trim());
+            }
 
             return true;
         }
