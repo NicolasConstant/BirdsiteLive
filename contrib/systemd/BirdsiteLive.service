@@ -1,0 +1,15 @@
+[Unit]
+Description=BirdsiteLive
+Wants=network.target
+Wants=postgresql.target
+
+[Service]
+User=bsl
+Group=bsl
+Type=simple
+WorkingDirectory=/home/bsl/bsl/
+ExecStart=/home/bsl/bsl/BirdsiteLive
+ExecStop=/usr/bin/pkill BirdsiteLive
+
+[Install]
+WantedBy=multi-user.target
