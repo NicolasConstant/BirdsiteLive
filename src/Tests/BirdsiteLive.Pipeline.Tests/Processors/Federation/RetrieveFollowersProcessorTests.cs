@@ -9,7 +9,7 @@ using BirdsiteLive.Pipeline.Processors.Federation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace BirdsiteLive.Pipeline.Tests.Processors
+namespace BirdsiteLive.Pipeline.Tests.Processors.Federation
 {
     [TestClass]
     public class RetrieveFollowersProcessorTests

@@ -13,7 +13,7 @@ using BirdsiteLive.Twitter.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace BirdsiteLive.Pipeline.Tests.Processors
+namespace BirdsiteLive.Pipeline.Tests.Processors.Federation
 {
     [TestClass]
     public class RefreshTwitterUserStatusProcessorTests
@@ -60,7 +60,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var result = await processor.ProcessAsync(users.ToArray(), CancellationToken.None);
 
             #region Validations
-            Assert.AreEqual(2 , result.Length);
+            Assert.AreEqual(2, result.Length);
             Assert.IsTrue(result.Any(x => x.User.Id == userId1));
             Assert.IsTrue(result.Any(x => x.User.Id == userId2));
 
@@ -288,7 +288,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             twitterUserServiceMock
                 .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
                 .Throws(new Exception());
-            
+
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetTwitterUserAsync(It.Is<string>(y => y == acct2)))
@@ -360,7 +360,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             twitterUserServiceMock
                 .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
                 .Returns((TwitterUser)null);
-            
+
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetTwitterUserAsync(It.Is<string>(y => y == acct2)))
@@ -432,7 +432,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             twitterUserServiceMock
                 .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
                 .Returns((TwitterUser)null);
-            
+
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetTwitterUserAsync(It.Is<string>(y => y == acct2)))
@@ -506,7 +506,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 {
                     Protected = true
                 });
-            
+
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetTwitterUserAsync(It.Is<string>(y => y == acct2)))
@@ -581,7 +581,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 {
                     Protected = true
                 });
-            
+
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetTwitterUserAsync(It.Is<string>(y => y == acct2)))
@@ -609,14 +609,14 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             removeTwitterAccountActionMock.VerifyAll();
             #endregion
         }
-        
+
         [TestMethod]
         public async Task ProcessAsync_Error_NotInit_Test()
         {
             #region Stubs
             var userId1 = 1;
             var acct1 = "user1";
-            
+
             var users = new List<SyncTwitterUser>
             {
                 new SyncTwitterUser
@@ -640,7 +640,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             twitterUserServiceMock
                 .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
                 .Returns((TwitterUser)null);
-            
+
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetTwitterUserAsync(It.Is<string>(y => y == acct1)))
@@ -708,7 +708,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             twitterUserServiceMock
                 .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
                 .Throws(new RateLimitExceededException());
-            
+
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetTwitterUserAsync(It.Is<string>(y => y == acct2)))
