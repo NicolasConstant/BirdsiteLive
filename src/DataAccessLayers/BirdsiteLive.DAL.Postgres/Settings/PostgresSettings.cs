@@ -8,5 +8,6 @@
         public string TwitterUserTableName { get; set; } = "twitter_users";
         public string FollowersTableName { get; set; } = "followers";
         public string CachedTweetsTableName { get; set; } = "cached_tweets";
+        public string SynchronizedTweetsTableName { get; set; } = "sync_tweets";
     }
 }

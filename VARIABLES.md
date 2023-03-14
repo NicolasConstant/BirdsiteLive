@@ -53,6 +53,7 @@ If both whitelisting and blacklisting are set, only the whitelisting will be act
 * `Instance:UserCacheCapacity` (default: 10000) set the caching limit of the Twitter User retrieval. Must be higher than the number of synchronized accounts on the instance.
 * `Instance:IpWhiteListing` IP Whitelisting (separated by `;`), prevent usage of the instance from other IPs than those provided (if provided).
 * `Instance:EnableXRealIpHeader` (default: false) Enable support of X-Real-IP Header to get the remote IP (useful when using reverse proxy).
+* `Instance:MaxTweetRetention` (default: 20, min: 1, max: 90) Number of days before synchronized tweets get deleted
 
 # Docker Compose full example
 

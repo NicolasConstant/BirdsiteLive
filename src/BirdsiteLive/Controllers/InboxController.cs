@@ -49,14 +49,15 @@ namespace BirdsiteLive.Controllers
                         case "Delete":
                         {
                             var succeeded = await _userService.DeleteRequestedAsync(signature, r.Method, r.Path,
-                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers), activity as ActivityDelete, body);
+                                r.QueryString.ToString(), HeaderHandler.RequestHeaders(r.Headers),
+                                activity as ActivityDelete, body);
                             if (succeeded) return Accepted();
                             else return Unauthorized();
                         }
                     }
                 }
             }
-            catch (FollowerIsGoneException) { } //TODO: check if user in DB
+            catch (FollowerIsGoneException) { }
 
             return Accepted();
         }

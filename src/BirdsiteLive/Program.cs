@@ -29,6 +29,7 @@ namespace BirdsiteLive
                 .ConfigureServices(services =>
                 {
                     services.AddHostedService<FederationService>();
+                    services.AddHostedService<TweetCleanUpService>();
                 });
     }
 }

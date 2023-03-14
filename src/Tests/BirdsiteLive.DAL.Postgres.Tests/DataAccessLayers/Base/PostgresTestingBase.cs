@@ -19,6 +19,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers.Base
                 CachedTweetsTableName = "CachedTweetsTableName" + RandomGenerator.GetString(4),
                 FollowersTableName = "FollowersTableName" + RandomGenerator.GetString(4),
                 TwitterUserTableName = "TwitterUserTableName" + RandomGenerator.GetString(4),
+                SynchronizedTweetsTableName = "SynchronizedTweetsTableName" + RandomGenerator.GetString(4),
             };
             _tools = new PostgresTools(_settings);
         }
