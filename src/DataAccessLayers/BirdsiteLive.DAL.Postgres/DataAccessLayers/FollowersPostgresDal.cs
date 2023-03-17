@@ -82,6 +82,21 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task<Follower> GetFollowerAsync(string actorId)
+        {
+            var query = $"SELECT * FROM {_settings.FollowersTableName} WHERE actorid = @actorid";
+
+            actorId = actorId.ToLowerInvariant().Trim();
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = (await dbConnection.QueryAsync<SerializedFollower>(query, new { actorId })).FirstOrDefault();
+                return Convert(result);
+            }
+        }
+
         public async Task<Follower[]> GetFollowersAsync(int followedUserId)
         {
             if (followedUserId == default) throw new ArgumentException("followedUserId");

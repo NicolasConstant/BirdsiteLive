@@ -9,6 +9,7 @@ using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.DAL.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -22,6 +23,7 @@ namespace BirdsiteLive.Domain
         Task PostNewNoteActivity(Note note, string username, string noteId, string targetHost,
             string targetInbox);
         Task DeleteUserAsync(string username, string targetHost, string targetInbox);
+        Task DeleteNoteAsync(SyncTweet tweet);
     }
 
     public class WebFinger
@@ -106,6 +108,30 @@ namespace BirdsiteLive.Domain
                 _logger.LogError(e, "Error deleting {Username} to {Host}{Inbox}", username, targetHost, targetInbox);
                 throw;
             }
+        }
+
+        public async Task DeleteNoteAsync(SyncTweet tweet)
+        {
+            var acct = tweet.Acct.ToLowerInvariant().Trim();
+
+            var actor = $"https://{_instanceSettings.Domain}/users/{acct}";
+            var noteId = $"https://{_instanceSettings.Domain}/users/{acct}/statuses/{tweet.TweetId}";
+
+            var delete = new ActivityDelete
+            {
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{noteId}#delete",
+                type = "Delete",
+                actor = actor,
+                to = new[] { "https://www.w3.org/ns/activitystreams#Public" },
+                apObject = new Tombstone
+                {
+                    id = noteId,
+                    atomUrl = noteId
+                }
+            };
+
+            await PostDataAsync(delete, tweet.Host, actor, tweet.Inbox);
         }
 
         public async Task PostNewNoteActivity(Note note, string username, string noteId, string targetHost, string targetInbox)

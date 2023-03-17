@@ -6,6 +6,7 @@ using BirdsiteLive.DAL;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Moderation;
 using BirdsiteLive.Pipeline;
+using BirdsiteLive.Tools;
 using Microsoft.Extensions.Hosting;
 
 namespace BirdsiteLive.Services
@@ -32,6 +33,7 @@ namespace BirdsiteLive.Services
             try
             {
                 await _databaseInitializer.InitAndMigrateDbAsync();
+                InitStateSynchronization.IsDbInitialized = true;
                 await _moderationPipeline.ApplyModerationSettingsAsync();
                 await _statusPublicationPipeline.ExecuteAsync(stoppingToken);
             }

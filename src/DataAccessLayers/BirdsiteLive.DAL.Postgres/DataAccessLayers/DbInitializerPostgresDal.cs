@@ -23,7 +23,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
     public class DbInitializerPostgresDal : PostgresBase, IDbInitializerDal
     {
         private readonly PostgresTools _tools;
-        private readonly Version _currentVersion = new Version(2, 5);
+        private readonly Version _currentVersion = new Version(2, 6);
         private const string DbVersionType = "db-version";
 
         #region Ctor
@@ -136,7 +136,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 new Tuple<Version, Version>(new Version(2,1), new Version(2,2)),
                 new Tuple<Version, Version>(new Version(2,2), new Version(2,3)),
                 new Tuple<Version, Version>(new Version(2,3), new Version(2,4)),
-                new Tuple<Version, Version>(new Version(2,4), new Version(2,5))
+                new Tuple<Version, Version>(new Version(2,4), new Version(2,5)),
+                new Tuple<Version, Version>(new Version(2,5), new Version(2,6))
             };
         }
 
@@ -184,6 +185,23 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 var addDeletedToAcct = $@"ALTER TABLE {_settings.TwitterUserTableName} ADD deleted BOOLEAN";
                 await _tools.ExecuteRequestAsync(addDeletedToAcct);
             }
+            else if (from == new Version(2, 5) && to == new Version(2, 6))
+            {
+                // Create Synchronized Tweets table
+                var createFollowers = $@"CREATE TABLE {_settings.SynchronizedTweetsTableName}
+		        (
+                    id SERIAL PRIMARY KEY,
+                    
+                    acct VARCHAR(50) NOT NULL,
+                    tweetId BIGINT NOT NULL,
+                    inbox VARCHAR(2048) NOT NULL,
+                    host VARCHAR(253) NOT NULL,
+                    publishedAt TIMESTAMP (2) WITHOUT TIME ZONE NOT NULL,
+
+                    UNIQUE (acct, tweetId, inbox)
+		        );";
+                await _tools.ExecuteRequestAsync(createFollowers);
+            }
             else
             {
                 throw new NotImplementedException();
@@ -212,7 +230,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 $@"DROP TABLE {_settings.DbVersionTableName};",
                 $@"DROP TABLE {_settings.TwitterUserTableName};",
                 $@"DROP TABLE {_settings.FollowersTableName};",
-                $@"DROP TABLE {_settings.CachedTweetsTableName};"
+                $@"DROP TABLE {_settings.CachedTweetsTableName};",
+                $@"DROP TABLE {_settings.SynchronizedTweetsTableName};"
             };
 
             foreach (var r in dropsRequests)

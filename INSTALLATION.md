@@ -186,6 +186,70 @@ services:
 +       command: --interval 300
 ```
 
+## IP Whitelisting
+
+If you want to use the IP Whitelisting functionality (see related [variable](https://github.com/NicolasConstant/BirdsiteLive/blob/master/VARIABLES.md)) and you are using the nginx reverse proxy set as before, please add the following: 
+
+```
+sudo nano /etc/nginx/sites-enabled/{your-domain-name.com}
+```
+
+``` diff
+server {
+    listen        80;
+    server_name   {your-domain-name.com};
+    location / {
+        proxy_pass         http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade $http_upgrade;
+        proxy_set_header   Connection keep-alive;
+        proxy_set_header   Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
++       proxy_set_header   X-Real-IP $remote_addr;
+    }
+}
+```
+
+And edit the docker-compose file as follow: 
+
+```diff
+version: "3"
+
+networks:
+    birdsitelivenetwork:
+        external: false
+
+services:
+    server:
+        image: nicolasconstant/birdsitelive:latest
+        restart: always
+        container_name: birdsitelive
+        environment:
+            - Instance:Domain=domain.name
+            - Instance:AdminEmail=name@domain.ext
++           - Instance:IpWhiteListing=127.0.0.1;127.0.0.2
++           - Instance:EnableXRealIpHeader=true
+            - Db:Type=postgres
+            - Db:Host=db
+            - Db:Name=birdsitelive
+            - Db:User=birdsitelive
+            - Db:Password=birdsitelive
+            - Twitter:ConsumerKey=twitter.api.key
+            - Twitter:ConsumerSecret=twitter.api.key
+        networks:
+            - birdsitelivenetwork
+        ports:
+            - "5000:80"
+        depends_on:
+            - db
+
+    db:
+        image: postgres:9.6
+        [...]
+```
+
 ## More options 
 
 You can find more options available [here](https://github.com/NicolasConstant/BirdsiteLive/blob/master/VARIABLES.md)
