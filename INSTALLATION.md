@@ -64,16 +64,16 @@ On a Debian based distrib:
 
 ```
 sudo apt update
-sudo apt install nginx
+sudo apt install nginx # or httpd or apache2 depending on O/S
 ```
 
 Check nginx status: 
 
 ```
-sudo systemctl status nginx
+sudo systemctl status nginx # or httpd or apache2 depending on O/S
 ```
 
-### Create nginx configuration
+### Create nginx configuration (if not using Apache)
 
 Create your nginx configuration
 
@@ -108,6 +108,36 @@ sudo service nginx start
 sudo service nginx restart
 ```
 
+### Create Apache configuration (if not using Nginx)
+.../conf.f/birdsite.conf
+```
+<virtualHost *:80>
+        servername {your-domain-name.com}
+        RewriteCond %{REQUEST_URI} !^/\.well-known.*
+        rewriteRule (.*) https://%{HTTP_HOST}$1
+        DocumentRoot /usr/share/letsencrypt/.well-known
+</virtualHost>
+
+<virtualHost *:443>
+        servername {your-domain-name.com}
+        
+        ProxyPass / http://localhost:5000/ Keepalive=On
+        RequestHeader set Host "birdsite.falkensweb.com"
+        ProxyPassReverse / https://birdsite.falkensweb.com
+
+        SSLEngine On
+        SSLCertificateFile /etc/letsencrypt/live/{your-domain-name.com}/cert.pem 
+        SSLCertificateKeyFile /etc/letsencrypt/live/{your-domain-name.com}/privkey.pem
+        SSLCertificateChainFile /etc/letsencrypt/live/{your-domain-name.com}/chain.pem
+</virtualHost>
+```
+
+Save the file and restart Apache
+
+```
+apachectl graceful
+```
+
 ### Secure your hosted application with SSL
 
 After having a domain name pointing to your instance, install and setup certbot:
@@ -115,6 +145,10 @@ After having a domain name pointing to your instance, install and setup certbot:
 ```
 sudo apt install certbot python3-certbot-nginx
 sudo certbot --nginx -d {your-domain-name.com}
+```
+Or for Apahce
+```
+sudo certbot certonly --cert-name {your-domain-name.com} -d {your-domain-name.com} --webroot --webroot-path /usr/share/letsencrypt/.well-known 
 ```
 
 Make sure you're redirecting all traffic to https when asked.
